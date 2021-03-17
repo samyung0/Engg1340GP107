@@ -17,13 +17,13 @@ Welcome to a text-based replica of the Hearts of Iron, one of the most intricate
 - [Other details and tips](*a5)
 - [Implementation] (to be worked on)
 
-## <a name="a1"></a> Goal of level
+## <a name="a1"></a> Goal
 
 Your objective is to capture all countries in the map. A country will capitulate once 50% of its land are captured. You also need to stay alive by keeping at least 50% of your land.
 
 ___1 second in real life equals 1 day in the game. Non-custom levels will be forced to end when 5 years pass in game (~30 mins).___
 
-## <a name="a2"></a> Prorgession of game
+## <a name="a2"></a> Progression of game
 
 You can perform the following actions anytime during the game:
 
