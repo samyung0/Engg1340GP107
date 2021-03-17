@@ -3,9 +3,9 @@
 Welcome to a text-based replica of the Hearts of Iron, one of the most intricate game of the century, where you build and devour other countries.
 
 ## Content
-
 - [Goal of level](*a1)
 - [Progression of game](*a2)
+- [Map design and coordinate system](*map)
 - [Techinal details](*a3)
   
     - [Buildings](*buildings)
@@ -16,8 +16,7 @@ Welcome to a text-based replica of the Hearts of Iron, one of the most intricate
 - [Advice for beginner](*a4)
 - [Other details and tips](*a5)
 - [Implementation] (to be worked on)
-
-## <a name="a1"></a> Goal
+## <a id="a1">Goal</a>
 
 Your objective is to capture all countries in the map. A country will capitulate once 50% of its land are captured. You also need to stay alive by keeping at least 50% of your land.
 
@@ -43,3 +42,7 @@ To prepare attacking, you must first train some troops. You may not need to form
 You may also, but not required, to plan the battle line, e.g. immediately attack another connected piece of land after the current one so no reinforcement will arrive so quickly.
 
 The outcome of the battle depends on the types and amount of troops you and the enemy have, the attack bonuses, the air support and the terrain. (refer to [Battling](*battle) for more details)
+
+You can initiate an attack at anytime by either assigning individual troops or an entire army. But note that the opposing country will then actively attack you even you fell back.
+
+Some random countries may initiate attack on you with a small percentage, which when happened, will notify you to stop attacking other countries and defend.
