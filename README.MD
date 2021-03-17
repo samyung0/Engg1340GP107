@@ -3,18 +3,18 @@
 Welcome to a text-based replica of the Hearts of Iron, one of the most intricate game of the century, where you build and devour other countries.
 
 ## Content
-- [Goal of level](*a1)
-- [Progression of game](*a2)
-- [Map design and coordinate system](*map)
-- [Techinal details](*a3)
+- [Goal of level](#a1)
+- [Progression of game](#a2)
+- [Map design and coordinate system](#map)
+- [Techinal details](#a3)
   
-    - [Buildings](*buildings)
-    - [Troops training](*troops)
-    - [Army Editing](*army)
-    - [Battle planning](*plan)
-    - [Battling](*battle)
-- [Advice for beginner](*a4)
-- [Other details and tips](*a5)
+    - [Buildings](#buildings)
+    - [Troops training](#troops)
+    - [Army Editing](#army)
+    - [Battle planning](#plan)
+    - [Battling](#battle)
+- [Advice for beginner](#a4)
+- [Other details and tips](#a5)
 - [Implementation] (to be worked on)
 ## <a id="a1">Goal</a>
 
@@ -26,12 +26,12 @@ ___1 second in real life equals 1 day in the game. Non-custom levels will be for
 
 You can perform the following actions anytime during the game:
 
-1. [Buildings](*buildings)
-2. [Researching](*research)
-3. [Troops training](*troops)
-4. [Army Editing](*army)
-5. [Battle planning](*plan)
-6. [Battling](*battle)
+1. [Buildings](#buildings)
+2. [Researching](#research)
+3. [Troops training](#troops)
+4. [Army Editing](#army)
+5. [Battle planning](#plan)
+6. [Battling](#battle)
   
 Simply put, getting more buildings will boost your resources available for building more buildings and training troops.
 
@@ -41,7 +41,7 @@ To prepare attacking, you must first train some troops. You may not need to form
 
 You may also, but not required, to plan the battle line, e.g. immediately attack another connected piece of land after the current one so no reinforcement will arrive so quickly.
 
-The outcome of the battle depends on the types and amount of troops you and the enemy have, the attack bonuses, the air support and the terrain. (refer to [Battling](*battle) for more details)
+The outcome of the battle depends on the types and amount of troops you and the enemy have, the attack bonuses, the air support and the terrain. (refer to [Battling](#battle) for more details)
 
 You can initiate an attack at anytime by either assigning individual troops or an entire army. But note that the opposing country will then actively attack you even you fell back.
 
