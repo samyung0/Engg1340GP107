@@ -50,9 +50,16 @@ You can initiate an attack at anytime by either assigning individual troops or a
 When you successfully captured 50% of the country's land, you will conquer the country and receives all its buildings only.
 
 ## <a name="map"></a>Map design and coordinate system
-For __other countries__, you will see the different regions of the other countries represented in coordinates, from A1, A2, to Z10 in text form. You can see some details of the land (defences/ buildings/ terrain, refer to [Researching](#research) for more info). You can choose which land to attack by specifying the coordinate of the land. Same rule applies to battle planning, using the coordinates to specify the attacking order.
+
+For __other countries__, you will see the different regions of the other countries represented in coordinates, from A1, A2, to Z10 in text form (no particular meaning for the alphabets or numbers).  by specifying . You can choose which land to attack by specifying the coordinate of the land. Same rule applies to battle planning, using the coordinates to specify the attacking order.
 
 For __your own country__, you will not see a coordinate system, but everything combined instead since you will not get attacked.
+
+___Commands:___
+
+- __map__ : _show all countries' name_
+
+- __map [name]__: _show all regions (coordinate) with the terrain and amount of troops for the named country, and the percentage of winning (if in easy difficulty)
 
 ## <a name="a3"></a>Technical details
 - ### <a name="building"></a>Building
@@ -67,6 +74,15 @@ For __your own country__, you will not see a coordinate system, but everything c
     5. research center (land: 2, manpower: 4, 30 days)
     6. infrastructure (land: 1, manpower: 1, 10 days)
     7. airport (land: 1, manpower: 4, 45 days)
+
+    ___Commands:___
+
+    - __build__ : _show all current buildings_
+
+    - __build --help__: _show all buildings and the resources it takes to build
+    - __build [name] (amount)__: build the named building type with amount default to 1 if not provided
+    - __remove [name] (amount)__: remove the named building type with amount default to 1 if not provided
+    - __remove [name] all__: remove all the name building type
 
     ### __Farm:__
 
