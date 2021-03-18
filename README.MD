@@ -356,7 +356,7 @@ ___Commands:___
 
     (From the calculation, _all troops_ will suffer from low strength should any of the food or equipment supplied is insufficient.)
 
-    Disruption ![equation](http://www.sciweavers.org/tex2img.php?eq=%3D%280.5-e%5E%7B-0.1%5Cleft%28%5Ctext%7Bbase%20value%7D-10%5Cln0.5%5Cright%29%7D%29%5C%3Bx%5C%3B100%5C%25&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0) (capped at 50%, start at 0%)
+    Disruption [![equation.png](https://i.postimg.cc/q7khYn7P/equation.png)](https://postimg.cc/PCR5vCYy) (capped at 50%, start at 0%)
 
     Attack debuff for different terrains (not applicable to planes):
 
