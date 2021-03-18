@@ -514,6 +514,8 @@ Here's a glossary of commands in random order.
 
 ## <a name="implementation"></a>Implementation
 
+Each number corresponds to the coding requirement listed in the file.
+
 1. -> random events through random levels
 2. -> STL containers for storing troops, buildings and regions</br>
    -> Classes for individual troop type, building type, and each battle</br>
