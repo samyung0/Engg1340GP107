@@ -356,7 +356,7 @@ ___Commands:___
 
     (From the calculation, _all troops_ will suffer from low strength should any of the food or equipment supplied is insufficient.)
 
-    Disruption [![equation.png](https://i.postimg.cc/q7khYn7P/equation.png)](https://postimg.cc/PCR5vCYy) (capped at 50%, start at 0%)
+    Disruption [![equation-1.png](https://i.postimg.cc/wBfXQFkf/equation-1.png)](https://postimg.cc/jWfnsHmP) (capped at 50%, start at 0%)
 
     Attack debuff for different terrains (not applicable to planes):
 
@@ -369,7 +369,7 @@ ___Commands:___
 
     Attack debuff = base value (terrain) * (1 - speed (troop)/ 50)
 
-    Air supremacy ![equation](http://www.sciweavers.org/tex2img.php?eq=y%3D%281-e%5E%7B%5Cfrac%7B%5Cln0.1%5C%3Bx%5C%3B%5Ctext%7Byour%20air%20attack%7D%7D%7B1.3%5C%3Bx%5C%3B%5Ctext%7Benemy%27s%20air%20attack%7D%7D%7D%29%5C%3Bx%5C%3B100%5C%25&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0) (reaches 90% when you have 1.3 times more air attack then the opponent)
+    Air supremacy [![equation.png](https://i.postimg.cc/q7khYn7P/equation.png)](https://postimg.cc/PCR5vCYy) (reaches 90% when you have 1.3 times more air attack then the opponent)
 
     Total air support = Air supremacy * 100 + 10
 
