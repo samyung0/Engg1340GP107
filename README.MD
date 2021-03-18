@@ -2,6 +2,9 @@
 
 Welcome to a text-based replica of the Hearts of Iron, one of the most intricate game of the century, where you build and devour other countries.
 
+Yung Chin Pang Sam 3035778682<br/>
+Wu Ziliang Louis 3035787061
+
 ## Content
   - [Goal](#a1)
   - [Progression of game](#a2)
@@ -10,6 +13,7 @@ Welcome to a text-based replica of the Hearts of Iron, one of the most intricate
   - [Advice for beginner](#a4)
   - [Other details and tips](#a5)
   - [Saving and Loading](#file)
+  - [Random levels](#random)
   - [Commands](#commands)
   - [Implementation](#implementation)
   
@@ -439,20 +443,26 @@ ___Commands:___
 
 You can save the game at anytime using the command
 
-- __save (filename)__: _save the game files to [name].json format if a filename is provided, save the game files to [level]-[yyyy]:[mm]:[dd]:[hh]:[mm]:[ss].json otherwise_
+- __save (filename)__: _save the game files to [name].json format if a filename is provided, save the game files to [level/ name (random levels)]-[yyyy]:[mm]:[dd]:[hh]:[mm]:[ss].json otherwise_
   
 You can also load each level form the files saved using the command
 
 - __load (filename)__: _load the level stored in [name].json if a filename is provided, load last saved level if otherwise_
 
+## <a name="random"></a>Random levels
+
+You can create a random levels with difficulty 1 to 5 with 1 being the easiest and 5 being the hardest. All maps and resources will be different. The time limit is capped to 30 mins.
+
+__Note there is no guarantee that you can beat the level.__
+
+___Commands:___
+
+- __create [name] (difficulty):__ _create a custom game with [name] (must be unique from other levels) with difficulty defaulted to 1 (easiest) if not provided_
+
 ## <a name="commands"></a>Commands
-
 Here's a glossary of commands in random order.
-
 - __status__ : _show all statuses, including resources, buildings, troops and regions in battle_
-
 - __map__ : _show all countries' name_
-
 - __map [name]__: _show all regions (coordinate) with the terrain and amount of troops for the named country, and the percentage of winning (if in easy difficulty)
 - __build__ : _show all current buildings and upgradable buildings_
 - __build --help__: _show all buildings and the resources it takes to build
@@ -479,7 +489,7 @@ Here's a glossary of commands in random order.
 - __plan__ : _show all battle plans and the associated armies_
 - __plan edit [name]__: _edit the plan that is assigned to the army with [name] in __edit mode__. If the army does have a battle plan, a new plan will be created._
 - __plan remove [name]__: _remove the plan that is assigned to the army with [name]._
-
+  
   _Within the plan edit mode:_
   - __target [country]__: _specify the country to be attacking (required before you cna add or minus any region)_
   - __add [region] (order)__: _add the region to be attacked in the order specified (defaulted to at the end of the queue) (__note you must take the land at region A before you can attack region B, refer to [Map design and coordinate system](#map) for more details__)
@@ -497,6 +507,19 @@ Here's a glossary of commands in random order.
 - __speed (1 or 2 or 3)__: _how many days will pass when 1 second passes in real life, defaulted to 1_
 - __save (name)__: _save the game files to [name].json format if a anme is provided, save the game files to [level]-[yyyy]:[mm]:[dd]:[hh]:[mm]:[ss].json otherwise_
 - __load (name)__: _load the level stored in [name].json if a name is provided, load last saved level if otherwise_
+- __create [name] (difficulty):__ _create a custom game with [name] (must be unique from other levels) with difficulty defaulted to 1 (easiest) if not provided_
 - __restart__: _restart the level and reset all stats_
 - __difficulty (easy or hard)__: _restart the level with difficulty easy/ hard_
 - __help__: _print out all commands_
+
+## <a name="implementation"></a>Implementation
+
+1. -> random events through random levels
+2. -> STL containers for storing troops, buildings and regions</br>
+   -> Classes for individual troop type, building type, and each battle</br>
+   -> Common data types such as integers for storing invidual value within each container and object
+3. -> By using STL containers such as vectors for purposes stated above</br>
+   -> creating new objects form classes/ subclasses</br>
+   -> Possibly multithreading from running multiple loops at the same time (may use heap memory instead of stack, not sure)
+4. -> Allowing the user to save and load game files from different levels
+5. -> Splitting all the classes (troop/ building types) into different header files
