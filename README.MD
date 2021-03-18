@@ -3,15 +3,15 @@
 Welcome to a text-based replica of the Hearts of Iron, one of the most intricate game of the century, where you build and devour other countries.
 
 ## Content
-  - [Content](#content)
   - [Goal](#a1)
   - [Progression of game](#a2)
   - [Map design and coordinate system](#map)
   - [Technical details](#a3)
   - [Advice for beginner](#a4)
   - [Other details and tips](#a5)
+  - [Saving and Loading](#file)
   - [Commands](#commands)
-  - [Implementation](to be worked on)
+  - [Implementation](#implementation)
   
 ## <a name="a1"></a>Goal
 
@@ -435,6 +435,16 @@ ___Commands:___
    G1 G2 G3          G7
       H2             H7</pre>
 
+## <a name="file"></a>Saving and Loading
+
+You can save the game at anytime using the command
+
+- __save (filename)__: _save the game files to [name].json format if a filename is provided, save the game files to [level]-[yyyy]:[mm]:[dd]:[hh]:[mm]:[ss].json otherwise_
+  
+You can also load each level form the files saved using the command
+
+- __load (filename)__: _load the level stored in [name].json if a filename is provided, load last saved level if otherwise_
+
 ## <a name="commands"></a>Commands
 
 Here's a glossary of commands in random order.
@@ -461,7 +471,7 @@ Here's a glossary of commands in random order.
 - __army edit [name]__: _edit the army with [name] in __edit mode__. If the army does not exist, a new army will be created._
 - __army remove [name]__: _disband the army with [name]. Note the troops will __not__ be lost._
   
-        _Within the army edit mode:_
+  _Within the army edit mode:_
   - __add [position] [type]__: _assign 1 unit of troop with type specfied to the position specfied (A1, A2...)_
   - __minus [position]__: _unassign the troop at position specified_
   - __reset__: _unassign all positions of the army_
@@ -470,7 +480,7 @@ Here's a glossary of commands in random order.
 - __plan edit [name]__: _edit the plan that is assigned to the army with [name] in __edit mode__. If the army does have a battle plan, a new plan will be created._
 - __plan remove [name]__: _remove the plan that is assigned to the army with [name]._
 
-        _Within the plan edit mode:_
+  _Within the plan edit mode:_
   - __target [country]__: _specify the country to be attacking (required before you cna add or minus any region)_
   - __add [region] (order)__: _add the region to be attacked in the order specified (defaulted to at the end of the queue) (__note you must take the land at region A before you can attack region B, refer to [Map design and coordinate system](#map) for more details__)
   - __minus [region]__: _remove the region specified_
@@ -485,6 +495,8 @@ Here's a glossary of commands in random order.
 - __battle [country] auto true__ : _let the computer take control over your troops in attacking the [country]_
 - __battle [country] auto false__ : _take control over your troops_
 - __speed (1 or 2 or 3)__: _how many days will pass when 1 second passes in real life, defaulted to 1_
+- __save (name)__: _save the game files to [name].json format if a anme is provided, save the game files to [level]-[yyyy]:[mm]:[dd]:[hh]:[mm]:[ss].json otherwise_
+- __load (name)__: _load the level stored in [name].json if a name is provided, load last saved level if otherwise_
 - __restart__: _restart the level and reset all stats_
 - __difficulty (easy or hard)__: _restart the level with difficulty easy/ hard_
 - __help__: _print out all commands_
