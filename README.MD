@@ -45,7 +45,7 @@ You may also, but not required, to plan the battle line, e.g. immediately attack
 
 The outcome of the battle depends on the types and amount of troops you and the enemy have, the attack bonuses, the air support and the terrain. (refer to [Battling](#battle) for more details)
 
-You can initiate an attack at anytime by either assigning individual troops or an entire army. Each troop has their own hp and will regenerate at an intial rate of __4__ hp per day when being attacked. ___Note that other countries will not attack you, only you will be the one attacking___
+You can initiate an attack at anytime by either assigning individual troops or an entire army. Each troop has their own hp and will regenerate at an intial rate of __4__ hp (base) per day when being attacked. ___Note that other countries will not attack you, only you will be the one attacking___
 
 When you successfully captured 50% of the country's land, you will conquer the country and receives all its buildings only.
 
@@ -298,7 +298,7 @@ ___Commands:___
 
     Defences are how much attack a troop can sustain before losing hp, affected by strength of troop.
 
-    __An attack is dealt by all troops to enemy and to us each day. And all troops will recover a base 4 hp per day if hp is not full. (Affected by food supply, infrastructure, disruption and researches.)__
+    __An attack is dealt by all troops to enemy and to us each day. And all troops will recover a base 4 hp per day if hp is not full. (Affected by food supply, disruption and researches.)__
 
     A troop dies when its hp reaches 0.
 
@@ -312,9 +312,23 @@ ___Commands:___
 
     (From the calculation, _all troops_ will suffer from low strength should any of the food or equipment supplied is insufficient.)
 
-    Disruption ![equation](http://www.sciweavers.org/tex2img.php?eq=%3D0.5-e%5E%7B-0.1%5Cleft%28Base%20Value-10%5Cln%5Cleft%280.5%5Cright%29%5Cright%29%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0)
+    Disruption ![equation](http://www.sciweavers.org/tex2img.php?eq=%3D0.5-e%5E%7B-0.1%5Cleft%28Base%20Value-10%5Cln%5Cleft%280.5%5Cright%29%5Cright%29%7D%2A100%25&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0) (capped at 50%, start at 0%)
 
-    Soft attack = base value (troop) * strength * (1.1 bonus damage when in full strength)
+    Attack debuff for different terrains:
 
-    Decrease from attack: (Adjusted soft attack (to armor) + (hard attack - armor) * 1.5  - defences)
+    - Plain: 0%
+    - Hill: 2%
+    - River: 4%
+    - Mountain: 5%
+    - Snowland: 8%
+    - Desert: 10%
 
+    Total Soft attack = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption) * (1 - attack debuff)
+
+    Total Hard attack = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption/ 4) * (1 - attack debuff)
+
+    Decrease from attack per troop = (Total Soft attack (/2 if enemy has armor) + ((Total Hard attack - armor) * 1.1 if no armor then 0) - defences)/ (attacking armies + singly attacking troops) * (column percentage (in army)) * random value from 0 to 1 (exclusive)
+
+    Increase from recovery per troop = base value (research) * (1 - disruption/2) * (food supplied/ food required)^1.5
+
+    (Hence if you surround an enemy region, all troops their will not be able to recover because of 0 food supply)
