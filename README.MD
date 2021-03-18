@@ -97,11 +97,11 @@ ___Commands:___
 
     ___Commands:___
 
-    - __build__ : _show all current buildings_
-
+    - __build__ : _show all current buildings and upgradable buildings_
     - __build --help__: _show all buildings and the resources it takes to build
-    - __build [name] (amount)__: build the named building type with amount default to 1 if not provided
-    - __remove [name] (amount)__: remove the named building type with amount default to 1 if not provided
+    - __build [name] (amount)__: build the named building type with amount defaulted to 1 if not provided
+    - __upgrade [name] (amount)__: upgrade the named building types with amount defaulted to 1 if not provided
+    - __remove [name] (amount)__: remove the named building type with amount defaulted to 1 if not provided
     - __remove [name] all__: remove all the name building type
 
     ### __Farm:__
@@ -407,7 +407,7 @@ ___Commands:___
 
 - Encirclement
   
-  You can encircle 1 region of the enemy troops by taking over all 4 adjacent lands, and causing the food supply at B2 to drop to 0.
+  You can encircle 1 region of the enemy troops by taking over all 4 adjacent lands, and causing the food supply to drop to 0.
 
   For examples,
 
@@ -434,3 +434,57 @@ ___Commands:___
       F2             F7
    G1 G2 G3          G7
       H2             H7</pre>
+
+## <a name="commands"></a>Commands
+
+Here's a glossary of commands in random order.
+
+- __status__ : _show all statuses, including resources, buildings, troops and regions in battle_
+
+- __map__ : _show all countries' name_
+
+- __map [name]__: _show all regions (coordinate) with the terrain and amount of troops for the named country, and the percentage of winning (if in easy difficulty)
+- __build__ : _show all current buildings and upgradable buildings_
+- __build --help__: _show all buildings and the resources it takes to build
+- __build [name] (amount)__: build the named building type with amount defaulted to 1 if not provided
+- __upgrade [name] (amount)__: upgrade the named building types with amount defaulted to 1 if not provided
+- __remove [name] (amount)__: remove the named building type with amount defaulted to 1 if not provided
+- __remove [name] all__: remove all the name building type
+- __research__ : _show all researches that can be researched and is researching_
+- __research --help__: _show all researches and the time it takes to build_
+- __research [type]__: _research the area specified by the type._
+- __troop__ : _show all trained troops (both land and air) and their status_
+- __train [type] (amount)__: _train the type of troop specified with amount defaulted to 1_
+- __remove [type] (amount)__: _remove the type of troops specified with amount defaulted to 1 (same command used to remove buildings)_
+- __train --help__: _list all troops and their statuses_
+- __army__ : _show all edited armies with their statuses_
+- __army edit [name]__: _edit the army with [name] in __edit mode__. If the army does not exist, a new army will be created._
+- __army remove [name]__: _disband the army with [name]. Note the troops will __not__ be lost._
+  
+        _Within the army edit mode:_
+  - __add [position] [type]__: _assign 1 unit of troop with type specfied to the position specfied (A1, A2...)_
+  - __minus [position]__: _unassign the troop at position specified_
+  - __reset__: _unassign all positions of the army_
+  - __exit__: _save the army template and exit the edit mode_
+- __plan__ : _show all battle plans and the associated armies_
+- __plan edit [name]__: _edit the plan that is assigned to the army with [name] in __edit mode__. If the army does have a battle plan, a new plan will be created._
+- __plan remove [name]__: _remove the plan that is assigned to the army with [name]._
+
+        _Within the plan edit mode:_
+  - __target [country]__: _specify the country to be attacking (required before you cna add or minus any region)_
+  - __add [region] (order)__: _add the region to be attacked in the order specified (defaulted to at the end of the queue) (__note you must take the land at region A before you can attack region B, refer to [Map design and coordinate system](#map) for more details__)
+  - __minus [region]__: _remove the region specified_
+  - __reset__: _remove all regions in the battle plan_
+  - __exit__: _save the plan and exit the edit mode_
+- __battle status__ : _show all troops in war, available for war, regions currently in battle and their stats_
+- __battle status [region]__ : _show all troops and armies in details, including the remaining troops in the army in different columns and the damage each troops are taking._
+- __battle plan start [name]__: _start the battle plan assigned to the army with [name]_
+- __battle plan stop [name]__: _stop the battle plan assigned to the army with [name] (equivalent to doing battle [region] remove [name])_
+- __battle [country] [region] add (name, (name, ...)) (troop, amount, (troop, amount, ...))__: _attack/ add troops to the [region] in [country] specified with the armies and troops specified (at least 1 unit must be present)_
+- __battle [country] [region] remove (name, (name, ...)) (troop, amount, (troop, amount, ...))__: _remove (retreat) troops from [region] in [country] specified with the armies and troops specified, defaulted to retreat all units if no troops are specified._
+- __battle [country] auto true__ : _let the computer take control over your troops in attacking the [country]_
+- __battle [country] auto false__ : _take control over your troops_
+- __speed (1 or 2 or 3)__: _how many days will pass when 1 second passes in real life, defaulted to 1_
+- __restart__: _restart the level and reset all stats_
+- __difficulty (easy or hard)__: _restart the level with difficulty easy/ hard_
+- __help__: _print out all commands_
