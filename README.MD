@@ -312,7 +312,7 @@ ___Commands:___
 
     (From the calculation, _all troops_ will suffer from low strength should any of the food or equipment supplied is insufficient.)
 
-    Disruption ![equation](http%3A%2F%2Fwww.sciweavers.org%2Ftex2img.php%3Feq%3D%253D0.5-e%255E%257B-0.1%255Cleft%2528Base%2520Value-10%255Cln%255Cleft%25280.5%255Cright%2529%255Cright%2529%257D%26bc%3DWhite%26fc%3DBlack%26im%3Djpg%26fs%3D12%26ff%3Darev%26edit%3D0)
+    Disruption ![equation](http://www.sciweavers.org/tex2img.php?eq=%3D0.5-e%5E%7B-0.1%5Cleft%28Base%20Value-10%5Cln%5Cleft%280.5%5Cright%29%5Cright%29%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0)
 
     Soft attack = base value (troop) * strength * (1.1 bonus damage when in full strength)
 
