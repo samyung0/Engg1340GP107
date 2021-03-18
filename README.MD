@@ -3,22 +3,16 @@
 Welcome to a text-based replica of the Hearts of Iron, one of the most intricate game of the century, where you build and devour other countries.
 
 ## Content
-- [Goal of level](#a1)
-- [Progression of game](#a2)
-- __[Map design and coordinate system](#map) (must read)__
-- [Techinal details](#a3)
-    - [Building](#building)
-    - [Researching](#research)
-    - [Troops training](#troops)
-    - [Army Editing](#army)
-    - [Battle planning](#plan)
-    - [Battling](#battle)
-- [Advice for beginner](#a4)
-- [Other details and tips](#a5)
-- [All commands](#command)
-- [Custom levels](#a6)
-- [Implementation] (to be worked on)
-## <a id="a1">Goal</a>
+  - [Content](#content)
+  - [Goal](#a1)
+  - [Progression of game](#a2)
+  - [Map design and coordinate system](#map)
+  - [Technical details](#a3)
+  - [Advice for beginner](#a4)
+  - [Other details and tips](#a5)
+  - [Implementation](to be worked on)
+  
+## <a name="a1"></a>Goal
 
 Your objective is to capture all countries in the map __within a time limit__. A country will capitulate once 50% of its land are captured.
 
@@ -37,23 +31,49 @@ You can perform the following actions anytime during the game:
   
 Simply put, getting more buildings will boost your resources available for building more buildings and training troops.
 
-Researching does not take any resources except time which varies from different types, some may give attack bonus or increased farm production just to name a few.
+Researching does not take any resources except time which varies from different types, some may give attack bonus or unlocking building upgrades just to name a few.
 
 To prepare attacking, you must first train some troops. You may group them into different armies to make it more organized.
 
-You may also, but not required, to plan the battle line, e.g. immediately attack another connected piece of land after the current one so no reinforcement will arrive so quickly.
+You may also, but not required, to plan a battle, e.g. immediately attack another region after the current one so no reinforcement will arrive so quickly.
 
 The outcome of the battle depends on the types and amount of troops you and the enemy have, the attack bonuses, the air support and the terrain. (refer to [Battling](#battle) for more details)
 
-You can initiate an attack at anytime by either assigning individual troops or an entire army. Each troop has their own hp and will regenerate at an intial rate of __4__ hp (base) per day when being attacked. ___Note that other countries will not attack you, only you will be the one attacking___
+You can initiate an attack at anytime by either assigning individual troops or an entire army. Each troop has their own hp and will regenerate at an intial rate of __4__ hp (base) per day when not in full health. <span style="color: tomato">___Note that other countries will not attack you, only you will be the one attacking.___</span>
 
 When you successfully captured 50% of the country's land, you will conquer the country and receives all its buildings only.
 
+___To view your country's status/ resources:___
+
+  ___Commands:___
+
+  - __status__ : _show all statuses, including resources, buildings, troops and regions in battle_
+
+<span style="color: tomato">___The command is automatically executed every 30 seconds.___</span>
+
 ## <a name="map"></a>Map design and coordinate system
 
-For __other countries__, you will see the different regions of the other countries represented in coordinates, from A1, A2, to Z10 in text form, with A representing the border of the country and B, C,... being the land deeper into the country. __You must first attack the country layer by layer (form A to B to C, etc).__ You can choose which land to attack by specifying the coordinate of the land. Same rule applies to battle planning, using the coordinates to specify the attacking order.
+For __other countries__, you will see the different regions of the other countries represented in coordinates, from A1, A2, to Z10, with A representing the border of the country and B, C,... being the land deeper into the country. __You must first attack the country layer by layer (form A to B to C, etc).__ You can choose which land to attack by specifying the coordinate of the land. Same rule applies to battle planning, using the coordinates to specify the attacking order.
 
 For __your own country__, you will not see a coordinate system, but everything combined instead since you will not get attacked.
+
+__The enemies' map must have all of the regions connected (having at least 1 neighbour, diagonals are not counted)__
+
+Exmaples of enemies' map:
+
+<pre>A1 A2 A3 A4 A5    A7
+   B2    B4 B5 B6 B7
+   C2 C3 C4 C5    C7
+D1 D2       D5</pre>
+
+<pre>A1 A2 A3 
+   B2    B4 B5
+   C2 C3 C4 C5 C6 C7
+D1 D2       D5
+E1 E2 E4 E4 E5 E6 E7
+F1 F2             F7
+G1                G7
+H1 H2             H7</pre>
 
 ___Commands:___
 
@@ -182,7 +202,7 @@ ___Commands:___
   1. Infantry
   2. Calvary
   3. Suicide bomber
-  4. Sniper
+  4. Artillery
   5. Logistics
   6. Armored cars
   7. Tank 1
@@ -207,18 +227,18 @@ ___Commands:___
   Details of each troop (1 unit):
   - __Infantry__: camp: 1, time: 10 days, soft attack: 10, hard attack: 2, defences: 25, speed: 5, equipment: 2, food: 2, hp: 100
   - __Calvary__: camp: 1, time: 10 days, soft attack: 8, hard attack: 1, defences: 20, speed: 10, equipment: 2, food: 2, hp: 150
-  - __Suicide bomber__: camp: 2, time: 20 days, soft attack: 30, hard attack: 15, defences: 5, equipment: 10, food: 2 (_suicide bombers are a one-time use, when you send them to battles, they will not return. Also, the damage output will be only __once__._), hp: N/A
-  - __Sniper__: camp: 2, time: 20 days, soft attack: 18, hard attack: 1, defences: 1, speed: 2, equipment: 2, food: 1, hp: 30
+  - __Suicide bomber__: camp: 2, time: 50 days, soft attack: 300, hard attack: 200, defences: 5, equipment: 10, food: 2 (_suicide bombers are a one-time use, when you send them to battles, they will not return. Also, the damage output will be only __once__ , only 1 day._), hp: N/A
+  - __Artillery__: camp: 2, time: 20 days, soft attack: 18, hard attack: 1, defences: 1, speed: 2, equipment: 2, food: 1, hp: 30
   - __Logistics__: camp: 1, time: 20 days, equipment: 2, food: 2 (_effect: increase all land troops within the same army's speed by 2 per unit and reduce food consumption by 1, max units per army: 2_), hp: 50
   - __Armored cars__: camp: 2, time: 30 days, soft attack: 18, hard attack: 10, armor: 10, defences: 30, speed: 15, equipment: 10, food: 6, hp: 200
   - __Tank 1__: camp: 3, time: 40 days, soft attack: 12, hard attack: 20, armor: 25, defences: 10, speed: 6, equipment: 15, food: 6, hp: 230
   - __Tank 2__: camp: 5, time: 60 days, soft attack: 12, hard attack: 50, armor: 35, defences: 12, speed: 8, equipment: 25, food: 8, hp: 300
   - __Close Air Support (cas)__: camp: 1, time: 30 days, soft attack: 15, hard attack: 15, air attack: 2, armor: 5, speed: 5, equipment: 10, food: 1 (_to support land troops by soft and hard attack_), hp: 50
-  - __Fighters__: camp: 1, time: 30 days, soft attack: 6, hard attack: 6, air attack: 8, armor: 12, speed: 8, equipment: 10, food: 1 (_to support Cas by taking down other enemy planes by air attack_), hp: 130
-  - __Bombers__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 10, air attack: 2, armor: 8, speed: 8, equipment: 15, food: 2 (_to distroy enemy's farm/ infrastructure and lower their reinforcement rate and possibly induce attrition_), hp: 80
-  - __Kamikaze__: camp: 4, time: 70 days, soft attack: 40, hard attack: 40, disruption: 5, air attack: 2, armor: 8, speed: 8, equipment: 10, food: 1 (_similar to suicide bombers, they will not return from battle and deals only __1__ damage output._), hp: N/A
+  - __Fighters__: camp: 1, time: 30 days, soft attack: 6, hard attack: 6, air attack: 8, armor: 12, equipment: 10, food: 1 (_to support Cas by taking down other enemy planes by air attack_), hp: 130
+  - __Bombers__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 10, air attack: 2, armor: 8, equipment: 15, food: 2 (_to distroy enemy's farm/ infrastructure and lower their reinforcement rate and possibly induce attrition_), hp: 80
+  - __Kamikaze__: camp: 4, time: 70 days, soft attack: 500, hard attack: 500, disruption: 5, air attack: 150, armor: 8, equipment: 10, food: 1 (_similar to suicide bombers, they will not return from battle and deals only __1__ damage output._), hp: N/A
 - ### <a name="army"></a>Army Editing
-  You are always encouraged to groups troops trained into army because not only can you use logistics (troop), you can also customize the layout and increase your attacking efficiency by battle plans. You can specify what troops you go first, then what troops stay behind. For example, it may be useful to put infantry/ tanks in the front and sniper at the back. The formation of an army is shown as below.
+  You are always encouraged to groups troops trained into army because not only can you use logistics (troop), you can also customize the layout and increase your attacking efficiency by battle plans. You can specify what troops you go first, then what troops stay behind. For example, it may be useful to put infantry/ tanks in the front and Artillery at the back. The formation of an army is shown as below.
 
   D1 C1 B1 A1
 
@@ -240,6 +260,8 @@ ___Commands:___
 
   _You may not need to occupy all the slots within the army, but say if you only put 1 troop in column A, or all except 1 troop in column A died, the remaining 1 troop will take all the 60% attack. So think carefully when editing._ 
 
+  ___Note the army name cannot coincide with the any troop's name. e.g. You cannot name the army to infrantry/ Infantry.___
+
    ___Commands:___
 
     - __army__ : _show all edited armies with their statuses_
@@ -260,9 +282,7 @@ ___Commands:___
 - ### <a name="plan"></a>Battle planning
     You can devise a battle plan as to specify the order of attacking: which region first, then second and so on. Once you activate the battle plan, the regions specified will be attacked automatically without any need of further actions.
 
-    __If any battle is deemed lost (losing 70% of all troops), or is forced to retreat manually, the troops will fall back to the preivously won region (if any). You can also specify the fallback region if you like during the retreat.__
-
-    __Once fallback starts, the troops will not attack again until you initiate attack again and the battle plan will be scrapped.__
+    _You can deactivate the battle plan or retreat the army anytime during the battle._
 
     You __cannot__ assign battle plan to a single troop and can only assign __1__ battle plan for each army.
 
@@ -288,21 +308,44 @@ ___Commands:___
 
     - __exit__: _save the plan and exit the edit mode_
 - ### <a name="battle"></a>Battling
-  This is probably the most complicated chapter of all and you can ignore this if not interested in the numbers.
 
-  - Attacking:
+    You can initiate a battle at any point in time by assigning armies or individual troops (for those not in an army). A battle is won once all troops on one side in the region die.
+
+    As mentioned before in [Map design and coordinate system](#map),  ___you must start by attacking region A, then B and so on and so forth___. As to what countries you want to invade first, it's entirely up to you.
+
+    You can add in more troops during a battle and withdraw the armies/ troops during the battle. If the army has a battle plan assigned to it, retreating means deactivating the plan. You can also manually deactivate the plan.
+
+    _You cannot, however, edit the army template or the battle plan during battle or retreat particular troops within the army (must retreat the entire army)._
+
+    ___Commands:___
+
+    - __battle status__ : _show all troops in war, available for war, regions currently in battle and their stats_
+
+    - __battle status [region]__ : _show all troops and armies in details, including the remaining troops in the army in different columns and the damage each troops are taking._
+
+    - __battle plan start [name]__: _start the battle plan assigned to the army with [name]_
+
+    - __battle plan stop [name]__: _stop the battle plan assigned to the army with [name] (equivalent to doing battle [region] remove [name])_
+
+    - __battle [country] [region] add (name, (name, ...)) (troop, amount, (troop, amount, ...))__: _attack/ add troops to the [region] in [country] specified with the armies and troops specified (at least 1 unit must be present)_
+
+    - __battle [country] [region] remove (name, (name, ...)) (troop, amount, (troop, amount, ...))__: _remove (retreat) troops from [region] in [country] specified with the armies and troops specified, defaulted to retreat all units if no troops are specified._
+
+  - More details on Attacking/ Defending:
   
-    Soft attacks are dealt on all land troops, reduced by half when troop has armor, affected by strength of troop, terrain and disruption.
+    Soft attacks are dealt on all land troops, reduced to a quarter when troop has armor, affected by strength of troop, terrain and disruption.
 
-    Hard attacks __are only dealt on land troops with armor__ (Armored cars and tanks), affected by strength of troop, terrain and disruption.
+    Hard attacks __are only dealt on land troops with armor__ (Armored cars and tanks), affected by strength of troop, terrain and disruption. If there are no armor present in the first 3 columns of the enemy army, then no troop will be take damage form the hard attacks.
+
+    Air attacks __are only dealt on planes__.
 
     Defences are how much attack a troop can sustain before losing hp, affected by strength of troop.
 
-    __An attack is dealt by all troops to enemy and to us each day. And all troops will recover a base 4 hp per day if hp is not full. (Affected by food supply, disruption and researches.)__
+    __An attack is dealt by all troops to enemy and to us once each day. And all troops will recover a base 4 hp per day if hp is not full. (Affected by food supply, disruption and researches.)__
 
     A troop dies when its hp reaches 0.
 
-    __Formula for change in hp per day per troop:__
+    __Formulas for all the items:__
 
     Supplied food = food required * (total food produced/ total food required (capped at 1, meaning sufficient food for all troops)) __In special cases when you surround 1 enemy region by occupying the 4 adjacent regions, you _cut off_ their supply routes and they receive 0 food no matter of their food production__ (see [Other details and tips](#a5) for more info)
 
@@ -312,9 +355,9 @@ ___Commands:___
 
     (From the calculation, _all troops_ will suffer from low strength should any of the food or equipment supplied is insufficient.)
 
-    Disruption ![equation](http://www.sciweavers.org/tex2img.php?eq=%3D0.5-e%5E%7B-0.1%5Cleft%28Base%20Value-10%5Cln%5Cleft%280.5%5Cright%29%5Cright%29%7D%2A100%25&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0) (capped at 50%, start at 0%)
+    Disruption ![equation](http://www.sciweavers.org/tex2img.php?eq=%3D%280.5-e%5E%7B-0.1%5Cleft%28%5Ctext%7Bbase%20value%7D-10%5Cln%5Cleft%280.5%5Cright%29%5Cright%29%7D%29%5C%3Bx%5C%3B100%5C%25&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0) (capped at 50%, start at 0%)
 
-    Attack debuff for different terrains:
+    Attack debuff for different terrains (not applicable to planes):
 
     - Plain: 0%
     - Hill: 2%
@@ -323,12 +366,70 @@ ___Commands:___
     - Snowland: 8%
     - Desert: 10%
 
-    Total Soft attack = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption) * (1 - attack debuff)
+    Attack debuff = base value (terrain) * (1 - speed (troop)/ 50)
 
-    Total Hard attack = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption/ 4) * (1 - attack debuff)
+    Air supremacy ![equation](http://www.sciweavers.org/tex2img.php?eq=%3D%281-e%5E%7B%5Cfrac%7B%5Cln0.1%5C%3Bx%5C%3B%5Ctext%7Byour%20air%20attack%7D%7D%7B1.3%5C%3Bx%5C%3B%5Ctext%7Benemies%27%20air%20attack%7D%7D%7D%29%5C%3Bx%5C%3B100%5C%25&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0) (reaches 90% when you have 1.3 times more air attack then the opponent)
 
-    Decrease from attack per troop = (Total Soft attack (/2 if enemy has armor) + ((Total Hard attack - armor) * 1.1 if no armor then 0) - defences)/ (attacking armies + singly attacking troops) * (column percentage (in army)) * random value from 0 to 1 (exclusive)
+    Total air support = Air supremacy * 100 + 10
 
-    Increase from recovery per troop = base value (research) * (1 - disruption/2) * (food supplied/ food required)^1.5
+    Soft attack per troop = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption) * (1 - attack debuff)
+
+    Hard attack per troop = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption/ 4) * (1 - attack debuff)
+
+    Decrease in hp from land attack per troop (non-armored) = (Total soft attack + air support) / (defending armies + singly defending troops) * (column percentage (in army)) * random value from 0 to 1 (exclusive) (sums up to 1 within the same column) - defences
+
+    Decrease in hp from land attack per troop (armored) = Decrease in hp from attack per troop (non-armored)/4 + (Total hard attack/ number of armored land troops - armor) * 1.1
+    
+    Decrease in hp from air attack per troop (plane) = Total air attack / number of planes - armor
+
+    Increase in hp from recovery per land troop = base value (research) * (1 - disruption/2) * (food supplied/ food required)^1.5
+
+    Increase in hp from recovery per air troop = base value (research) * (1 - disruption/2) * (food supplied/ food required)^1.5
 
     (Hence if you surround an enemy region, all troops their will not be able to recover because of 0 food supply)
+
+## <a name="a4"></a>Advice for beginner
+
+- Use the _auto battle_ feature where you designate a target country and the computer will automatically group up all the troops and armies available and try to capture 50% of the country's land (conquering it). Of course it will attack the regions will highest percentage of success but __you risk losing all your troops when all regions have low success rate__. <span style="color: tomato">__You cannot edit armies or battleplans or attack other regions when auto battle is active.__</span> It is automatically deactivated once all of your troops die or the country is captured.
+
+  ___Commands:___
+
+  - __battle [country] auto true__ : _let the computer take control over your troops in attacking the [country]_
+
+  - __battle [country] auto false__ : _take control over your troops_
+  
+- Choose the easy difficulty as it shows the chance of you capturing a region.
+- Always try to make sure you have enough food supply because it affects both your troops' strength and their recovery rate.
+- You can focus on only training infantries for the early stages because you can get pretty powerful with having only a lot of infantries.
+
+## <a name="a5"></a>Other details and tips
+
+- Encirclement
+  
+  You can encircle 1 region of the enemy troops by taking over all 4 adjacent lands, and causing the food supply at B2 to drop to 0.
+
+  For examples,
+
+  Taking over C2 in this map will encircle B2.<br>
+  Taking over E6 and F7 will encircle E7.<br>
+  Taking over C3, D1 and E2 will encircle D2.<br>
+
+  <pre>    A1 A2 A3 
+   B2    B4 B5
+   C2 C3 C4 C5 C6 C7
+   D1 D2       D5
+   E1 E2 E4 E4 E5 E6 E7
+   F1 F2             F7
+   G1                G7
+   H1 H2             H7</pre>
+
+   Taking over G2 in this map will encircle G1, G3 and H2 .
+
+  <pre>    A1 A2 A3 
+   B2    B4 B5
+   C2 C3 C4 C5 C6 C7
+   D1 D2       D5
+   E1 E2 E4 E4 E5 E6 E7
+      F2             F7
+   G1 G2 G3          G7
+      H2             H7</pre>
