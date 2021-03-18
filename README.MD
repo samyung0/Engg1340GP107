@@ -51,7 +51,7 @@ When you successfully captured 50% of the country's land, you will conquer the c
 
 ## <a name="map"></a>Map design and coordinate system
 
-For __other countries__, you will see the different regions of the other countries represented in coordinates, from A1, A2, to Z10 in text form, with A representing the border of the country and B, C,... being the land deeper into the country. You can choose which land to attack by specifying the coordinate of the land. Same rule applies to battle planning, using the coordinates to specify the attacking order.
+For __other countries__, you will see the different regions of the other countries represented in coordinates, from A1, A2, to Z10 in text form, with A representing the border of the country and B, C,... being the land deeper into the country. __You must first attack the country layer by layer (form A to B to C, etc).__ You can choose which land to attack by specifying the coordinate of the land. Same rule applies to battle planning, using the coordinates to specify the attacking order.
 
 For __your own country__, you will not see a coordinate system, but everything combined instead since you will not get attacked.
 
@@ -63,7 +63,7 @@ ___Commands:___
 
 ## <a name="a3"></a>Technical details
 - ### <a name="building"></a>Building
-    There are a total of 6 buildings that you can build, each occupying different amount of land and requiring different number of manpower to work on with different time to finish, and having different upgrades:
+    There are a total of 5 buildings that you can build, each occupying different amount of land and requiring different number of manpower to work on with different time to finish, and having different upgrades:
 
     _Note the manpower will return once the building is finished. It is not actually gone when you use it. Also, the land usage listed at each stage means what the total amount will be after upgrading, it's not accumulative._
 
@@ -119,16 +119,6 @@ ___Commands:___
 
     Stage 1 : land: 1, manpower: 1, 10 days
 
-    ### __Infrastructure:__
-
-    __To increase the efficiency of food and equipment delivery to troops, measured by _transportation_. More infrastructure increases the value respectively.__
-
-    Stage 1 : land: 1, manpower: 1, 10 days, 10 transportation
-
-    Stage 2 (locked): land: 1, manpower: 1, 20 days, 25 transportation (unlock by [Intermediate City Planning Research](#s4a))
-
-    Stage 3 (locked): land: 2, manpower: 1, 20 days, 40 transportation (unlock by [Advanced City Planning Research](#s4b))
-
     ### __Airport:__
 
     __To allow planes to be built. 1 airport can support exactly _5_ planes, not matter the plane type.__
@@ -156,10 +146,6 @@ ___Commands:___
   __Production Line__
     - <a name="s3a"></a>Intermediate: 15 days (unlock level 2 military factory)
     - <a name="s3b"></a>Advanced: 30 days (unlock level 3 military factory)
-
-  __City Planning__
-    - <a name="s4a"></a>Intermediate: 25 days (unlock level 2 infrastructure)
-    - <a name="s4b"></a>Advanced: 25 days (unlock level 3 infrastructure)
   
   __Land Doctrine__
     - Intermediate: 40 days (+20% damage dealt by each unit of land troop)
@@ -294,14 +280,41 @@ ___Commands:___
 
     - __target [country]__: _specify the country to be attacking (required before you cna add or minus any region)_
 
-    - __add [region] (order)__: _add the region to be attacked in the order specified (defaulted to at the end of the queue)_
+    - __add [region] (order)__: _add the region to be attacked in the order specified (defaulted to at the end of the queue) (__note you must take the land at region A before you can attack region B, refer to [Map design and coordinate system](#map) for more details__)
 
     - __minus [region]__: _remove the region specified_
 
     - __reset__: _remove all regions in the battle plan_
 
     - __exit__: _save the plan and exit the edit mode_
+- ### <a name="battle"></a>Battling
+  This is probably the most complicated chapter of all and you can ignore this if not interested in the numbers.
 
+  - Attacking:
+  
+    Soft attacks are dealt on all land troops, reduced by half when troop has armor, affected by strength of troop, terrain and disruption.
 
+    Hard attacks __are only dealt on land troops with armor__ (Armored cars and tanks), affected by strength of troop, terrain and disruption.
 
+    Defences are how much attack a troop can sustain before losing hp, affected by strength of troop.
+
+    __An attack is dealt by all troops to enemy and to us each day. And all troops will recover a base 4 hp per day if hp is not full. (Affected by food supply, infrastructure, disruption and researches.)__
+
+    A troop dies when its hp reaches 0.
+
+    __Formula for change in hp per day per troop:__
+
+    Supplied food = food required * (total food produced/ total food required (capped at 1, meaning sufficient food for all troops)) __In special cases when you surround 1 enemy region by occupying the 4 adjacent regions, you _cut off_ their supply routes and they receive 0 food no matter of their food production__ (see [Other details and tips](#a5) for more info)
+
+    Supplied equipment is the same as the supplied food.
+
+    Strength of troop = (supplied food/ food required + supplied equipment/ equipment required)/ 2 * 100% (if no food/ equipment is required, then the caluclation will not take the average, but rather 1 fraction or 100%)
+
+    (From the calculation, _all troops_ will suffer from low strength should any of the food or equipment supplied is insufficient.)
+
+    Disruption ![equation](http%3A%2F%2Fwww.sciweavers.org%2Ftex2img.php%3Feq%3D%253D0.5-e%255E%257B-0.1%255Cleft%2528Base%2520Value-10%255Cln%255Cleft%25280.5%255Cright%2529%255Cright%2529%257D%26bc%3DWhite%26fc%3DBlack%26im%3Djpg%26fs%3D12%26ff%3Darev%26edit%3D0)
+
+    Soft attack = base value (troop) * strength * (1.1 bonus damage when in full strength)
+
+    Decrease from attack: (Adjusted soft attack (to armor) + (hard attack - armor) * 1.5  - defences)
 
