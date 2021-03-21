@@ -1,7 +1,24 @@
-test2: test2.o
-	g++ -o test2 test2.o -lpthread
-test2.o: test2.cpp
-	g++ -pedantic-errors -std=c++11 -c test2.cpp -o test2.o
+CPPFLAGS += -pedantic-errors -std=c++11
+
+all: main
+
+main: objectFiles/main.o objectFiles/game.o objectFiles/io.o objectFiles/menu.o
+	g++ -o $@ $^ -pthread
+
+objectFiles/main.o: main.cpp game/game.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/game.o: game/game.cpp
+	g++ ${CPPFLAGS} -c $^ -o $@
+
+objectFiles/io.o: io/io.cpp
+	g++ ${CPPFLAGS} -c $^ -o $@
+
+objectFiles/menu.o: menu/menu.cpp
+	g++ ${CPPFLAGS} -c $^ -o $@
+
 clean:
-	rm -f *.o test
+	rm objectFiles/*
+	rm main
+	
 PHONY: clean
