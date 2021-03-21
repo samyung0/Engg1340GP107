@@ -525,3 +525,81 @@ Each number corresponds to the coding requirement listed in the file.
    -> Possibly multithreading from running multiple loops at the same time (may use heap memory instead of stack, not sure)
 4. -> Allowing the user to save and load game files from different levels
 5. -> Splitting all the classes (troop/ building types) into different header files
+
+### Flow explanation
+
+Implementation for multithreading:<br/>
+main thread </br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> calls game thread</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> start timer thread for recording daily (every second) changes </br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> ends game thread when appropriate (illustrated by typing in exit) </br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> ends timer thread when game thread ends
+```cpp
+#include <iostream>
+#include <thread>
+#include <string>
+#include <chrono>
+
+using namespace std;
+
+class Add {
+public:
+    int getTime() { return timer; }
+    void game()
+    {
+        // initiate timer thread
+        // async to game
+        thread thread1(&Add::interval, this);
+
+        while (true) {
+            string a;
+            getline(cin, a);
+            cout << "Inside the class you typed " << a << endl;
+            if (a == "exit")
+                break;
+        }
+
+        //terminate time thread
+        this->terminate = true;
+        cout << "terminating " << endl;
+
+        // join thread for exiting properly
+        thread1.join();
+        cout << "game thread id ended: " << this_thread::get_id() << endl;
+    }
+    void interval()
+    {
+        while (!terminate) {
+            this_thread::sleep_for(chrono::milliseconds(1000));
+            timer += 1000;
+            cout << "time is " << timer << endl;
+        }
+        cout << "timer thread id ended: " << this_thread::get_id() << endl;
+    }
+
+private:
+    int timer = 0;
+    bool terminate = false;
+};
+
+int main()
+{
+    string a;
+    Add obj;
+    bool started = false;
+    while (true) {
+        getline(cin, a);
+        cout << "You typed " << a << endl;
+        if (a == "start") {
+            thread thread1(&Add::game, obj);
+          // main (while loop) pauses
+            thread1.join();
+        }
+        if (a == "exit") {
+            cout << "exiting main" << endl;
+            break;
+        }
+    }
+    cout << "main thread id ended: " << this_thread::get_id() << endl;
+}
+```
