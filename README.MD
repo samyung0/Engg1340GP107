@@ -443,11 +443,11 @@ ___Commands:___
 
 You can save the game at anytime using the command
 
-- __save (filename)__: _save the game files to [name].json format if a filename is provided, save the game files to [level/ name (random levels)]-[yyyy]:[mm]:[dd]:[hh]:[mm]:[ss].json otherwise_
+- __save (filename)__: _save the game files to [name].txt format if a filename is provided, save the game files to [level/ name (random levels)]-[yyyy]:[mm]:[dd]:[hh]:[mm]:[ss].txt otherwise_
   
 You can also load each level form the files saved using the command
 
-- __load (filename)__: _load the level stored in [name].json if a filename is provided, load last saved level if otherwise_
+- __load (filename)__: _load the level stored in [name].txt if a filename is provided, load last saved level if otherwise_
 
 ## <a name="random"></a>Random levels
 
@@ -505,8 +505,8 @@ Here's a glossary of commands in random order.
 - __battle [country] auto true__ : _let the computer take control over your troops in attacking the [country]_
 - __battle [country] auto false__ : _take control over your troops_
 - __speed (1 or 2 or 3)__: _how many days will pass when 1 second passes in real life, defaulted to 1_
-- __save (name)__: _save the game files to [name].json format if a anme is provided, save the game files to [level]-[yyyy]:[mm]:[dd]:[hh]:[mm]:[ss].json otherwise_
-- __load (name)__: _load the level stored in [name].json if a name is provided, load last saved level if otherwise_
+- __save (name)__: _save the game files to [name].txt format if a anme is provided, save the game files to [level]-[yyyy]:[mm]:[dd]:[hh]:[mm]:[ss].txt otherwise_
+- __load (name)__: _load the level stored in [name].txt if a name is provided, load last saved level if otherwise_
 - __create [name] (difficulty):__ _create a custom game with [name] (must be unique from other levels) with difficulty defaulted to 1 (easiest) if not provided_
 - __restart__: _restart the level and reset all stats_
 - __difficulty (easy or hard)__: _restart the level with difficulty easy/ hard_
@@ -528,7 +528,9 @@ Each number corresponds to the coding requirement listed in the file.
 
 ### Flow explanation
 
-Flow: menu printing -> action starts -> action ends -> menu printing ...
+Flow: menu phase -> action phase starts -> action phase ends -> menu phase ...
+
+A thread is allocated for action phase and the main loop for menu phase will be paused once the actions phase starts.
 
 Implementation for multithreading:<br/>
 main thread </br>
