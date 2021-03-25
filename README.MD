@@ -54,8 +54,6 @@ ___To view your country's status/ resources:___
 
   - __status__ : _show all statuses, including resources, buildings, troops and regions in battle_
 
-<span style="color: tomato">___The command is automatically executed every 30 seconds.___</span>
-
 ## <a name="map"></a>Map design and coordinate system
 
 For __other countries__, you will see the different regions of the other countries represented in coordinates, from A1, A2, to Z10, with A representing the border of the country and B, C,... being the land deeper into the country. __You must first attack the country layer by layer (form A to B to C, etc).__ You can choose which land to attack by specifying the coordinate of the land. Same rule applies to battle planning, using the coordinates to specify the attacking order.
@@ -92,12 +90,13 @@ ___Commands:___
 
     _Note the manpower will return once the building is finished. It is not actually gone when you use it. Also, the land usage listed at each stage means what the total amount will be after upgrading, it's not accumulative._
 
+    __Also, land is limited and you may need to remove some buildings when insufficient.__
+
     1. farm (land: 3, manpower: 1, 10 days)
-    2. civlian factory (land: 1, manpower: 1, 10 days)
+    2. civilian factory (land: 1, manpower: 1, 10 days)
     3. military factory (land: 2, manpower: 2, 15 days)
     4. training camps (land: 1, manpower: 1, 10 days)
-    5. infrastructure (land: 1, manpower: 1, 10 days)
-    6. airport (land: 1, manpower: 4, 45 days)
+    5. airport (land: 1, manpower: 4, 45 days)
 
     ___Commands:___
 
@@ -184,9 +183,9 @@ ___Commands:___
     - Intermediate: 50 days (+10% land available for building, rounding off)
     - Advanced: 70 days (+30% land available for building, rounding off)
 
-  __Weapons__
-    - Intermediate: 20 days (+5% attacking damage for land troops)
-    - Advanced: 70 days (+10% attacking damage for land troops and planes)
+  __Weapon__
+    - Intermediate: 20 days (+5% attacking damage for tanks)
+    - Advanced: 70 days (+10% attacking damage for tanks and planes)
   
   __Training__
     - Intermediate: 30 days (-10% training time required to train any unit of land troop)
@@ -208,15 +207,15 @@ ___Commands:___
   2. Calvary
   3. Suicide bomber
   4. Artillery
-  5. Logistics
-  6. Armored cars
+  5. Logistic
+  6. Armored car
   7. Tank 1
   8. Tank 2
 
   Planes:
   1. Close air support
-  2. Fighters
-  3. Bombers
+  2. Fighter
+  3. Bomber
   4. Kamikaze
 
   ___Commands:___
@@ -234,13 +233,13 @@ ___Commands:___
   - __Calvary__: camp: 1, time: 10 days, soft attack: 8, hard attack: 1, defences: 20, speed: 10, equipment: 2, food: 2, hp: 150
   - __Suicide bomber__: camp: 2, time: 50 days, soft attack: 300, hard attack: 200, defences: 5, equipment: 10, food: 2 (_suicide bombers are a one-time use, when you send them to battles, they will not return. Also, the damage output will be only __once__ , only 1 day._), hp: N/A
   - __Artillery__: camp: 2, time: 20 days, soft attack: 18, hard attack: 1, defences: 1, speed: 2, equipment: 2, food: 1, hp: 30
-  - __Logistics__: camp: 1, time: 20 days, equipment: 2, food: 2 (_effect: increase all land troops within the same army's speed by 2 per unit and reduce food consumption by 1, max units per army: 2_), hp: 50
-  - __Armored cars__: camp: 2, time: 30 days, soft attack: 18, hard attack: 10, armor: 10, defences: 30, speed: 15, equipment: 10, food: 6, hp: 200
+  - __Logistic__: camp: 1, time: 20 days, equipment: 2, food: 2 (_effect: increase all land troops within the same army's speed by 2 per unit and reduce food consumption by 1, max units per army: 2_), hp: 50
+  - __Armored car__: camp: 2, time: 30 days, soft attack: 18, hard attack: 10, armor: 10, defences: 30, speed: 15, equipment: 10, food: 6, hp: 200
   - __Tank 1__: camp: 3, time: 40 days, soft attack: 12, hard attack: 20, armor: 25, defences: 10, speed: 6, equipment: 15, food: 6, hp: 230
   - __Tank 2__: camp: 5, time: 60 days, soft attack: 12, hard attack: 50, armor: 35, defences: 12, speed: 8, equipment: 25, food: 8, hp: 300
   - __Close Air Support (cas)__: camp: 1, time: 30 days, soft attack: 15, hard attack: 15, air attack: 2, armor: 5, speed: 5, equipment: 10, food: 1 (_to support land troops by soft and hard attack_), hp: 50
-  - __Fighters__: camp: 1, time: 30 days, soft attack: 6, hard attack: 6, air attack: 8, armor: 12, equipment: 10, food: 1 (_to support Cas by taking down other enemy planes by air attack_), hp: 130
-  - __Bombers__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 10, air attack: 2, armor: 8, equipment: 15, food: 2 (_to distroy enemy's farm/ infrastructure and lower their reinforcement rate and possibly induce attrition_), hp: 80
+  - __Fighter__: camp: 1, time: 30 days, soft attack: 6, hard attack: 6, air attack: 8, armor: 12, equipment: 10, food: 1 (_to support Cas by taking down other enemy planes by air attack_), hp: 130
+  - __Bomber__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 10, air attack: 2, armor: 8, equipment: 15, food: 2 (_to distroy enemy's farm/ infrastructure and lower their reinforcement rate and possibly induce attrition_), hp: 80
   - __Kamikaze__: camp: 4, time: 70 days, soft attack: 500, hard attack: 500, disruption: 5, air attack: 150, armor: 8, equipment: 10, food: 1 (_similar to suicide bombers, they will not return from battle and deals only __1__ damage output._), hp: N/A
 - ### <a name="army"></a>Army Editing
   You are always encouraged to groups troops trained into army because not only can you use logistics (troop), you can also customize the layout and increase your attacking efficiency by battle plans. You can specify what troops you go first, then what troops stay behind. For example, it may be useful to put infantry/ tanks in the front and Artillery at the back. The formation of an army is shown as below.
@@ -377,6 +376,8 @@ ___Commands:___
 
     Total air support = Air supremacy * 100 + 10
 
+    Air attack = base value (plane) * supplied equipment/ equipment needed
+
     Soft attack per troop = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption) * (1 - attack debuff)
 
     Hard attack per troop = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption/ 4) * (1 - attack debuff)
@@ -438,6 +439,11 @@ ___Commands:___
       F2             F7
    G1 G2 G3          G7
       H2             H7</pre>
+
+- Level number coloring
+
+  Yellow indicates you have beaten the level in easy mode.<br/>
+  Green indicates syou have beaten the level in hard mode.
 
 ## <a name="file"></a>Saving and Loading
 

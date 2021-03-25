@@ -12,6 +12,7 @@
 #include "menu/menu.h"
 #include "action/stat/stat.h"
 #include "action/setting/setting.h"
+#include "action/level/level.h"
 
 #include "class/game/game.h"
 #include "class/menuWrapper/menuWrapper.h"
@@ -19,11 +20,13 @@
 #define TOTAL_LEVELS 9
 #define TOTAL_DIFFICULTY 2
 
+// TODO
+// add speed settings (action/setting/setting, menu/setting)
+
 int init(MenuWrapper& gameStats, std::string& error);
 
 int main()
 {
-
   // functions for displaying menus
   // input y and x indices for currently selected element
   std::vector<void (*)(int, int, MenuWrapper&)> select{&print_menuSelect, &print_playSelect, &print_settingSelect, &print_levelSelect};
@@ -44,9 +47,9 @@ int main()
       {{-11, -12, -13, -14, -15}}};
 
   // functions for actions
-  // passing menuPhase by reference
+  // passing menuPhase and gameStats by reference
   // modify the value during the action
-  std::vector<void (*)(int &menuPhase, int prevMenuPhase, MenuWrapper& gameStats)> action = {NULL, &statf, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &setting1af, &setting1bf};
+  std::vector<void (*)(int &menuPhase, int prevMenuPhase, MenuWrapper& gameStats)> action = {NULL, &statf, &level1f, &level2f, &level3f, &level4f, &level5f, &level6f, &level7f, &level8f, &level9f, NULL, NULL, NULL, NULL, NULL, NULL, &setting1af, &setting1bf};
 
   // data storage in a struct
   MenuWrapper gameStats(TOTAL_LEVELS, TOTAL_DIFFICULTY);
@@ -60,8 +63,10 @@ int main()
     return 0;
   }
 
+  // vector of pointers to objects of all games played and playing (allow the use of dynamic memory)
+  std::vector<Game*> allGames;
+
   char input;
-  int arrowKey;
   int menuPhase = 0;
   int menuPhaseSelect[2] = {0, 0};
 
@@ -124,6 +129,18 @@ int main()
         // using ref to call by reference to thread
         std::thread actionThread((*action[-menuPhase]), std::ref(menuPhase), prevMenuPhase, std::ref(gameStats));
         actionThread.join();
+
+        if(menuPhase == 999){
+          // push new game
+          allGames.push_back(new Game(gameStats));
+
+          // start game
+          std::thread actionThread(&Game::start,*allGames.back());
+
+          actionThread.join();
+          menuPhase = prevMenuPhase;
+          std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
         (*select[menuPhase])(menuPhaseSelect[0], menuPhaseSelect[1], gameStats);
       }
     }

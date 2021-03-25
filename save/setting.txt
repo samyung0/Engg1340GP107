@@ -1,1 +1,2 @@
-showStatusPeriodically=1
+showStatusPeriodically=0
+speed=1000
