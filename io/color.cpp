@@ -2,7 +2,7 @@
 #include <string>
 
 // format text to give colors
-// input text and target color as c strings
+// input text and target color as strings
 // output formatted text as string
 std::string color(const std::string& text, const std::string& color)
 {

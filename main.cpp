@@ -22,6 +22,7 @@
 
 // TODO
 // add speed settings (action/setting/setting, menu/setting)
+// check for unsaved games when exit
 
 int init(MenuWrapper &gameStats, std::string &error);
 
@@ -32,26 +33,27 @@ int main()
   std::vector<void (*)(int, int, MenuWrapper &)> select{&print_menuSelect, &print_playSelect, &print_settingSelect, &print_levelSelect};
 
   // map to index of functions for displaying menus
-  // positive: menu phase
-  // negative: action phase
   std::vector<std::vector<std::vector<int>>> map{
       // play, settings, show version -> action 1, quit program -> action 999 (special case)
       {{1}, {2}, {-1}, {-999}},
+
       // (play): level, random game, -> action 16, go back to phase 0
       {{3}, {4}, {-16}, {0}},
+
       // (settings): on 30s show status -> action 17, off -> action 18, back to phase 0
       {{-17, -18}, {0}},
+
       // (levels) -> action 2 to 10 // 9 levels, go back to phase 1
       {{-2, -3, -4}, {-5, -6, -7}, {-8, -9, -10}, {1}},
+
       // (random games) -> action 11 to 15 // 5 levels of difficulty
       {{-11, -12, -13, -14, -15}}};
 
   // functions for actions
   // passing menuPhase and gameStats by reference
-  // modify the value during the action
   std::vector<void (*)(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)> action = {NULL, &statf, &level1f, &level2f, &level3f, &level4f, &level5f, &level6f, &level7f, &level8f, &level9f, NULL, NULL, NULL, NULL, NULL, NULL, &setting1af, &setting1bf};
 
-  // data storage in a struct
+  // game settings
   MenuWrapper gameStats(TOTAL_LEVELS, TOTAL_DIFFICULTY);
 
   // init: read in settings to setting map, read in level progress to progress
@@ -134,11 +136,10 @@ int main()
 
         if (menuPhase == 999)
         {
-          std::cout << "in game" << std::endl;
-          allGames.push_back(new Game(gameStats));
+          allGames.push_back(new Game(gameStats.setting));
 
           // start game
-          std::thread actionThread(&Game::start, *allGames.back());
+          std::thread actionThread(&Game::start, std::ref(allGames.back()));
           actionThread.join();
 
           // DOES NOT DELETE GAME when still unsaved

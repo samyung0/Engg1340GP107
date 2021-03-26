@@ -6,90 +6,48 @@
 #include <functional>
 #include <map>
 #include <unordered_map>
+#include <mutex>
 
-#include "../menuWrapper/menuWrapper.h"
 #include "gameStruct.h"
 
 class Game
 {
 public:
   ~Game();
-  Game(const MenuWrapper &gameStats);
+  Game(const std::unordered_map<std::string, int> &);
   void start();
-  void fetchData(Resource&, Building&, Troop&, Army&, BattlePlan&)
-  MenuWrapper stats;
-  Resource resource;
-  Building building;
-  Troop troop;
-  Army army;
-  BattlePlan battlePlan;
 
 private:
-  void timer(int interval);
-  
-};
+  void printStatus();
+  void timer(int);
+  bool terminate = false;
 
-class Progress
-{
-public:
-  int remain;
-  int interval;
-  Progress(int, int);
-};
+  int day = 1;
+  int totalTroops = 0;
+  int totalFoodRequired = 0;
+  int totalEquipmentRequired = 0;
 
-class ArmyUnit
-{
-public:
-  // name should be unique among other armies (used as key in army struct map)
-  std::string name;
+  std::unordered_map<std::string, int> setting;
+  data::Resource resource;
+  data::Building building;
+  data::Troop troop;
+  data::Army army;
+  data::BattlePlan battlePlan;
+  data::Research research;
+  std::mutex lg;
+  std::vector<Troop *> allTroop;
 
-  bool inBattle = false;
-  // country name, region coordinate
-  std::pair<std::string, std::string> battleRegion = {NULL, NULL};
+  // similar to how menu phase works, we progress the phase number according to use actions
+  std::vector<std::vector<std::vector<int>>> map{
+      {{1, 2, 3, 4, 5, 6},
+       {7, 8, 9, 10, 11}}};
+  int gamePhase = 0;
+  int prevGamePhase = 0;
 
-  bool battlePlanAssigned = false;
-  std::string battlePlanName = NULL;
-
-  double calsualtyCount = 0;
-  // calculated by dividing lost troops/ total troops x 100
-  double casualtyPercentage = 0;
-
-  // pair: troop type, health remaining
-  std::vector<std::pair<std::string, int>> columnA = {{NULL, 0}, {NULL, 0}, {NULL, 0}, {NULL, 0}};
-  std::vector<std::pair<std::string, int>> columnB = {{NULL, 0}, {NULL, 0}, {NULL, 0}, {NULL, 0}};
-  std::vector<std::pair<std::string, int>> columnC = {{NULL, 0}, {NULL, 0}, {NULL, 0}, {NULL, 0}};
-  std::vector<std::pair<std::string, int>> columnD = {{NULL, 0}, {NULL, 0}, {NULL, 0}, {NULL, 0}};
-
-  ArmyUnit(std::string);
-};
-
-// used to pass into battleUnit as a wrapper of how many troops are present (applicable to both enemy side and your side)
-class battleTroopWrapper{
-  public:
-    // army, singular troop
-    battleTroopWrapper(std::vector<std::string>, std::vector<std::pair<std::string, int>>);
-
-    // army
-    battleTroopWrapper(std::vector<std::string>);
-
-    // singular troop
-    battleTroopWrapper(std::vector<std::pair<std::string, int>>);
-}
-
-class battleUnit{
-  public:
-    // country, region, your side troop, enemy side troop
-    battleUnit(std::string, std::string, battleTroopWrapper, battleTroopWrapper);
-}
-
-class BattlePlanUnit
-{
-public:
-  std::vector<std::string> armyAssigned = {};
-  std::vector<std::string> activated = {};
-
-  std::string target = NULL;
-  // region coordinate to be attacked in order
-  std::vector<std::string> order = {};
+  // format researches when printing, return string
+  std::string helper(std::vector<bool> level)
+  {
+    return (level[2] ? "advanced" : level[1] ? "intermediate" : "rudimentary");
+  }
 };
 #endif

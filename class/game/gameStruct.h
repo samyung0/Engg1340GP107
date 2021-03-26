@@ -6,8 +6,18 @@
 #include <functional>
 #include <map>
 #include <unordered_map>
+#include <future>
 
-#include "game.h"
+#include "gameUnit.h"
+
+class Progress
+{
+public:
+  int remain;
+  int interval;
+  Progress(int, int);
+};
+
 namespace data
 {
 
@@ -17,6 +27,7 @@ namespace data
     int food = 0;
     int equipment = 0;
     int manpower = 0;
+    int manpowerInUse = 0;
     double baseLand = 0;
     double usedLand = 0;
     double capturedLand = 0;
@@ -47,12 +58,12 @@ namespace data
     std::vector<int> trainingCampC = {0};
     std::vector<int> airportC = {0};
 
-    // build time (to be updated during game fetchData)
-    std::vector<int> farmT = {10, 0, 0};
-    std::vector<int> civilianFactoryT = {0, 0, 0};
-    std::vector<int> militaryFactoryT = {0, 0, 0};
-    std::vector<int> trainingCampT = {0};
-    std::vector<int> airportT = {0};
+    // time required to build each building
+    std::vector<int> farmT = {10, 10, 10};
+    std::vector<int> civilianFactoryT = {10, 15, 15};
+    std::vector<int> militaryFactoryT = {15, 30, 60};
+    std::vector<int> trainingCampT = {10};
+    std::vector<int> airportT = {45};
 
     // upgradable
     std::vector<bool> farmU = {true, false, false};
@@ -62,48 +73,57 @@ namespace data
     std::vector<bool> airportU = {true};
 
     // key: Building name, value: vector of functions which increment the Building count (capturing by ref)
-    std::unordered_map<std::string, std::vector<std::function<void()>>> effect = {
+    std::unordered_map<std::string, std::vector<std::function<void(Resource &)>>> effect = {
         {"farm",
-         {[&]() {
+         {[&](Resource &a) {
             farm[0]++;
+            a.food += 8;
           },
-          [&]() {
+          [&](Resource &a) {
             farm[1]++;
+            a.food += 12;
           },
-          [&]() {
+          [&](Resource &a) {
             farm[2]++;
+            a.food += 8;
           }}},
         {"civilianFactory",
-         {[&]() {
+         {[&](Resource &a) {
             civilianFactory[0]++;
+            a.manpower += 1;
           },
-          [&]() {
+          [&](Resource &a) {
             civilianFactory[1]++;
+            a.manpower += 2;
           },
-          [&]() {
+          [&](Resource &a) {
             civilianFactory[2]++;
+            a.manpower += 2;
           }}},
         {"militaryFactory",
-         {[&]() {
+         {[&](Resource &a) {
             militaryFactory[0]++;
+            a.equipment += 10;
           },
-          [&]() {
+          [&](Resource &a) {
             militaryFactory[1]++;
+            a.equipment += 20;
           },
-          [&]() {
+          [&](Resource &a) {
             militaryFactory[2]++;
+            a.equipment += 70;
           }}},
         {"trainingCamp",
-         {[&]() {
+         {[&](Resource &a) {
            trainingCamp[0]++;
          }}},
         {"airport",
-         {[&]() {
+         {[&](Resource &a) {
            airport[0]++;
          }}},
     };
 
-    std::vector<Progress*> progress;
+    std::vector<Progress *> progress;
     std::vector<std::future<void>> progressAsync;
   };
   struct Troop
@@ -122,22 +142,8 @@ namespace data
     std::vector<int> bomber = {0, 0, 0, 0};
     std::vector<int> kamikaze = {0, 0, 0, 0};
 
-    // order: camp required, time to train, food required, equipment required, soft attack, hard attack, air attack, defense, armor, speed, disruption, hp
-    // to be changed in game fetchData
-    std::vector<int> infantryStat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::vector<int> calvaryStat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::vector<int> suicideBomberStat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::vector<int> artilleryStat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::vector<int> logisticStat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::vector<int> armoredCarStat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::vector<int> tank1Stat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::vector<int> tank2Stat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::vector<int> casStat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::vector<int> fighterStat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::vector<int> bomberStat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::vector<int> kamikazeStat = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-    std::vector<Progress> progress;
+    std::vector<Progress *> progress;
+    std::vector<std::future<void>> progressAsync;
   };
 
   struct Army
@@ -156,7 +162,7 @@ namespace data
     std::vector<BattleUnit> total;
   };
 
-  struct research
+  struct Research
   {
 
     std::vector<bool> farm = {true, false, false};
@@ -170,90 +176,91 @@ namespace data
     std::vector<bool> recovery = {true, false, false};
 
     // key: research name, value: vector of functions which process the changes brought by the research (input all other struts, capturing by ref)
-    std::unordered_map<std::string, std::vector<std::function<void(Resource, Building, Troop, Army, BattlePlan, Battle)>>> effect = {
+    std::unordered_map<std::string, std::vector<std::function<void(Resource &, Building &, Troop &, Army &, BattlePlan &, Battle &)>>> effect = {
         {"farm",
-         {[&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             b.farmU[1] = true;
             farm[1] = true;
           },
-          [&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             b.farmU[2] = true;
             farm[2] = true;
           }}},
         {"divisionOfLabor",
-         {[&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             b.civilianFactoryU[1] = true;
             divisionOfLabor[1] = true;
           },
-          [&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             b.civilianFactoryU[2] = true;
             divisionOfLabor[2] = true;
           }}},
         {"productionLine",
-         {[&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             b.militaryFactoryU[1] = true;
             productionLine[1] = true;
           },
-          [&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             b.militaryFactoryU[2] = true;
             productionLine[2] = true;
           }}},
         {"landDoctrine",
-         {[&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             a.baseLandTroopMul = 1.2;
             landDoctrine[1] = true;
           },
-          [&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             a.baseLandTroopMul = 1.3;
             landDoctrine[2] = true;
           }}},
         {"airDoctrine",
-         {[&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             a.baseAirTroopMul = 1.4;
             airDoctrine[1] = true;
           },
-          [&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             a.baseAirTroopMul = 1.6;
             airDoctrine[2] = true;
           }}},
         {"urbanization",
-         {[&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             a.baseLandMul = 1.1;
             urbanization[1] = true;
           },
-          [&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             a.baseAirTroopMul = 1.3;
             urbanization[2] = true;
           }}},
         {"weapon",
-         {[&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             a.baseTankMul = 1.05;
             weapon[1] = true;
           },
-          [&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             a.baseTankMul = 1.1;
             a.baseAirToopMul2 = 1.1;
             weapon[2] = true;
           }}},
         {"training",
-         {[&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             a.baseTrainingTimeMul = 0.9;
             training[1] = true;
           },
-          [&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             a.baseTrainingTimeMul = 0.8;
             training[2] = true;
           }}},
         {"recovery",
-         {[&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             a.baseRecoveryDiff = 6;
           },
-          [&](Resource a, Building b, Troop c, Army d, BattlePlan e, Battle f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
             a.baseRecoveryDiff = 8;
           }}},
     };
 
-    std::vector<Progress> progress;
+    std::vector<Progress *> progress;
+    std::vector<std::future<void>> progressAsync;
   };
 
 }

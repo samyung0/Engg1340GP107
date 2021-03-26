@@ -5,13 +5,13 @@ all: main
 # action phase object files ends with f
 # class/struct object files ends with c
 
-main: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/menu.o objectFiles/play.o objectFiles/level.o objectFiles/setting.o objectFiles/statf.o objectFiles/settingf.o objectFiles/menuWrapperc.o objectFiles/color.o objectFiles/levelf.o
+main: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/menu.o objectFiles/play.o objectFiles/level.o objectFiles/setting.o objectFiles/statf.o objectFiles/settingf.o objectFiles/menuWrapperc.o objectFiles/color.o objectFiles/levelf.o objectFiles/infantryc.o objectFiles/gamePrintStatusc.o
 	g++ -o $@ $^ -pthread
 
 objectFiles/main.o: main.cpp class/game/game.h menu/menu.h io/io.h action/stat/stat.h action/setting/setting.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/gamec.o: class/game/game.cpp class/game/game.h
+objectFiles/gamec.o: class/game/game.cpp class/game/game.h class/game/gameStruct.h class/game/gameUnit.h lib/uuid/uuid.hpp
 	g++ ${CPPFLAGS} -c $< -o $@
 
 objectFiles/io.o: io/io.cpp io/io.h
@@ -42,6 +42,12 @@ objectFiles/color.o: io/color.cpp io/io.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 objectFiles/levelf.o: action/level/level.cpp action/level/level.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/infantryc.o: data/troop/infantry.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/gamePrintStatusc.o: class/game/gamePrintStatus.cpp class/game/game.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 clean:

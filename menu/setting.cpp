@@ -7,7 +7,7 @@
 namespace setting
 {
   void set(MenuWrapper &gameStats);
-  std::string menuOptions[2][2] = {{"On", "Off"}, {"Back"}};
+  std::string menuOptions[2][2] = {{"Normal", "Fast"}, {"Back"}};
   int lastActiveIndex[2] = {0, 0};
 }
 
@@ -17,10 +17,10 @@ void setting::set(MenuWrapper &gameStats)
 {
   for (auto i : gameStats.setting)
   {
-    if (i.first == "showStatusPeriodically")
+    if (i.first == "speed")
     {
-      menuOptions[0][0] = color("On", (i.second ? "green" : "white"));
-      menuOptions[0][1] = color("Off", (i.second ? "white" : "green"));
+      menuOptions[0][0] = color("Normal", (i.second == 1000 ? "green" : "white"));
+      menuOptions[0][1] = color("Fast", (i.second == 500 ? "green" : "white"));
     }
   }
   menuOptions[lastActiveIndex[0]][lastActiveIndex[1]].insert(0, "> ");
@@ -41,9 +41,9 @@ void print_settingSelect(int y, int x, MenuWrapper &gameStats)
   // "clears" screen by printing out many blank lines
   std::cout << std::string(100, '\n') << std::endl;
   std::cout << "Settings." << std::endl;
-  std::cout << "Show status periodically";
+  std::cout << "Game Speed";
   std::cout << std::setw(50) << setting::menuOptions[0][0];
-  std::cout << std::setw(17) << setting::menuOptions[0][1] << std::endl;
+  std::cout << std::setw(18) << setting::menuOptions[0][1] << std::endl;
   std::cout << '\n'
             << setting::menuOptions[1][0] << std::endl;
 }

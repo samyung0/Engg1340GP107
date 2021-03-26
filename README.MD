@@ -229,14 +229,14 @@ ___Commands:___
     - __train --help__: _list all troops and their statuses_
    
   Details of each troop (1 unit):
-  - __Infantry__: camp: 1, time: 10 days, soft attack: 10, hard attack: 2, defences: 25, speed: 5, equipment: 2, food: 2, hp: 100
-  - __Calvary__: camp: 1, time: 10 days, soft attack: 8, hard attack: 1, defences: 20, speed: 10, equipment: 2, food: 2, hp: 150
-  - __Suicide bomber__: camp: 2, time: 50 days, soft attack: 300, hard attack: 200, defences: 5, equipment: 10, food: 2 (_suicide bombers are a one-time use, when you send them to battles, they will not return. Also, the damage output will be only __once__ , only 1 day._), hp: N/A
-  - __Artillery__: camp: 2, time: 20 days, soft attack: 18, hard attack: 1, defences: 1, speed: 2, equipment: 2, food: 1, hp: 30
+  - __Infantry__: camp: 1, time: 10 days, soft attack: 10, hard attack: 2, defenses: 25, speed: 5, equipment: 2, food: 2, hp: 100
+  - __Calvary__: camp: 1, time: 10 days, soft attack: 8, hard attack: 1, defenses: 20, speed: 10, equipment: 2, food: 2, hp: 150
+  - __Suicide bomber__: camp: 2, time: 50 days, soft attack: 300, hard attack: 200, defenses: 5, equipment: 10, food: 2 (_suicide bombers are a one-time use, when you send them to battles, they will not return. Also, the damage output will be only __once__ , only 1 day._), hp: N/A
+  - __Artillery__: camp: 2, time: 20 days, soft attack: 18, hard attack: 1, defenses: 1, speed: 2, equipment: 2, food: 1, hp: 30
   - __Logistic__: camp: 1, time: 20 days, equipment: 2, food: 2 (_effect: increase all land troops within the same army's speed by 2 per unit and reduce food consumption by 1, max units per army: 2_), hp: 50
-  - __Armored car__: camp: 2, time: 30 days, soft attack: 18, hard attack: 10, armor: 10, defences: 30, speed: 15, equipment: 10, food: 6, hp: 200
-  - __Tank 1__: camp: 3, time: 40 days, soft attack: 12, hard attack: 20, armor: 25, defences: 10, speed: 6, equipment: 15, food: 6, hp: 230
-  - __Tank 2__: camp: 5, time: 60 days, soft attack: 12, hard attack: 50, armor: 35, defences: 12, speed: 8, equipment: 25, food: 8, hp: 300
+  - __Armored car__: camp: 2, time: 30 days, soft attack: 18, hard attack: 10, armor: 10, defenses: 30, speed: 15, equipment: 10, food: 6, hp: 200
+  - __Tank 1__: camp: 3, time: 40 days, soft attack: 12, hard attack: 20, armor: 25, defenses: 10, speed: 6, equipment: 15, food: 6, hp: 230
+  - __Tank 2__: camp: 5, time: 60 days, soft attack: 12, hard attack: 50, armor: 35, defenses: 12, speed: 8, equipment: 25, food: 8, hp: 300
   - __Close Air Support (cas)__: camp: 1, time: 30 days, soft attack: 15, hard attack: 15, air attack: 2, armor: 5, speed: 5, equipment: 10, food: 1 (_to support land troops by soft and hard attack_), hp: 50
   - __Fighter__: camp: 1, time: 30 days, soft attack: 6, hard attack: 6, air attack: 8, armor: 12, equipment: 10, food: 1 (_to support Cas by taking down other enemy planes by air attack_), hp: 130
   - __Bomber__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 10, air attack: 2, armor: 8, equipment: 15, food: 2 (_to distroy enemy's farm/ infrastructure and lower their reinforcement rate and possibly induce attrition_), hp: 80
@@ -343,7 +343,7 @@ ___Commands:___
 
     Air attacks __are only dealt on planes__.
 
-    Defences are how much attack a troop can sustain before losing hp, affected by strength of troop.
+    defenses are how much attack a troop can sustain before losing hp, affected by strength of troop.
 
     __An attack is dealt by all troops to enemy and to us once each day. And all troops will recover a base 4 hp per day if hp is not full. (Affected by food supply, disruption and researches.)__
 
@@ -370,19 +370,17 @@ ___Commands:___
     - Snowland: 8%
     - Desert: 10%
 
-    Attack debuff = base value (terrain) * (1 - speed (troop)/ 50)
+    Attack debuff = base value (terrain) * (1 - speed (troop)/ 10)
 
-    Air supremacy [![equation.png](https://i.postimg.cc/q7khYn7P/equation.png)](https://postimg.cc/PCR5vCYy) (reaches 90% when you have 1.3 times more air attack then the opponent)
-
-    Total air support = Air supremacy * 100 + 10
+    Air supremacy [![equation.png](https://i.postimg.cc/q7khYn7P/equation.png)](https://postimg.cc/PCR5vCYy) (reaches 90% when you have 1.3 times more air attack then the opponent) (100% if enemy doesn't have plane)
 
     Air attack = base value (plane) * supplied equipment/ equipment needed
 
-    Soft attack per troop = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption) * (1 - attack debuff)
+    Soft attack per troop = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption) * (1 - attack debuff) * Air supremacy
 
-    Hard attack per troop = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption/ 4) * (1 - attack debuff)
+    Hard attack per troop = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption/ 4) * (1 - attack debuff) * Air supremacy
 
-    Decrease in hp from land attack per troop (non-armored) = (Total soft attack + air support) / (defending armies + singly defending troops) * (column percentage (in army)) * random value from 0 to 1 (exclusive) (sums up to 1 within the same column) - defences
+    Decrease in hp from land attack per troop (non-armored) = (Total soft attack + air support) / (defending armies + singly defending troops) * (column percentage (in army)) * random value from 0 to 1 (exclusive) (sums up to 1 within the same column) - defenses
 
     Decrease in hp from land attack per troop (armored) = Decrease in hp from attack per troop (non-armored)/4 + (Total hard attack/ number of armored land troops - armor) * 1.1
     

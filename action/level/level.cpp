@@ -71,7 +71,9 @@ void levelBasef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats, std::
 
         std::string data;
         while(std::getline(levelStream, data)){
-          gameStats.temp += data;
+          /////////////
+          /////////TODO: read in level data
+          /////////////
         }
 
         levelStream.close();
