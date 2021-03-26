@@ -1,15 +1,87 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <cmath>
 
 #include "../../io/io.h"
 #include "game.h"
-void Game::printStatus(int x, int y)
+void Game::printBuild(int x, int y)
 {
   std::vector<std::vector<std::string>> actionPrefix = {
-    {"   ", "   ", "   ", "   ", "   ", "   "},
-    {"   ", "   ", "   ", "   ", "   "}
+
+      {"   ", "   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "},
+      {"   ", "   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "},
+      {"   ", "   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "},
+      {"   ", "   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "},
+      {"   ", "   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "},
+      {"   ", "   ", "   ", "   ", "   ", "   ", "   "},
+      {"   ", "   "},
+      {"   ", "   "},
+      {"   ", "   "},
+      {"   ", "   "}};
+
+  std::vector<std::vector<std::string>> action = {
+
+      {"1", "2", "3", "MAX", "1", "2", "3", "MAX"},
+      {"1", "2", "3", "MAX", "1", "2", "3", "MAX"},
+      {"1", "2", "3", "MAX", "1", "2", "3", "MAX"},
+      {"1", "2", "3", "MAX", "1", "2", "3", "MAX"},
+      {"1", "2", "3", "MAX", "1", "2", "3", "MAX"},
+      {"1", "ALL", "1", "2", "3", "MAX"},
+      {"1", "ALL"},
+      {"1", "ALL"},
+      {"1", "ALL"},
+      {"1", "ALL"}};
+
+  // check how many buildings can be built for each type
+  double freeLand = this->resource.baseLand * this->resource.baseLandMul + this->resource.capturedLand - this->resource.usedLand;
+  double freeManpower = this->resource.manpower - this->resource.manpowerInUse;
+  std::vector<int> maxBuild = {
+      (int)(freeLand / this->building.farmL[0]),
+      (int)(freeLand / this->building.civilianFactoryL[0]),
+      (int)(freeLand / this->building.militaryFactoryL[0]),
+      (int)(freeLand / this->building.trainingCampL[0]),
+      (int)(freeLand / this->building.airportL[0]),
   };
+  for (auto i : maxBuild)
+    if (i > freeManpower)
+      i = freeManpower;
+  for (int i = 0; i < 5; i++)
+  {
+    if (maxBuild[i] < 3)
+      action[i][2] = color(action[i][2], "red");
+    if (maxBuild[i] < 2)
+      action[i][1] = color(action[i][1], "red");
+    if (maxBuild[i] < 1)
+      action[i][0] = color(action[i][0], "red");
+    action[i][3] += "(" + std::to_string(maxBuild[i]) + ")";
+  }
+
+  std::vector<int> maxUpgrade = {
+      std::min((int)((freeLand + this->building.farmL[0]) / this->building.farmL[1]), this->building.farm[0]),
+      std::min((int)((freeLand + this->building.civilianFactoryL[0]) / this->building.civilianFactoryL[1]), this->building.civilianFactory[0]),
+      std::min((int)((freeLand + this->building.militaryFactoryL[0]) / this->building.militaryFactoryL[1]), this->building.militaryFactory[0]),
+      std::min((int)((freeLand + this->building.farmL[1]) / this->building.farmL[2]), this->building.farm[1]),
+      std::min((int)((freeLand + this->building.civilianFactoryL[1]) / this->building.civilianFactoryL[2]), this->building.civilianFactory[1]),
+      std::min((int)((freeLand + this->building.militaryFactoryL[1]) / this->building.militaryFactoryL[2]), this->building.militaryFactory[1]),
+  };
+  for (auto i : maxUpgrade)
+    if (i > freeManpower)
+      i = freeManpower;
+  for (int i = 0; i < 3; i++)
+  {
+    for (int j = 0; j < 2; j++)
+    {
+      if (maxUpgrade[i * 2 + j] < 3)
+        action[i * 2 + j][6] = color(action[i * 2 + j][6], "red");
+      if (maxUpgrade[i * 2 + j] < 2)
+        action[i * 2 + j][5] = color(action[i * 2 + j][5], "red");
+      if (maxUpgrade[i * 2 + j] < 1)
+        action[i * 2 + j][4] = color(action[i * 2 + j][4], "red");
+      action[i * 2 + j][7] += "(" + std::to_string(maxUpgrade[i * 2 + j]) + ")";
+    }
+  }
+
   actionPrefix[x][y].erase(1, 1);
   actionPrefix[x][y].insert(1, color(">", "cyan"));
 
@@ -88,7 +160,7 @@ void Game::printStatus(int x, int y)
             << std::setw(41) << "\nWeapon: " + this->helper(this->research.weapon)
             << color("Actions: ", "red")
             << std::setw(41) << "\nTraining: " + this->helper(this->research.training)
-            << actionPrefix[0][0] + underline("Build", "green") + actionPrefix[0][1] + underline("Research", "green") + actionPrefix[0][2] +  underline("Train", "green") + actionPrefix[0][3] +  underline("Army", "green") + actionPrefix[0][4] +  underline("Battle Plan", "green") + actionPrefix[0][5] +  underline("Battle", "magenta")
+            << actionPrefix[0][0] + underline("Build", "green") + actionPrefix[0][1] + underline("Research", "green") + actionPrefix[0][2] + underline("Train", "green") + actionPrefix[0][3] + underline("Army", "green") + actionPrefix[0][4] + underline("Battle Plan", "green") + actionPrefix[0][5] + underline("Battle", "magenta")
             << std::setw(41) << "\nRecovery: " + this->helper(this->research.recovery)
             << actionPrefix[1][0] + underline("Speed", "green") + actionPrefix[1][1] + underline("Pause", "green") + actionPrefix[1][2] + underline("Save As", "green") + actionPrefix[1][3] + underline("Restart", "green") + actionPrefix[1][4] + underline("Quit", "green")
             << std::endl

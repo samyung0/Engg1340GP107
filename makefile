@@ -5,7 +5,7 @@ all: main
 # action phase object files ends with f
 # class/struct object files ends with c
 
-main: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/menu.o objectFiles/play.o objectFiles/level.o objectFiles/setting.o objectFiles/statf.o objectFiles/settingf.o objectFiles/menuWrapperc.o objectFiles/color.o objectFiles/levelf.o objectFiles/infantryc.o objectFiles/gamePrintStatusc.o
+main: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/menu.o objectFiles/play.o objectFiles/level.o objectFiles/setting.o objectFiles/statf.o objectFiles/settingf.o objectFiles/menuWrapperc.o objectFiles/color.o objectFiles/levelf.o objectFiles/infantryc.o objectFiles/gamePrintStatusc.o objectFiles/gamePrintBuildc.o
 	g++ -o $@ $^ -pthread
 
 objectFiles/main.o: main.cpp class/game/game.h menu/menu.h io/io.h action/stat/stat.h action/setting/setting.h
@@ -48,6 +48,9 @@ objectFiles/infantryc.o: data/troop/infantry.cpp data/troop/troop.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 objectFiles/gamePrintStatusc.o: class/game/gamePrintStatus.cpp class/game/game.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/gamePrintBuildc.o: class/game/gamePrintBuild.cpp class/game/game.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 clean:

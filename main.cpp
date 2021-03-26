@@ -28,10 +28,6 @@ int init(MenuWrapper &gameStats, std::string &error);
 
 int main()
 {
-  // functions for displaying menus
-  // input y and x indices for currently selected element
-  std::vector<void (*)(int, int, MenuWrapper &)> select{&print_menuSelect, &print_playSelect, &print_settingSelect, &print_levelSelect};
-
   // map to index of functions for displaying menus
   std::vector<std::vector<std::vector<int>>> map{
       // play, settings, show version -> action 1, quit program -> action 999 (special case)
@@ -49,9 +45,13 @@ int main()
       // (random games) -> action 11 to 15 // 5 levels of difficulty
       {{-11, -12, -13, -14, -15}}};
 
+  // functions for displaying menus
+  // input y and x indices for currently selected element, pass settings by reference
+  std::vector<void (*)(int, int, MenuWrapper &)> select{&print_menuSelect, &print_playSelect, &print_settingSelect, &print_levelSelect};
+
   // functions for actions
-  // passing menuPhase and gameStats by reference
-  std::vector<void (*)(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)> action = {NULL, &statf, &level1f, &level2f, &level3f, &level4f, &level5f, &level6f, &level7f, &level8f, &level9f, NULL, NULL, NULL, NULL, NULL, NULL, &setting1af, &setting1bf};
+  // passing menuPhase and settings by reference
+  std::vector<void (*)(int &menuPhase, int prevMenuPhase, MenuWrapper &)> action = {NULL, &statf, &level1f, &level2f, &level3f, &level4f, &level5f, &level6f, &level7f, &level8f, &level9f, NULL, NULL, NULL, NULL, NULL, NULL, &setting1af, &setting1bf};
 
   // game settings
   MenuWrapper gameStats(TOTAL_LEVELS, TOTAL_DIFFICULTY);

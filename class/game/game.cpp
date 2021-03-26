@@ -39,15 +39,55 @@ void Game::timer(int time)
   }
 }
 
-
 void Game::start()
 {
+
   std::thread timerThread(&Game::timer, this, this->setting["speed"]);
+
+  char input;
+
+  // this->print[this->gamePhase] returns the memory address of the class function inside class
+  // therefore cant just use *this->print[this->gamePhase] and execute it, must specify that the memory address comes from class by using this->
+  (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0],this->gamePhaseSelect[1]);
   while (1)
   {
-    this->printStatus();
-    getch();
-    break;
+    int prevGamePhase = this->gamePhase;
+
+    // same method used in menuPhase
+    input = getch();
+    if (input == '\033')
+    {
+      getch();
+      switch (getch())
+      {
+      case 'A':
+        this->gamePhaseSelect[0] = (this->gamePhaseSelect[0] + -1 + this->map[this->gamePhase].size()) % this->map[this->gamePhase].size();
+        this->gamePhaseSelect[1] = (this->gamePhaseSelect[1]) % this->map[this->gamePhase][this->gamePhaseSelect[0]].size();
+        break;
+      case 'B':
+        this->gamePhaseSelect[0] = (this->gamePhaseSelect[0] + 1) % this->map[this->gamePhase].size();
+        this->gamePhaseSelect[1] = (this->gamePhaseSelect[1]) % this->map[this->gamePhase][this->gamePhaseSelect[0]].size();
+        break;
+      case 'C':
+        this->gamePhaseSelect[0] = (this->gamePhaseSelect[0]) % this->map[this->gamePhase].size();
+        this->gamePhaseSelect[1] = (this->gamePhaseSelect[1] + 1) % this->map[this->gamePhase][this->gamePhaseSelect[0]].size();
+        break;
+      case 'D':
+        this->gamePhaseSelect[0] = (this->gamePhaseSelect[0]) % this->map[this->gamePhase].size();
+        this->gamePhaseSelect[1] = (this->gamePhaseSelect[1] + -1 + this->map[this->gamePhase][this->gamePhaseSelect[0]].size()) % this->map[this->gamePhase][this->gamePhaseSelect[0]].size();
+        break;
+      }
+    }
+    // progress game phase
+    else if (input == '\n')
+    {
+      this->gamePhase = this->map[this->gamePhase][this->gamePhaseSelect[0]][this->gamePhaseSelect[1]];
+    }
+
+    if(this->gamePhase >= 0) (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0],this->gamePhaseSelect[1]);
+    else{
+      
+    }
   }
 
   // terminate timer thread

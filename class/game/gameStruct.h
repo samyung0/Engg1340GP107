@@ -9,6 +9,7 @@
 #include <future>
 
 #include "gameUnit.h"
+#include "../../data/troop/troop.h"
 
 class Progress
 {
@@ -26,9 +27,9 @@ namespace data
     // to be updated in game fetchData
     int food = 0;
     int equipment = 0;
-    int manpower = 0;
+    int manpower = 100;
     int manpowerInUse = 0;
-    double baseLand = 0;
+    double baseLand = 100;
     double usedLand = 0;
     double capturedLand = 0;
 
@@ -64,6 +65,13 @@ namespace data
     std::vector<int> militaryFactoryT = {15, 30, 60};
     std::vector<int> trainingCampT = {10};
     std::vector<int> airportT = {45};
+
+    // land required to build each building
+    std::vector<int> farmL = {3, 5, 6};
+    std::vector<int> civilianFactoryL = {1, 1, 2};
+    std::vector<int> militaryFactoryL = {1, 3, 5};
+    std::vector<int> trainingCampL = {1};
+    std::vector<int> airportL = {1};
 
     // upgradable
     std::vector<bool> farmU = {true, false, false};
@@ -128,6 +136,8 @@ namespace data
   };
   struct Troop
   {
+    std::vector<Troop*> allTroop;
+
     // indices: total, in Army, in Battle plan, in Battle
     std::vector<int> infantry = {0, 0, 0, 0};
     std::vector<int> calvary = {0, 0, 0, 0};
@@ -144,22 +154,31 @@ namespace data
 
     std::vector<Progress *> progress;
     std::vector<std::future<void>> progressAsync;
+
+    int totalTroops = 0;
+    int totalFoodRequired = 0;
+    int totalEquipmentRequired = 0;
   };
 
   struct Army
   {
     // using map instead of unordered_map so armies' name will be printed according to lexicographical order
-    std::map<std::string, ArmyUnit> total;
+    // max 10 armies
+    std::map<std::string, ArmyUnit*> total;
   };
 
   struct BattlePlan
   {
-    std::vector<BattlePlanUnit> total;
+    // max 10 battle plans
+    std::vector<BattlePlanUnit*> total;
   };
 
   struct Battle
   {
     std::vector<BattleUnit> total;
+    bool inBattle = false;
+    std::string countryBattling = "";
+    std::vector<std::string> regionBattling;
   };
 
   struct Research
