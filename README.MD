@@ -544,11 +544,13 @@ main thread </br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> start timer thread for recording daily (every second) changes </br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> ends game thread when appropriate (illustrated by typing in exit) </br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> ends timer thread when game thread ends
+
 ```cpp
 #include <iostream>
 #include <thread>
 #include <string>
 #include <chrono>
+#include <fuctional>
 
 using namespace std;
 
@@ -601,7 +603,8 @@ int main()
         getline(cin, a);
         cout << "You typed " << a << endl;
         if (a == "start") {
-            thread thread1(&Add::game, obj);
+          // passing as ref to prevent copying to new object
+            thread thread1(&Add::game, ref(obj));
           // main (while loop) pauses
             thread1.join();
         }

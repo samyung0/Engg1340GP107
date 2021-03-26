@@ -23,13 +23,13 @@
 // TODO
 // add speed settings (action/setting/setting, menu/setting)
 
-int init(MenuWrapper& gameStats, std::string& error);
+int init(MenuWrapper &gameStats, std::string &error);
 
 int main()
 {
   // functions for displaying menus
   // input y and x indices for currently selected element
-  std::vector<void (*)(int, int, MenuWrapper&)> select{&print_menuSelect, &print_playSelect, &print_settingSelect, &print_levelSelect};
+  std::vector<void (*)(int, int, MenuWrapper &)> select{&print_menuSelect, &print_playSelect, &print_settingSelect, &print_levelSelect};
 
   // map to index of functions for displaying menus
   // positive: menu phase
@@ -49,7 +49,7 @@ int main()
   // functions for actions
   // passing menuPhase and gameStats by reference
   // modify the value during the action
-  std::vector<void (*)(int &menuPhase, int prevMenuPhase, MenuWrapper& gameStats)> action = {NULL, &statf, &level1f, &level2f, &level3f, &level4f, &level5f, &level6f, &level7f, &level8f, &level9f, NULL, NULL, NULL, NULL, NULL, NULL, &setting1af, &setting1bf};
+  std::vector<void (*)(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)> action = {NULL, &statf, &level1f, &level2f, &level3f, &level4f, &level5f, &level6f, &level7f, &level8f, &level9f, NULL, NULL, NULL, NULL, NULL, NULL, &setting1af, &setting1bf};
 
   // data storage in a struct
   MenuWrapper gameStats(TOTAL_LEVELS, TOTAL_DIFFICULTY);
@@ -57,14 +57,16 @@ int main()
   // init: read in settings to setting map, read in level progress to progress
   // return 0 if no error, 1 if error in opening files
   std::string error;
-  int hasError = init(gameStats,  error);
-  if(hasError) {
-    std::cout << "An error occured:\n" << error << std::endl;
+  int hasError = init(gameStats, error);
+  if (hasError)
+  {
+    std::cout << "An error occured:\n"
+              << error << std::endl;
     return 0;
   }
 
   // vector of pointers to objects of all games played and playing (allow the use of dynamic memory)
-  std::vector<Game*> allGames;
+  std::vector<Game *> allGames;
 
   char input;
   int menuPhase = 0;
@@ -130,14 +132,16 @@ int main()
         std::thread actionThread((*action[-menuPhase]), std::ref(menuPhase), prevMenuPhase, std::ref(gameStats));
         actionThread.join();
 
-        if(menuPhase == 999){
-          // push new game
+        if (menuPhase == 999)
+        {
+          std::cout << "in game" << std::endl;
           allGames.push_back(new Game(gameStats));
 
           // start game
-          std::thread actionThread(&Game::start,*allGames.back());
-
+          std::thread actionThread(&Game::start, *allGames.back());
           actionThread.join();
+
+          // DOES NOT DELETE GAME when still unsaved
           menuPhase = prevMenuPhase;
           std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
@@ -147,12 +151,13 @@ int main()
   }
 }
 
-int init(MenuWrapper& gameStats, std::string& error)
+int init(MenuWrapper &gameStats, std::string &error)
 {
   // read settings
   std::fstream settingStream("save/setting.txt", std::ios::in);
 
-  if(settingStream.fail()){
+  if (settingStream.fail())
+  {
     error = "Cannot open setting.txt!";
     return 1;
   }
@@ -168,11 +173,11 @@ int init(MenuWrapper& gameStats, std::string& error)
 
   settingStream.close();
 
-
   // read progress
   std::fstream progressStream("save/progress.txt", std::ios::in);
 
-  if(progressStream.fail()){
+  if (progressStream.fail())
+  {
     error = "Cannot open progress.txt!";
     return 1;
   }

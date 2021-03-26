@@ -1,36 +1,43 @@
+#ifndef GAME_H
+#define GAME_H
 #include <string>
 #include <utility>
 #include <vector>
+#include <functional>
+#include <map>
+#include <unordered_map>
 
 #include "../menuWrapper/menuWrapper.h"
-#ifndef GAME_H
-#define GAME_H
+#include "gameStruct.h"
 
-// using namespace data;
 class Game
 {
 public:
   ~Game();
   Game(const MenuWrapper &gameStats);
   void start();
+  void fetchData(Resource&, Building&, Troop&, Army&, BattlePlan&)
+  MenuWrapper stats;
+  Resource resource;
+  Building building;
+  Troop troop;
+  Army army;
+  BattlePlan battlePlan;
 
 private:
   void timer(int interval);
-  MenuWrapper copyStats;
+  
 };
 
 class Progress
 {
-private:
-  int remain;
-
 public:
-  Progress(int);
-  int get();
-  void minus(int);
+  int remain;
+  int interval;
+  Progress(int, int);
 };
 
-class armyUnit
+class ArmyUnit
 {
 public:
   // name should be unique among other armies (used as key in army struct map)
@@ -53,10 +60,29 @@ public:
   std::vector<std::pair<std::string, int>> columnC = {{NULL, 0}, {NULL, 0}, {NULL, 0}, {NULL, 0}};
   std::vector<std::pair<std::string, int>> columnD = {{NULL, 0}, {NULL, 0}, {NULL, 0}, {NULL, 0}};
 
-  armyUnit(std::string);
+  ArmyUnit(std::string);
 };
 
-class battlePlanUnit
+// used to pass into battleUnit as a wrapper of how many troops are present (applicable to both enemy side and your side)
+class battleTroopWrapper{
+  public:
+    // army, singular troop
+    battleTroopWrapper(std::vector<std::string>, std::vector<std::pair<std::string, int>>);
+
+    // army
+    battleTroopWrapper(std::vector<std::string>);
+
+    // singular troop
+    battleTroopWrapper(std::vector<std::pair<std::string, int>>);
+}
+
+class battleUnit{
+  public:
+    // country, region, your side troop, enemy side troop
+    battleUnit(std::string, std::string, battleTroopWrapper, battleTroopWrapper);
+}
+
+class BattlePlanUnit
 {
 public:
   std::vector<std::string> armyAssigned = {};
@@ -66,5 +92,4 @@ public:
   // region coordinate to be attacked in order
   std::vector<std::string> order = {};
 };
-
 #endif
