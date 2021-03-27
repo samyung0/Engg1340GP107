@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <cstdlib>
 
 #include "../../io/io.h"
 #include "game.h"
@@ -14,7 +15,10 @@ void Game::printStatus(int x, int y)
   actionPrefix[x][y].insert(1, color(">", "cyan"));
 
   this->lg.lock();
-  std::cout << std::string(100, '\n') << std::endl;
+  // system("clear");
+
+  // std::cout << std::string(100, '\n') << std::endl;
+  std::cout << "\033[2J\033[1;1H";
 
   std::cout << color("Day: ", "magenta") << this->day << " (" << std::to_string(this->setting["speed"] / 1000) << "s)"
             << std::endl
@@ -88,10 +92,9 @@ void Game::printStatus(int x, int y)
             << std::setw(41) << "\nWeapon: " + this->helper(this->research.weapon)
             << color("Actions: ", "red")
             << std::setw(41) << "\nTraining: " + this->helper(this->research.training)
-            << actionPrefix[0][0] + underline("Build", "green") + actionPrefix[0][1] + underline("Research", "green") + actionPrefix[0][2] +  underline("Train", "green") + actionPrefix[0][3] +  underline("Army", "green") + actionPrefix[0][4] +  underline("Battle Plan", "green") + actionPrefix[0][5] +  underline("Battle", "magenta")
+            << actionPrefix[0][0] + underline("Build      ", "green") + actionPrefix[0][1] + underline("Research   ", "green") + actionPrefix[0][2] +  underline("Train      ", "green") + actionPrefix[0][3] +  underline("Army       ", "green") + actionPrefix[0][4] +  underline("Battle Plan", "green") + actionPrefix[0][5] +  underline("Battle     ", "magenta")
             << std::setw(41) << "\nRecovery: " + this->helper(this->research.recovery)
-            << actionPrefix[1][0] + underline("Speed", "green") + actionPrefix[1][1] + underline("Pause", "green") + actionPrefix[1][2] + underline("Save As", "green") + actionPrefix[1][3] + underline("Restart", "green") + actionPrefix[1][4] + underline("Quit", "green")
-            << std::endl
+            << actionPrefix[1][0] + underline("Speed      ", "green") + actionPrefix[1][1] + underline("Pause      ", "green") + actionPrefix[1][2] + underline("Save As    ", "green") + actionPrefix[1][3] + underline("Restart    ", "green") + actionPrefix[1][4] + underline("Quit       ", "green")
             << std::endl;
 
   this->lg.unlock();

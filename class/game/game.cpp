@@ -24,34 +24,19 @@ Progress::Progress(int time, int interval_)
 Game::~Game() {}
 Game::Game(const std::unordered_map<std::string, int> &setting_) : setting(setting_) {}
 
-// Note timer only progress day variable, nothing else
-// training troop/ building have their own async loops
-void Game::timer(int time)
-{
-  // std::cout << "timer is" << time << std::endl;
-  while (!this->terminate)
-  {
-    std::this_thread::sleep_for(std::chrono::milliseconds(time));
-
-    this->lg.lock();
-    day++;
-    this->lg.unlock();
-  }
-}
-
 void Game::start()
 {
 
-  std::thread timerThread(&Game::timer, this, this->setting["speed"]);
+  this->timerThread = new std::thread(&Game::timer, this, this->setting["speed"]);
 
   char input;
 
   // this->print[this->gamePhase] returns the memory address of the class function inside class
   // therefore cant just use *this->print[this->gamePhase] and execute it, must specify that the memory address comes from class by using this->
-  (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0],this->gamePhaseSelect[1]);
+  (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+  this->loopPrintStatus(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
   while (1)
   {
-    int prevGamePhase = this->gamePhase;
 
     // same method used in menuPhase
     input = getch();
@@ -81,18 +66,38 @@ void Game::start()
     // progress game phase
     else if (input == '\n')
     {
+      this->prevGamePhase.push_back(this->gamePhase);
       this->gamePhase = this->map[this->gamePhase][this->gamePhaseSelect[0]][this->gamePhaseSelect[1]];
+      this->gamePhaseSelect[0] = 0;
+      this->gamePhaseSelect[1] = 0;
+    }
+    // default shortcut key for back
+    else if (input == ' ')
+    {
+      if (this->prevGamePhase.size() > 0)
+      {
+        this->gamePhase = this->prevGamePhase.back();
+        this->prevGamePhase.pop_back();
+        this->gamePhaseSelect[0] = 0;
+        this->gamePhaseSelect[1] = 0;
+      }
     }
 
-    if(this->gamePhase >= 0) (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0],this->gamePhaseSelect[1]);
-    else{
-      
+    if(this->gamePhase == 0) this->loopPrintStatus(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+    else this->stopLoopPrintStatus();
+
+    if (this->gamePhase > 0)
+    {
+      (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+    }
+    else if(this->gamePhase < 0)
+    {
     }
   }
 
   // terminate timer thread
   this->terminate = true;
-  timerThread.join();
+  timerThread->join();
 
   // sole::uuid1()
 

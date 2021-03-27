@@ -42,8 +42,8 @@ void print_levelSelect(int y, int x, MenuWrapper &gameStats)
 
   // prints menu
 
-  // "clears" screen by printing out many blank lines
-  std::cout << std::string(100, '\n') << std::endl;
+  // clear screen
+  std::cout << "\033[2J\033[1;1H";
   std::cout << "Please select level." << std::endl;
   for (int i = 0; i < 3; i++)
   {

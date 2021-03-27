@@ -46,9 +46,9 @@ namespace data
   struct Building
   {
     // index 0 means no upgrade, 1 and 2 for upgraded
-    std::vector<int> farm = {0, 0, 0};
-    std::vector<int> civilianFactory = {0, 0, 0};
-    std::vector<int> militaryFactory = {0, 0, 0};
+    std::vector<int> farm = {10, 10, 0};
+    std::vector<int> civilianFactory = {10, 2, 0};
+    std::vector<int> militaryFactory = {0, 3, 0};
     std::vector<int> trainingCamp = {0};
     std::vector<int> airport = {0};
 
@@ -69,7 +69,7 @@ namespace data
     // land required to build each building
     std::vector<int> farmL = {3, 5, 6};
     std::vector<int> civilianFactoryL = {1, 1, 2};
-    std::vector<int> militaryFactoryL = {1, 3, 5};
+    std::vector<int> militaryFactoryL = {2, 3, 5};
     std::vector<int> trainingCampL = {1};
     std::vector<int> airportL = {1};
 

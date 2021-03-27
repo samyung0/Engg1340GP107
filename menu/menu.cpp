@@ -17,9 +17,33 @@ void print_menuSelect(int y, int x, MenuWrapper& _)
 
   // prints menu
 
-  // "clears" screen by printing out many blank lines
-  std::cout << std::string(100, '\n') << std::endl;
+  // clear screen
+  std::cout << "\033[2J\033[1;1H";
   std::cout << "Welcome to Hearts of Gold." << std::endl;
   for (int i = 0; i < 4; i++)
     std::cout << menu::menuOptions[i] << std::endl;
+  std::cout << std::endl;
+  std::cout << "Please enlarge the screen until both title and the last line are shown:"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\nEnd"
+            << std::endl;
 }

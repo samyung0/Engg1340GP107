@@ -19,7 +19,8 @@ void levelBasef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats, std::
 {
   while (1)
   {
-    std::cout << std::string(100, '\n') << std::endl;
+    // clear screen
+    std::cout << "\033[2J\033[1;1H";
     std::cout << "Please choose the difficulty." << std::endl
               << std::endl;
     std::cout << std::setw(10) << levelf::print[0][0] << std::setw(10) << levelf::print[0][1] << std::endl
@@ -70,7 +71,8 @@ void levelBasef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats, std::
         std::ifstream levelStream(path, std::ios::in);
 
         std::string data;
-        while(std::getline(levelStream, data)){
+        while (std::getline(levelStream, data))
+        {
           /////////////
           /////////TODO: read in level data
           /////////////
