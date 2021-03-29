@@ -26,7 +26,13 @@ Game::Game(const std::unordered_map<std::string, int> &setting_) : setting(setti
 
 void Game::start()
 {
-
+  resource = new data::Resource();
+  building = new data::Building();
+  troop = new data::Troop();
+  army = new data::Army();
+  battlePlan = new data::BattlePlan();
+  research = new data::Research();
+  battle = new data::Battle();
   this->timerThread = new std::thread(&Game::timer, this, this->setting["speed"]);
 
   char input;
@@ -83,8 +89,8 @@ void Game::start()
       }
     }
 
+    this->stopLoopPrintStatus();
     if(this->gamePhase == 0) this->loopPrintStatus(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
-    else this->stopLoopPrintStatus();
 
     if (this->gamePhase > 0)
     {

@@ -59,7 +59,6 @@ public:
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 private:
-  
   // separate timer thread to increment time only
   std::thread *timerThread;
   std::future<void> loopPrintStatusThread;
@@ -71,6 +70,13 @@ private:
   //           -> terminated by first setting terminatePrint to false (stops while loop), then notifying the conditional variable (breaks wait_for)
   void loopPrintStatus(int x, int y)
   {
+
+    // tempLoopPrintStatus is required so that I do not need to pass in a lambda capturing *this*
+    // the class function called within the lambda (printStatus) does not have a reference to *this* even if it is captured inside lambda
+    this->loopPrintStatusThread = std::async(std::launch::async, &Game::tempLoopPrintStatus, this, x, y);
+  };
+  void stopLoopPrintStatus()
+  {
     if (this->loopPrintStatusThread.valid())
     {
       this->lgPrintStatus.lock();
@@ -79,24 +85,16 @@ private:
       terminatePrintCV.notify_all();
       this->loopPrintStatusThread.get();
     }
-    this->loopPrintStatusThread = std::async(std::launch::async, &Game::tempLoopPrintStatus, this, x, y);
-  };
-  void stopLoopPrintStatus()
-  {
-      this->lgPrintStatus.lock();
-      this->terminatePrint = true;
-      this->lgPrintStatus.unlock();
-      terminatePrintCV.notify_all();
-      this->loopPrintStatusThread.get();
   }
-  void tempLoopPrintStatus(int x, int y){
+  void tempLoopPrintStatus(int x, int y)
+  {
     this->terminatePrint = false;
-      while (!terminatePrint)
-      {
-        this->printStatus(x, y);
-        std::unique_lock<std::mutex> lock(this->lgPrintStatus);
-        terminatePrintCV.wait_for(lock, std::chrono::milliseconds(1000));
-      }
+    while (!terminatePrint)
+    {
+      this->printStatus(x, y);
+      std::unique_lock<std::mutex> lock(this->lgPrintStatus);
+      terminatePrintCV.wait_for(lock, std::chrono::milliseconds(1000));
+    }
   }
 
   void printStatus(int x, int y);
@@ -133,13 +131,14 @@ private:
   int day = 1;
 
   std::unordered_map<std::string, int> setting;
-  data::Resource resource;
-  data::Building building;
-  data::Troop troop;
-  data::Army army;
-  data::BattlePlan battlePlan;
-  data::Research research;
-  data::Battle battle;
+  data::Resource *resource;
+  data::Building *building;
+  data::Troop *troop;
+  data::Army *army;
+  data::BattlePlan *battlePlan;
+  data::Research *research;
+  data::Battle *battle;
+
   std::mutex lg;
   std::mutex lgPrintStatus;
 

@@ -1,4 +1,4 @@
-CPPFLAGS += -pedantic-errors -std=c++11
+CPPFLAGS += -pedantic-errors -std=c++11 -lg
 
 all: main
 
@@ -6,7 +6,10 @@ all: main
 # class/struct object files ends with c
 
 main: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/menu.o objectFiles/play.o objectFiles/level.o objectFiles/setting.o objectFiles/statf.o objectFiles/settingf.o objectFiles/menuWrapperc.o objectFiles/color.o objectFiles/levelf.o objectFiles/infantryc.o objectFiles/gamePrintStatusc.o objectFiles/gamePrintBuildc.o
-	g++ -o $@.exe $^ -pthread
+	g++ -o $@ $^ -pthread -lg
+
+main.exe: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/menu.o objectFiles/play.o objectFiles/level.o objectFiles/setting.o objectFiles/statf.o objectFiles/settingf.o objectFiles/menuWrapperc.o objectFiles/color.o objectFiles/levelf.o objectFiles/infantryc.o objectFiles/gamePrintStatusc.o objectFiles/gamePrintBuildc.o
+	x86_64-w64-mingw32-gcc -o $@ $^ -pthread
 
 objectFiles/main.o: main.cpp class/game/game.h menu/menu.h io/io.h action/stat/stat.h action/setting/setting.h
 	g++ ${CPPFLAGS} -c $< -o $@

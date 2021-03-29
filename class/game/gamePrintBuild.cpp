@@ -38,14 +38,14 @@ void Game::printBuild(int x, int y)
       {"Back"}};
 
   // check how many buildings can be built for each type
-  double freeLand = this->resource.baseLand * this->resource.baseLandMul + this->resource.capturedLand - this->resource.usedLand;
-  double freeManpower = this->resource.manpower - this->resource.manpowerInUse;
+  double freeLand = this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand;
+  double freeManpower = this->resource->manpower - this->resource->manpowerInUse;
   std::vector<int> maxBuild = {
-      (int)(freeLand / this->building.farmL[0]),
-      (int)(freeLand / this->building.civilianFactoryL[0]),
-      (int)(freeLand / this->building.militaryFactoryL[0]),
-      (int)(freeLand / this->building.trainingCampL[0]),
-      (int)(freeLand / this->building.airportL[0]),
+      (int)(freeLand / this->building->farmL[0]),
+      (int)(freeLand / this->building->civilianFactoryL[0]),
+      (int)(freeLand / this->building->militaryFactoryL[0]),
+      (int)(freeLand / this->building->trainingCampL[0]),
+      (int)(freeLand / this->building->airportL[0]),
   };
   for (auto i : maxBuild)
     if (i > freeManpower)
@@ -73,12 +73,12 @@ void Game::printBuild(int x, int y)
   }
 
   std::vector<int> maxUpgrade = {
-      std::min((int)((freeLand + this->building.farmL[0]) / this->building.farmL[1]), this->building.farm[0]),
-      std::min((int)((freeLand + this->building.farmL[1]) / this->building.farmL[2]), this->building.farm[1]),
-      std::min((int)((freeLand + this->building.civilianFactoryL[0]) / this->building.civilianFactoryL[1]), this->building.civilianFactory[0]),
-      std::min((int)((freeLand + this->building.civilianFactoryL[1]) / this->building.civilianFactoryL[2]), this->building.civilianFactory[1]),
-      std::min((int)((freeLand + this->building.militaryFactoryL[0]) / this->building.militaryFactoryL[1]), this->building.militaryFactory[0]),
-      std::min((int)((freeLand + this->building.militaryFactoryL[1]) / this->building.militaryFactoryL[2]), this->building.militaryFactory[1]),
+      std::min((int)((freeLand + this->building->farmL[0]) / this->building->farmL[1]), this->building->farm[0]),
+      std::min((int)((freeLand + this->building->farmL[1]) / this->building->farmL[2]), this->building->farm[1]),
+      std::min((int)((freeLand + this->building->civilianFactoryL[0]) / this->building->civilianFactoryL[1]), this->building->civilianFactory[0]),
+      std::min((int)((freeLand + this->building->civilianFactoryL[1]) / this->building->civilianFactoryL[2]), this->building->civilianFactory[1]),
+      std::min((int)((freeLand + this->building->militaryFactoryL[0]) / this->building->militaryFactoryL[1]), this->building->militaryFactory[0]),
+      std::min((int)((freeLand + this->building->militaryFactoryL[1]) / this->building->militaryFactoryL[2]), this->building->militaryFactory[1]),
   };
   for (auto i : maxUpgrade)
     if (i > freeManpower)
@@ -125,8 +125,8 @@ void Game::printBuild(int x, int y)
 
   for (int i = 0; i < 3; i++)
   {
-    action[6][i * 2 + 1] += "(" + std::to_string(this->building.farm[i]) + ")";
-    if (this->building.farm[i] > 0)
+    action[6][i * 2 + 1] += "(" + std::to_string(this->building->farm[i]) + ")";
+    if (this->building->farm[i] > 0)
     {
       action[6][i * 2] = underline(action[6][i * 2], "green");
       action[6][i * 2 + 1] = underline(action[6][i * 2 + 1], "green");
@@ -139,8 +139,8 @@ void Game::printBuild(int x, int y)
   }
   for (int i = 0; i < 3; i++)
   {
-    action[7][i * 2 + 1] += "(" + std::to_string(this->building.civilianFactory[i]) + ")";
-    if (this->building.civilianFactory[i] > 0)
+    action[7][i * 2 + 1] += "(" + std::to_string(this->building->civilianFactory[i]) + ")";
+    if (this->building->civilianFactory[i] > 0)
     {
       action[7][i * 2] = underline(action[7][i * 2], "green");
       action[7][i * 2 + 1] = underline(action[7][i * 2 + 1], "green");
@@ -153,8 +153,8 @@ void Game::printBuild(int x, int y)
   }
   for (int i = 0; i < 3; i++)
   {
-    action[8][i * 2 + 1] += "(" + std::to_string(this->building.militaryFactory[i]) + ")";
-    if (this->building.militaryFactory[i] > 0)
+    action[8][i * 2 + 1] += "(" + std::to_string(this->building->militaryFactory[i]) + ")";
+    if (this->building->militaryFactory[i] > 0)
     {
       action[8][i * 2] = underline(action[8][i * 2], "green");
       action[8][i * 2 + 1] = underline(action[8][i * 2 + 1], "green");
@@ -165,8 +165,8 @@ void Game::printBuild(int x, int y)
       action[8][i * 2 + 1] = color(action[8][i * 2 + 1], "red");
     }
   }
-  action[9][1] += "(" + std::to_string(this->building.trainingCamp[0]) + ")";
-  if (this->building.trainingCamp[0] > 0)
+  action[9][1] += "(" + std::to_string(this->building->trainingCamp[0]) + ")";
+  if (this->building->trainingCamp[0] > 0)
   {
     action[9][0] = underline(action[9][0], "green");
     action[9][1] = underline(action[9][1], "green");
@@ -176,8 +176,8 @@ void Game::printBuild(int x, int y)
     action[9][0] = color(action[9][0], "red");
     action[9][1] = color(action[9][1], "red");
   }
-  action[10][1] += "(" + std::to_string(this->building.airport[0]) + ")";
-  if (this->building.airport[0] > 0)
+  action[10][1] += "(" + std::to_string(this->building->airport[0]) + ")";
+  if (this->building->airport[0] > 0)
   {
     action[10][0] = underline(action[10][0], "green");
     action[10][1] = underline(action[10][1], "green");
@@ -223,26 +223,30 @@ void Game::printBuild(int x, int y)
             << std::endl;
   std::cout << std::setw(50 + 11) << color("Overview: ", "green")
             << color("Remove: ", "green");
-  std::cout << "\nFarm:" << std::string(17, ' ') << this->building.farm[0] << ", " << this->building.farm[1] << ", " << this->building.farm[2]
-            << std::string(28 - 4 - std::to_string(this->building.farm[0]).length() - std::to_string(this->building.farm[1]).length() - std::to_string(this->building.farm[2]).length(), ' ')
-            << "Farm:" << std::string(19, ' ') << actionPrefix[6][0] << action[6][0] << actionPrefix[6][1] << action[6][1] << std::string(5 - std::to_string(this->building.farm[0]).length(), ' ') << "/" << actionPrefix[6][2] << action[6][2] << actionPrefix[6][3] << action[6][3] << std::string(5 - std::to_string(this->building.farm[1]).length(), ' ') << "/" << actionPrefix[6][4] << action[6][4] << actionPrefix[6][5] << action[6][5]
-            << "\nCivilian Factory:" << std::string(5, ' ') << this->building.civilianFactory[0] << ", " << this->building.civilianFactory[1] << ", " << this->building.civilianFactory[2]
-            << std::string(28 - 4 - std::to_string(this->building.civilianFactory[0]).length() - std::to_string(this->building.civilianFactory[1]).length() - std::to_string(this->building.civilianFactory[2]).length(), ' ')
-            << "Civilian Factory:" << std::string(7, ' ') << actionPrefix[7][0] << action[7][0] << actionPrefix[7][1] << action[7][1] << std::string(5 - std::to_string(this->building.civilianFactory[0]).length(), ' ') << "/" << actionPrefix[7][2] << action[7][2] << actionPrefix[7][3] << action[7][3] << std::string(5 - std::to_string(this->building.civilianFactory[1]).length(), ' ') << "/" << actionPrefix[7][4] << action[7][4] << actionPrefix[7][5] << action[7][5]
-            << "\nMilitary Factory:" << std::string(5, ' ') << this->building.militaryFactory[0] << ", " << this->building.militaryFactory[1] << ", " << this->building.militaryFactory[2]
-            << std::string(28 - 4 - std::to_string(this->building.militaryFactory[0]).length() - std::to_string(this->building.militaryFactory[1]).length() - std::to_string(this->building.militaryFactory[2]).length(), ' ')
-            << "Military Factory:" << std::string(7, ' ') << actionPrefix[8][0] << action[8][0] << actionPrefix[8][1] << action[8][1] << std::string(5 - std::to_string(this->building.militaryFactory[0]).length(), ' ') << "/" << actionPrefix[8][2] << action[8][2] << actionPrefix[8][3] << action[8][3] << std::string(5 - std::to_string(this->building.militaryFactory[1]).length(), ' ') << "/" << actionPrefix[8][4] << action[8][4] << actionPrefix[8][5] << action[8][5]
-            << "\nTraining Camp:" << std::string(8, ' ') << this->building.trainingCamp[0]
-            << std::string(28 - std::to_string(this->building.trainingCamp[0]).length(), ' ')
+  std::cout << "\nFarm:" << std::string(17, ' ') << this->building->farm[0] << ", " << this->building->farm[1] << ", " << this->building->farm[2]
+            << std::string(28 - 4 - std::to_string(this->building->farm[0]).length() - std::to_string(this->building->farm[1]).length() - std::to_string(this->building->farm[2]).length(), ' ')
+            << "Farm:" << std::string(19, ' ') << actionPrefix[6][0] << action[6][0] << actionPrefix[6][1] << action[6][1] << std::string(5 - std::to_string(this->building->farm[0]).length(), ' ') << "/" << actionPrefix[6][2] << action[6][2] << actionPrefix[6][3] << action[6][3] << std::string(5 - std::to_string(this->building->farm[1]).length(), ' ') << "/" << actionPrefix[6][4] << action[6][4] << actionPrefix[6][5] << action[6][5]
+            << "\nCivilian Factory:" << std::string(5, ' ') << this->building->civilianFactory[0] << ", " << this->building->civilianFactory[1] << ", " << this->building->civilianFactory[2]
+            << std::string(28 - 4 - std::to_string(this->building->civilianFactory[0]).length() - std::to_string(this->building->civilianFactory[1]).length() - std::to_string(this->building->civilianFactory[2]).length(), ' ')
+            << "Civilian Factory:" << std::string(7, ' ') << actionPrefix[7][0] << action[7][0] << actionPrefix[7][1] << action[7][1] << std::string(5 - std::to_string(this->building->civilianFactory[0]).length(), ' ') << "/" << actionPrefix[7][2] << action[7][2] << actionPrefix[7][3] << action[7][3] << std::string(5 - std::to_string(this->building->civilianFactory[1]).length(), ' ') << "/" << actionPrefix[7][4] << action[7][4] << actionPrefix[7][5] << action[7][5]
+            << "\nMilitary Factory:" << std::string(5, ' ') << this->building->militaryFactory[0] << ", " << this->building->militaryFactory[1] << ", " << this->building->militaryFactory[2]
+            << std::string(28 - 4 - std::to_string(this->building->militaryFactory[0]).length() - std::to_string(this->building->militaryFactory[1]).length() - std::to_string(this->building->militaryFactory[2]).length(), ' ')
+            << "Military Factory:" << std::string(7, ' ') << actionPrefix[8][0] << action[8][0] << actionPrefix[8][1] << action[8][1] << std::string(5 - std::to_string(this->building->militaryFactory[0]).length(), ' ') << "/" << actionPrefix[8][2] << action[8][2] << actionPrefix[8][3] << action[8][3] << std::string(5 - std::to_string(this->building->militaryFactory[1]).length(), ' ') << "/" << actionPrefix[8][4] << action[8][4] << actionPrefix[8][5] << action[8][5]
+            << "\nTraining Camp:" << std::string(8, ' ') << this->building->trainingCamp[0]
+            << std::string(28 - std::to_string(this->building->trainingCamp[0]).length(), ' ')
             << "Training Camp:" << std::string(10, ' ') << actionPrefix[9][0] << action[9][0] << actionPrefix[9][1] << action[9][1]
-            << "\nAriport:" << std::string(14, ' ') << this->building.airport[0]
-            << std::string(28 - std::to_string(this->building.airport[0]).length(), ' ')
+            << "\nAriport:" << std::string(14, ' ') << this->building->airport[0]
+            << std::string(28 - std::to_string(this->building->airport[0]).length(), ' ')
             << "Airport:" << std::string(16, ' ') << actionPrefix[10][0] << action[10][0] << actionPrefix[10][1] << action[10][1]
             << std::endl
             << std::endl;
-  std::cout << std::string(47, ' ')
+  std::cout << std::setw(50 + 11) << color("In Progress: ", "green")
             << actionPrefix[11][0] << action[11][0] << " (Or spacebar)"
-            << std::endl
+            << "\nFarm:" << std::string(17, ' ') << this->building->progressTrack["farm1"] << ", " << this->building->progressTrack["farm2"] << ", " << this->building->progressTrack["farm3"]
+            << "\nCivilian Factory:" << std::string(5, ' ') << this->building->progressTrack["civilianFactory1"] << ", " << this->building->progressTrack["civilianFactory2"] << ", " << this->building->progressTrack["civilianFactory3"]
+            << "\nMilitary Factory:" << std::string(5, ' ') << this->building->progressTrack["militaryFactory1"] << ", " << this->building->progressTrack["militaryFactory2"] << ", " << this->building->progressTrack["militaryFactory3"]
+            << "\nTraining Camp:" << std::string(8, ' ') << this->building->progressTrack["trainingCamp"]
+            << "\nAirport:" << std::string(14, ' ') << this->building->progressTrack["airport"]
             << std::endl;
   this->lg.unlock();
 }

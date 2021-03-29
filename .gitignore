@@ -1,4 +1,6 @@
 test.*
 test2.*
-/objectFiles/*
+/objectFiles/*.o
 /TESTING
+/TESTING2
+main

@@ -27,9 +27,9 @@ namespace data
     // to be updated in game fetchData
     int food = 0;
     int equipment = 0;
-    int manpower = 100;
+    int manpower = 0;
     int manpowerInUse = 0;
-    double baseLand = 100;
+    double baseLand = 0;
     double usedLand = 0;
     double capturedLand = 0;
 
@@ -46,9 +46,9 @@ namespace data
   struct Building
   {
     // index 0 means no upgrade, 1 and 2 for upgraded
-    std::vector<int> farm = {10, 10, 0};
-    std::vector<int> civilianFactory = {10, 2, 0};
-    std::vector<int> militaryFactory = {0, 3, 0};
+    std::vector<int> farm = {0, 0, 0};
+    std::vector<int> civilianFactory = {0, 0, 0};
+    std::vector<int> militaryFactory = {0, 0, 0};
     std::vector<int> trainingCamp = {0};
     std::vector<int> airport = {0};
 
@@ -131,6 +131,19 @@ namespace data
          }}},
     };
 
+    std::unordered_map<std::string, int> progressTrack = {
+      {"farm1", 0},
+      {"farm2", 0},
+      {"farm3", 0},
+      {"civilianFactory1", 0},
+      {"civilianFactory2", 0},
+      {"civilianFactory3", 0},
+      {"militaryFactory1", 0},
+      {"militaryFactory2", 0},
+      {"militaryFactory3", 0},
+      {"trainingCamp", 0},
+      {"airport", 0},
+    };
     std::vector<Progress *> progress;
     std::vector<std::future<void>> progressAsync;
   };

@@ -19,13 +19,13 @@ void print_menuSelect(int y, int x, MenuWrapper& _)
 
   // clear screen
   std::cout << "\033[2J\033[1;1H";
-  std::cout << "Welcome to Hearts of Gold." << std::endl;
+
+  std::cout << "Welcome to Hearts of Gold." << std::endl << std::endl;
   for (int i = 0; i < 4; i++)
     std::cout << menu::menuOptions[i] << std::endl;
   std::cout << std::endl;
-  std::cout << "Please enlarge the screen until both title and the last line are shown:"
-            << "\n|"
-            << "\n|"
+  std::cout << "Please enlarge the screen until both title and words End are shown:"
+            << "\n|------------------------------------------------------------------------------------------------------------------------------------------------------End"
             << "\n|"
             << "\n|"
             << "\n|"

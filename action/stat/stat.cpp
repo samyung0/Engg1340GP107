@@ -12,7 +12,7 @@ void statf(int &menuPhase, int prevMenuPhase, MenuWrapper& _)
   std::fstream v("stat", std::ios::in);
   std::string a;
 
-  std::cout << std::string(100, '\n') << std::endl;
+  std::cout << "\033[2J\033[1;1H";
   while(std::getline(v, a)) std::cout << a << std::endl;
 
   v.close();
