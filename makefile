@@ -60,7 +60,7 @@ objectFiles/gameBuildf.o: class/game/actionClass/gameBuild.cpp class/game/game.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 clean:
-	rm objectFiles/*
+	rm objectFiles/*.o
 	rm main
 	
 PHONY: clean
