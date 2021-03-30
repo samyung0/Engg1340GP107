@@ -44,6 +44,12 @@ void print_menuSelect(int y, int x, MenuWrapper& _)
             << "\n|"
             << "\n|"
             << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
+            << "\n|"
             << "\nEnd"
             << std::endl;
 }

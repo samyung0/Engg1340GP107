@@ -9,8 +9,11 @@
 #include <chrono>
 #include <future>
 #include <condition_variable>
+#include <functional>
+#include <cmath>
 
 #include "gameStruct.h"
+#include "../../lib/uuid/uuid.hpp"
 
 class Game
 {
@@ -55,13 +58,14 @@ public:
 
   // function to be executed according to gamePhase (modifying)
   // length: 74
-  std::vector<void (Game::*)()> action = {
-      NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+  std::vector<void (Game::*)(int &, int)> action = {
+      NULL, NULL, NULL, NULL, NULL, &Game::buildfarm1, &Game::buildfarm5, &Game::buildfarm10, &Game::buildfarmmax, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 private:
   // separate timer thread to increment time only
   std::thread *timerThread;
   std::future<void> loopPrintStatusThread;
+  std::future<void> loopPrintBuildThread;
 
   // default to printing the base status every second
   // approach: call async to allocate non-blocking thread to tempLoopPrintStatus
@@ -79,9 +83,9 @@ private:
   {
     if (this->loopPrintStatusThread.valid())
     {
-      this->lgPrintStatus.lock();
+      this->lgcv1a.lock();
       this->terminatePrint = true;
-      this->lgPrintStatus.unlock();
+      this->lgcv1a.unlock();
       terminatePrintCV.notify_all();
       this->loopPrintStatusThread.get();
     }
@@ -92,8 +96,33 @@ private:
     while (!terminatePrint)
     {
       this->printStatus(x, y);
-      std::unique_lock<std::mutex> lock(this->lgPrintStatus);
+      std::unique_lock<std::mutex> lock(this->lgcv1b);
       terminatePrintCV.wait_for(lock, std::chrono::milliseconds(1000));
+    }
+  }
+  void loopPrintBuild(int x, int y)
+  {
+    this->loopPrintBuildThread = std::async(std::launch::async, &Game::tempLoopPrintBuild, this, x, y);
+  };
+  void stopLoopPrintBuild()
+  {
+    if (this->loopPrintBuildThread.valid())
+    {
+      this->lgcv2a.lock();
+      this->terminateBuild = true;
+      this->lgcv2a.unlock();
+      terminateBuildCV.notify_all();
+      this->loopPrintBuildThread.get();
+    }
+  }
+  void tempLoopPrintBuild(int x, int y)
+  {
+    this->terminateBuild = false;
+    while (!terminateBuild)
+    {
+      this->printBuild(x, y);
+      std::unique_lock<std::mutex> lock(this->lgcv2b);
+      terminateBuildCV.wait_for(lock, std::chrono::milliseconds(1000));
     }
   }
 
@@ -105,6 +134,38 @@ private:
   void printBattlePlan(int x, int y);
   void printBattle(int x, int y);
   void printSetSpeed(int x, int y);
+
+  // note buildBase will not be called multiple times using foor loop because of the lock guard, so the number is directly passsed into buildBase
+  void buildBase(std::string, int, std::function<void(data::Resource &)> &, std::string, double, int);
+
+  void buildfarm1(int &currentPhase, int prevPhase)
+  {
+    currentPhase = prevPhase;
+    if ((this->resource->manpower - this->resource->manpowerInUse <= 0) || (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand < this->building->farmL[0]))
+      return;
+    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0], 1);
+  };
+  void buildfarm5(int &currentPhase, int prevPhase)
+  {
+    currentPhase = prevPhase;
+    if ((this->resource->manpower - this->resource->manpowerInUse <= 1) || (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand < this->building->farmL[0] * 2))
+      return;
+    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0]*5, 5);
+  };
+  void buildfarm10(int &currentPhase, int prevPhase)
+  {
+    currentPhase = prevPhase;
+    if ((this->resource->manpower - this->resource->manpowerInUse <= 2) || (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand < this->building->farmL[0] * 3))
+      return;
+    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0]*10, 10);
+  };
+  void buildfarmmax(int &currentPhase, int prevPhase)
+  {
+    currentPhase = prevPhase;
+    double freeLand = this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand;
+    int max = std::min((int)(freeLand / this->building->farmL[0]), this->resource->manpower - this->resource->manpowerInUse);
+    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0]*max, max);
+  };
 
   void pause();
   void saveAs();
@@ -126,11 +187,15 @@ private:
   };
   bool terminate = false;
   bool terminatePrint = false;
+  bool terminateBuild = false;
   std::condition_variable terminatePrintCV;
+  std::condition_variable terminateBuildCV;
 
   int day = 1;
 
+  // key: speed
   std::unordered_map<std::string, int> setting;
+
   data::Resource *resource;
   data::Building *building;
   data::Troop *troop;
@@ -139,8 +204,19 @@ private:
   data::Research *research;
   data::Battle *battle;
 
+  // for day
   std::mutex lg;
-  std::mutex lgPrintStatus;
+  // for print cv
+  std::mutex lgcv1a;
+  std::mutex lgcv1b;
+  // for build cv
+  std::mutex lgcv2a;
+  std::mutex lgcv2b;
+  std::mutex lg2;
+  // for any mutation of data
+  std::mutex lg3;
+
+  std::function<std::string()> uuid = [&]() -> std::string {sole::uuid A = sole::uuid1();return A.str(); };
 
   // format researches when printing, return string
   std::string helper(std::vector<bool> level)

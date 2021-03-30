@@ -24,7 +24,7 @@ void Game::printStatus(int x, int y)
             << std::endl
             << std::endl;
   std::cout << color("Resources:", "green") << "\n"
-            << "Food: " << this->resource->food << "/" << this->troop->totalFoodRequired
+            << "Food: " << this->troop->totalFoodRequired << "/" <<  this->resource->food
             << "   Equipment: " << this->resource->equipment << "/" << this->troop->totalEquipmentRequired
             << "   Manpower: " << (this->resource->manpower - this->resource->manpowerInUse) << "/" << this->resource->manpower
             << "   Land: " << (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand) << "/" << this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand
@@ -34,7 +34,7 @@ void Game::printStatus(int x, int y)
             << std::endl
             << std::endl
             << std::endl;
-  std::cout << std::left << std::setw(40) << "(Level 1 , (2), (3))"
+  std::cout << std::left << std::setw(40) << "(Level 1 , 2, 3)"
             << "(total, in army, in battle plan, in battle)"
             << std::endl;
   std::cout << std::setw(51) << color("Buildings:", "green")

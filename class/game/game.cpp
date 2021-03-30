@@ -3,7 +3,9 @@
 #include <thread>
 #include <chrono>
 #include <future>
+#include <mutex>
 
+#include "gameStruct.h"
 #include "game.h"
 #include "../../lib/uuid/uuid.hpp"
 #include "../../io/io.h"
@@ -12,12 +14,16 @@ ArmyUnit::ArmyUnit(std::string name_) : name(name_) {}
 
 // decrement remain by 1 every interval until 0
 Progress::Progress(int time, int interval_)
-    : remain(time), interval(interval_)
+    : remain(time), interval(interval_){
+    }
+void Progress::start(std::mutex& lg3)
 {
   while (this->remain > 0)
   {
-    std::this_thread::sleep_for(std::chrono::milliseconds(this->interval));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    lg3.lock();
     this->remain--;
+    lg3.unlock();
   }
 }
 
@@ -37,12 +43,11 @@ void Game::start()
 
   char input;
 
-  // this->print[this->gamePhase] returns the memory address of the class function inside class
-  // therefore cant just use *this->print[this->gamePhase] and execute it, must specify that the memory address comes from class by using this->
   (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
   this->loopPrintStatus(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
   while (1)
   {
+    int prevGamePhase = this->gamePhase;
 
     // same method used in menuPhase
     input = getch();
@@ -72,10 +77,13 @@ void Game::start()
     // progress game phase
     else if (input == '\n')
     {
-      this->prevGamePhase.push_back(this->gamePhase);
       this->gamePhase = this->map[this->gamePhase][this->gamePhaseSelect[0]][this->gamePhaseSelect[1]];
-      this->gamePhaseSelect[0] = 0;
-      this->gamePhaseSelect[1] = 0;
+      if (gamePhase > 0)
+      {
+        this->prevGamePhase.push_back(prevGamePhase);
+        this->gamePhaseSelect[0] = 0;
+        this->gamePhaseSelect[1] = 0;
+      }
     }
     // default shortcut key for back
     else if (input == ' ')
@@ -90,14 +98,18 @@ void Game::start()
     }
 
     this->stopLoopPrintStatus();
-    if(this->gamePhase == 0) this->loopPrintStatus(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
-
-    if (this->gamePhase > 0)
+    this->stopLoopPrintBuild();
+    if (this->gamePhase == 0)
+      this->loopPrintStatus(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+    else if (this->gamePhase == 1)
+      this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+    else if (this->gamePhase > 0)
     {
       (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
     }
-    else if(this->gamePhase < 0)
+    else
     {
+      (this->*this->action[-this->gamePhase])(this->gamePhase, prevGamePhase);
     }
   }
 

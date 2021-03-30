@@ -2,11 +2,16 @@
 #include <string>
 #include <iomanip>
 #include <cmath>
+#include <tuple>
 
 #include "../../io/io.h"
 #include "game.h"
 void Game::printBuild(int x, int y)
 {
+  // lock lg3 just in case the calculation is slow, becasue of the use of reference to class variables which are subjected to change anytime
+  // (copying may slow down performace significantly later into the game, though not tested)
+  this->lg3.lock();
+
   std::vector<std::vector<std::string>> actionPrefix = {
 
       {"   ", "   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "},
@@ -24,12 +29,12 @@ void Game::printBuild(int x, int y)
 
   std::vector<std::vector<std::string>> action = {
 
-      {"1", "2", "3", "Max", "1", "2", "3", "Max"},
-      {"1", "2", "3", "Max", "1", "2", "3", "Max"},
-      {"1", "2", "3", "Max", "1", "2", "3", "Max"},
-      {"1", "2", "3", "Max", "1", "2", "3", "Max"},
-      {"1", "2", "3", "Max", "1", "2", "3", "Max"},
-      {"1", "2", "3", "Max"},
+      {"1", "5", "10", "Max", "1", "5", "10", "Max"},
+      {"1", "5", "10", "Max", "1", "5", "10", "Max"},
+      {"1", "5", "10", "Max", "1", "5", "10", "Max"},
+      {"1", "5", "10", "Max", "1", "5", "10", "Max"},
+      {"1", "5", "10", "Max", "1", "5", "10", "Max"},
+      {"1", "5", "10", "Max"},
       {"1", "All", "1", "All", "1", "All"},
       {"1", "All", "1", "All", "1", "All"},
       {"1", "All", "1", "All", "1", "All"},
@@ -47,16 +52,16 @@ void Game::printBuild(int x, int y)
       (int)(freeLand / this->building->trainingCampL[0]),
       (int)(freeLand / this->building->airportL[0]),
   };
-  for (auto i : maxBuild)
-    if (i > freeManpower)
-      i = freeManpower;
+  for (int i = 0; i < maxBuild.size(); i++)
+    if (maxBuild[i] > freeManpower)
+      maxBuild[i] = freeManpower;
   for (int i = 0; i < 5; i++)
   {
-    if (maxBuild[i] < 3)
+    if (maxBuild[i] < 10)
       action[i][2] = color(action[i][2], "red");
     else
       action[i][2] = underline(action[i][2], "green");
-    if (maxBuild[i] < 2)
+    if (maxBuild[i] < 5)
       action[i][1] = color(action[i][1], "red");
     else
       action[i][1] = underline(action[i][1], "green");
@@ -73,52 +78,59 @@ void Game::printBuild(int x, int y)
   }
 
   std::vector<int> maxUpgrade = {
-      std::min((int)((freeLand + this->building->farmL[0]) / this->building->farmL[1]), this->building->farm[0]),
-      std::min((int)((freeLand + this->building->farmL[1]) / this->building->farmL[2]), this->building->farm[1]),
-      std::min((int)((freeLand + this->building->civilianFactoryL[0]) / this->building->civilianFactoryL[1]), this->building->civilianFactory[0]),
-      std::min((int)((freeLand + this->building->civilianFactoryL[1]) / this->building->civilianFactoryL[2]), this->building->civilianFactory[1]),
-      std::min((int)((freeLand + this->building->militaryFactoryL[0]) / this->building->militaryFactoryL[1]), this->building->militaryFactory[0]),
-      std::min((int)((freeLand + this->building->militaryFactoryL[1]) / this->building->militaryFactoryL[2]), this->building->militaryFactory[1]),
+      (this->building->farmL[1] > this->building->farmL[0] ? std::min((int)(freeLand / (this->building->farmL[1]- this->building->farmL[0])), this->building->farm[0]) : this->building->farm[0]),
+      (this->building->farmL[2] > this->building->farmL[1] ? std::min((int)(freeLand / (this->building->farmL[2]- this->building->farmL[1])), this->building->farm[1]) : this->building->farm[1]),
+     (this->building->civilianFactoryL[1] > this->building->civilianFactoryL[0] ? std::min((int)(freeLand / (this->building->civilianFactoryL[1]- this->building->civilianFactoryL[0])), this->building->civilianFactory[0]) : this->building->civilianFactory[0]),
+     (this->building->civilianFactoryL[2] > this->building->civilianFactoryL[1] ? std::min((int)(freeLand / (this->building->civilianFactoryL[2]- this->building->civilianFactoryL[1])), this->building->civilianFactory[1]) : this->building->civilianFactory[1]),
+     (this->building->militaryFactoryL[1] > this->building->militaryFactoryL[0] ? std::min((int)(freeLand / (this->building->militaryFactoryL[1]- this->building->militaryFactoryL[0])), this->building->militaryFactory[0]) : this->building->militaryFactory[0]),
+     (this->building->militaryFactoryL[2] > this->building->militaryFactoryL[1] ? std::min((int)(freeLand / (this->building->militaryFactoryL[2]- this->building->militaryFactoryL[1])), this->building->militaryFactory[1]) : this->building->militaryFactory[1])
   };
-  for (auto i : maxUpgrade)
-    if (i > freeManpower)
-      i = freeManpower;
+  for (int i = 0; i < maxUpgrade.size(); i++)
+    if (maxUpgrade[i] > freeManpower)
+      maxUpgrade[i] = freeManpower;
+  std::vector<bool> canUpgrade = {
+      this->building->farmU[1],
+      this->building->farmU[2],
+      this->building->civilianFactoryU[1],
+      this->building->civilianFactoryU[2],
+      this->building->militaryFactoryU[1],
+      this->building->militaryFactoryU[2]};
   for (int i = 0; i < 5; i++)
   {
-    if (maxUpgrade[i] < 3)
+    if (maxUpgrade[i] < 10 || !canUpgrade[i])
       action[i][6] = color(action[i][6], "red");
     else
       action[i][6] = underline(action[i][6], "green");
-    if (maxUpgrade[i] < 2)
+    if (maxUpgrade[i] < 5 || !canUpgrade[i])
       action[i][5] = color(action[i][5], "red");
     else
       action[i][5] = underline(action[i][5], "green");
-    if (maxUpgrade[i] < 1)
+    if (maxUpgrade[i] < 1 || !canUpgrade[i])
       action[i][4] = color(action[i][4], "red");
     else
       action[i][4] = underline(action[i][4], "green");
 
     action[i][7] += "(" + std::to_string(maxUpgrade[i]) + ")";
-    if (maxUpgrade[i] > 0)
+    if (maxUpgrade[i] > 0 && canUpgrade[i])
       action[i][7] = underline(action[i][7], "green");
     else
       action[i][7] = color(action[i][7], "red");
   }
-  if (maxUpgrade[5] < 3)
+  if (maxUpgrade[5] < 10 || !canUpgrade[5])
     action[5][2] = color(action[5][2], "red");
   else
     action[5][2] = underline(action[5][2], "green");
-  if (maxUpgrade[5] < 2)
+  if (maxUpgrade[5] < 5 || !canUpgrade[5])
     action[5][1] = color(action[5][1], "red");
   else
     action[5][1] = underline(action[5][1], "green");
-  if (maxUpgrade[5] < 1)
+  if (maxUpgrade[5] < 1 || !canUpgrade[5])
     action[5][0] = color(action[5][0], "red");
   else
     action[5][0] = underline(action[5][0], "green");
 
   action[5][3] += "(" + std::to_string(maxUpgrade[5]) + ")";
-  if (maxUpgrade[5] > 0)
+  if (maxUpgrade[5] > 0 && canUpgrade[5])
     action[5][3] = underline(action[5][3], "green");
   else
     action[5][3] = color(action[5][3], "red");
@@ -190,14 +202,30 @@ void Game::printBuild(int x, int y)
 
   action[11][0] = underline(action[11][0], "green");
 
+  std::unordered_map<std::string, std::vector<std::tuple<std::string, std::string, std::string> *>> inProgressCount = {
+      {"farm", {}}, {"civliianFactory", {}}, {"militaryFactory", {}}, {"trainingCamp", {}}, {"airport", {}}};
+
+  for (int i = 0; i < this->building->progressTrack.size(); i++)
+  {
+    inProgressCount[std::get<0>(this->building->progressTrack[i])].push_back(&this->building->progressTrack[i]);
+  }
+
   actionPrefix[x][y].erase(1, 1);
   actionPrefix[x][y].insert(1, color(">", "cyan"));
 
-  this->lg.lock();
-  // std::cout << std::string(100, '\n') << std::endl;
   std::cout << "\033[2J\033[1;1H";
-
+  std::cout << "(cannot directly build level 2/3 buildings)" << std::endl;
   std::cout << color("Building: ", "magenta")
+            << std::endl
+            << std::endl;
+  std::cout << color("Resources:", "green") << "\n"
+            << "Food: " << this->troop->totalFoodRequired << "/" <<  this->resource->food
+            << "   Equipment: " << this->resource->equipment << "/" << this->troop->totalEquipmentRequired
+            << "   Manpower: " << (this->resource->manpower - this->resource->manpowerInUse) << "/" << this->resource->manpower
+            << "   Land: " << (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand) << "/" << this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand
+            << "   Troop: " << this->troop->totalTroops
+            << "   Armies: " << this->army->total.size() << "/10"
+            << "   Battle Plans: " << this->battlePlan->total.size() << "/10"
             << std::endl
             << std::endl;
   std::cout << std::setw(50 + 11) << color("Build: ", "green")
@@ -241,12 +269,39 @@ void Game::printBuild(int x, int y)
             << std::endl
             << std::endl;
   std::cout << std::setw(50 + 11) << color("In Progress: ", "green")
-            << actionPrefix[11][0] << action[11][0] << " (Or spacebar)"
-            << "\nFarm:" << std::string(17, ' ') << this->building->progressTrack["farm1"] << ", " << this->building->progressTrack["farm2"] << ", " << this->building->progressTrack["farm3"]
-            << "\nCivilian Factory:" << std::string(5, ' ') << this->building->progressTrack["civilianFactory1"] << ", " << this->building->progressTrack["civilianFactory2"] << ", " << this->building->progressTrack["civilianFactory3"]
-            << "\nMilitary Factory:" << std::string(5, ' ') << this->building->progressTrack["militaryFactory1"] << ", " << this->building->progressTrack["militaryFactory2"] << ", " << this->building->progressTrack["militaryFactory3"]
-            << "\nTraining Camp:" << std::string(8, ' ') << this->building->progressTrack["trainingCamp"]
-            << "\nAirport:" << std::string(14, ' ') << this->building->progressTrack["airport"]
+            << "\nFarm:" << std::string(17, ' ') << (inProgressCount["farm"].size() == 0 ? "no building in progress" : ([&]() -> std::string {
+                 std::string temp = "";
+                 for (auto &i : inProgressCount["farm"])
+                   temp += std::get<2>(*i) + " (" + std::to_string(this->building->progress[std::get<1>(*i)]->remain) + " days), ";
+                 return temp.substr(0, temp.length() - 2);
+               }()))
+            << "\nCivilian Factory:" << std::string(5, ' ') << (inProgressCount["civilianFactory"].size() == 0 ? "no building in progress" : ([&]() -> std::string {
+                 std::string temp = "";
+                 for (auto &i : inProgressCount["civilianFactory"])
+                   temp += std::get<2>(*i) + " (" + std::to_string(this->building->progress[std::get<1>(*i)]->remain) + " days), ";
+                 return temp.substr(0, temp.length() - 2);
+               }()))
+            << "\nMilitary Factory:" << std::string(5, ' ') << (inProgressCount["militaryFactory"].size() == 0 ? "no building in progress" : ([&]() -> std::string {
+                 std::string temp = "";
+                 for (auto &i : inProgressCount["militaryFactory"])
+                   temp += std::get<2>(*i) + " (" + std::to_string(this->building->progress[std::get<1>(*i)]->remain) + " days), ";
+                 return temp.substr(0, temp.length() - 2);
+               }()))
+            << "\nTraining Camp:" << std::string(8, ' ') << (inProgressCount["trianingCamp"].size() == 0 ? "no building in progress" : ([&]() -> std::string {
+                 std::string temp = "";
+                 for (auto &i : inProgressCount["trianingCamp"])
+                   temp += std::get<2>(*i) + " (" + std::to_string(this->building->progress[std::get<1>(*i)]->remain) + " days), ";
+                 return temp.substr(0, temp.length() - 2);
+               }()))
+            << "\nAirport:" << std::string(14, ' ') << (inProgressCount["airport"].size() == 0 ? "no building in progress" : ([&]() -> std::string {
+                 std::string temp = "";
+                 for (auto &i : inProgressCount["airport"])
+                   temp += std::get<2>(*i) + " (" + std::to_string(this->building->progress[std::get<1>(*i)]->remain) + " days), ";
+                 return temp.substr(0, temp.length() - 2);
+               }()))
+            << std::endl
             << std::endl;
-  this->lg.unlock();
+  std::cout << actionPrefix[11][0] << action[11][0] << " (Or spacebar)" << std::endl << std::endl ;
+  // unlock after all results are printed because of the same reference thing
+  this->lg3.unlock();
 }

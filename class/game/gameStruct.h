@@ -7,6 +7,8 @@
 #include <map>
 #include <unordered_map>
 #include <future>
+#include <tuple>
+#include <mutex>
 
 #include "gameUnit.h"
 #include "../../data/troop/troop.h"
@@ -17,6 +19,7 @@ public:
   int remain;
   int interval;
   Progress(int, int);
+  void start(std::mutex&);
 };
 
 namespace data
@@ -27,9 +30,9 @@ namespace data
     // to be updated in game fetchData
     int food = 0;
     int equipment = 0;
-    int manpower = 0;
+    int manpower = 10;
     int manpowerInUse = 0;
-    double baseLand = 0;
+    double baseLand = 100;
     double usedLand = 0;
     double capturedLand = 0;
 
@@ -131,21 +134,10 @@ namespace data
          }}},
     };
 
-    std::unordered_map<std::string, int> progressTrack = {
-      {"farm1", 0},
-      {"farm2", 0},
-      {"farm3", 0},
-      {"civilianFactory1", 0},
-      {"civilianFactory2", 0},
-      {"civilianFactory3", 0},
-      {"militaryFactory1", 0},
-      {"militaryFactory2", 0},
-      {"militaryFactory3", 0},
-      {"trainingCamp", 0},
-      {"airport", 0},
+    std::vector<std::tuple<std::string, std::string, std::string>> progressTrack = {
     };
-    std::vector<Progress *> progress;
-    std::vector<std::future<void>> progressAsync;
+    std::unordered_map<std::string, Progress *> progress;
+    std::unordered_map<std::string, std::future<void>> progressAsync;
   };
   struct Troop
   {
@@ -291,6 +283,19 @@ namespace data
           }}},
     };
 
+    // std::unordered_map<std::string, int> progressTrack = {
+    //   {"farm1", 0},
+    //   {"farm2", 0},
+    //   {"farm3", 0},
+    //   {"civilianFactory1", 0},
+    //   {"civilianFactory2", 0},
+    //   {"civilianFactory3", 0},
+    //   {"militaryFactory1", 0},
+    //   {"militaryFactory2", 0},
+    //   {"militaryFactory3", 0},
+    //   {"trainingCamp", 0},
+    //   {"airport", 0},
+    // };
     std::vector<Progress *> progress;
     std::vector<std::future<void>> progressAsync;
   };

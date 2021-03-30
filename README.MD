@@ -149,7 +149,7 @@ ___Commands:___
 
     Stage 1 : land: 1, manpower: 4, 45 days
 
-- ### <a name="building"></a>Researching
+- ### <a name="research"></a>Researching
   You can do research anytime during the game __but only one at a time__. Each research will give you different bonuses and unlocks upgrades but also require different time to finish. The following shows all research that you can do in all levels. It always follows the path of rudimentary (what you initally have) to intermediate to advanced.
 
    ___Commands:___
