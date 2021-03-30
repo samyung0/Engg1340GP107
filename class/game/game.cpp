@@ -109,7 +109,9 @@ void Game::start()
     }
     else
     {
+      this->lguser.lock();
       (this->*this->action[-this->gamePhase])(this->gamePhase, prevGamePhase);
+      this->lguser.unlock();
     }
   }
 

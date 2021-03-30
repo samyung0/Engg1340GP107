@@ -59,7 +59,14 @@ public:
   // function to be executed according to gamePhase (modifying)
   // length: 74
   std::vector<void (Game::*)(int &, int)> action = {
-      NULL, NULL, NULL, NULL, NULL, &Game::buildfarm1, &Game::buildfarm5, &Game::buildfarm10, &Game::buildfarmmax, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+      NULL, NULL, NULL, NULL, NULL,
+      &Game::buildfarm1, &Game::buildfarm5, &Game::buildfarm10, &Game::buildfarmmax, NULL, NULL, NULL, NULL,
+      NULL,
+      &Game::buildcivilianFactory1, &Game::buildcivilianFactory5, &Game::buildcivilianFactory10, &Game::buildcivilianFactorymax, NULL, NULL, NULL, NULL,
+      NULL,
+      &Game::buildmilitaryFactory1, &Game::buildmilitaryFactory5, &Game::buildmilitaryFactory10, &Game::buildmilitaryFactorymax, NULL, NULL, NULL, NULL,
+      NULL,
+      NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 private:
   // separate timer thread to increment time only
@@ -69,7 +76,7 @@ private:
 
   // default to printing the base status every second
   // approach: call async to allocate non-blocking thread to tempLoopPrintStatus
-  //           -> tempLoopPrintStatus waits 1 second for a conditional variable to notify instead of doing thread sleep (cannot wake thread when slept)
+  //           -> tempLoopPrintStatus repeatedly waits 1 second for a conditional variable to notify instead of doing thread sleep (cannot wake thread when slept)
   //           -> async thread is terminated per user action (to update the x and y index value)
   //           -> terminated by first setting terminatePrint to false (stops while loop), then notifying the conditional variable (breaks wait_for)
   void loopPrintStatus(int x, int y)
@@ -135,37 +142,21 @@ private:
   void printBattle(int x, int y);
   void printSetSpeed(int x, int y);
 
-  // note buildBase will not be called multiple times using foor loop because of the lock guard, so the number is directly passsed into buildBase
-  void buildBase(std::string, int, std::function<void(data::Resource &)> &, std::string, double, int);
-
-  void buildfarm1(int &currentPhase, int prevPhase)
-  {
-    currentPhase = prevPhase;
-    if ((this->resource->manpower - this->resource->manpowerInUse <= 0) || (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand < this->building->farmL[0]))
-      return;
-    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0], 1);
-  };
-  void buildfarm5(int &currentPhase, int prevPhase)
-  {
-    currentPhase = prevPhase;
-    if ((this->resource->manpower - this->resource->manpowerInUse <= 1) || (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand < this->building->farmL[0] * 2))
-      return;
-    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0]*5, 5);
-  };
-  void buildfarm10(int &currentPhase, int prevPhase)
-  {
-    currentPhase = prevPhase;
-    if ((this->resource->manpower - this->resource->manpowerInUse <= 2) || (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand < this->building->farmL[0] * 3))
-      return;
-    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0]*10, 10);
-  };
-  void buildfarmmax(int &currentPhase, int prevPhase)
-  {
-    currentPhase = prevPhase;
-    double freeLand = this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand;
-    int max = std::min((int)(freeLand / this->building->farmL[0]), this->resource->manpower - this->resource->manpowerInUse);
-    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0]*max, max);
-  };
+  void buildBase(std::string, int, std::function<void(data::Resource &)> &, std::string, double);
+  // each of these parent build function:
+  // check if enough resources to build, calls buildbase, and start the printing build loop
+  void buildfarm1(int &currentPhase, int prevPhase);
+  void buildfarm5(int &currentPhase, int prevPhase);
+  void buildfarm10(int &currentPhase, int prevPhase);
+  void buildfarmmax(int &currentPhase, int prevPhase);
+  void buildcivilianFactory1(int &currentPhase, int prevPhase);
+  void buildcivilianFactory5(int &currentPhase, int prevPhase);
+  void buildcivilianFactory10(int &currentPhase, int prevPhase);
+  void buildcivilianFactorymax(int &currentPhase, int prevPhase);
+  void buildmilitaryFactory1(int &currentPhase, int prevPhase);
+  void buildmilitaryFactory5(int &currentPhase, int prevPhase);
+  void buildmilitaryFactory10(int &currentPhase, int prevPhase);
+  void buildmilitaryFactorymax(int &currentPhase, int prevPhase);
 
   void pause();
   void saveAs();
@@ -212,9 +203,12 @@ private:
   // for build cv
   std::mutex lgcv2a;
   std::mutex lgcv2b;
+  // for loop thread
   std::mutex lg2;
   // for any mutation of data
   std::mutex lg3;
+  // user action lock (prevent spamming)
+  std::mutex lguser;
 
   std::function<std::string()> uuid = [&]() -> std::string {sole::uuid A = sole::uuid1();return A.str(); };
 

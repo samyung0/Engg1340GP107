@@ -12,48 +12,41 @@
 // release memory and remove coorelated items in tracking and async
 // input: type of building, time to build, callback, description to be printed
 
-void Game::buildBase(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int number)
+void Game::buildBase(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land)
 {
-  this->resource->manpowerInUse += number;
+  this->resource->manpowerInUse++;
   this->resource->usedLand += land;
+  this->lg3.lock();
+  std::string id = this->uuid();
+  this->building->progressTrack.push_back({type, id, desc});
+  this->lg3.unlock();
 
-  std::cout << "before" << std::endl;
-
-  for (int i = 0; i < number; i++)
-  {
-    std::cout << "inside for" << std::endl;
+  this->building->progressAsync[id] = std::async(std::launch::async, [this, id, time, callBack, type]() {
     this->lg3.lock();
-    std::string id = this->uuid();
-    this->building->progressTrack.push_back({type, id, desc});
-    // not sure why but this async function blocks the parent build function
-    // so if I put loopPrintBuild in the parent function, if wont be run until the progress loop is finished
-    this->building->progressAsync[id] = std::async(std::launch::async, [&, id]() {
-      std::cout << "inside async" << std::endl;
-      this->building->progress[id] = new Progress(time, this->setting["speed"]);
-      this->lg3.unlock();
-      this->building->progress[id]->start(this->lg3);
-      this->lg3.lock();
-      callBack(*this->resource);
-      std::cout << id << std::endl;
-      this->building->progressAsync.erase(id);
-      delete this->building->progress[id];
-      this->building->progress.erase(id);
-      int index = 0;
-      for (int i = 0; i < this->building->progressTrack.size(); i++)
-        if (std::get<2>(this->building->progressTrack[i]) == id)
-        {
-          index = i;
-          break;
-        }
-      this->building->progressTrack.erase(this->building->progressTrack.begin() + index);
+    this->building->progress[id] = new Progress(time, this->setting["speed"]);
+    this->lg3.unlock();
+    this->building->progress[id]->start(this->lg3);
+    this->lg3.lock();
 
-      this->resource->manpowerInUse--;
-      this->lg3.unlock();
-    });
-  }
+    callBack(*this->resource);
+    delete this->building->progress[id];
+    this->building->progress.erase(id);
+    int index = 0;
+    for (int j = 0; j < this->building->progressTrack.size(); j++)
+      if (std::get<1>(this->building->progressTrack[j]) == id)
+      {
+        index = j;
+        break;
+      }
+    this->building->progressTrack.erase(this->building->progressTrack.begin() + index);
 
-  std::cout << "after" << std::endl;
+    this->resource->manpowerInUse--;
+    
+    // workaround resource deadlock error (caused by deleting the map values within the map value I think)
+    std::thread temp([this, id]() { this->building->progressAsync.erase(id);});
+    // must be detached for not blocking And progressAsync to be deleted properly
+    temp.detach();
 
-  this->stopLoopPrintBuild();
-  this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+    this->lg3.unlock();
+  });
 }

@@ -213,7 +213,7 @@ void Game::printBuild(int x, int y)
   actionPrefix[x][y].erase(1, 1);
   actionPrefix[x][y].insert(1, color(">", "cyan"));
 
-  std::cout << "\033[2J\033[1;1H";
+  // std::cout << "\033[2J\033[1;1H";
   std::cout << "(cannot directly build level 2/3 buildings)" << std::endl;
   std::cout << color("Building: ", "magenta")
             << std::endl
@@ -231,19 +231,19 @@ void Game::printBuild(int x, int y)
   std::cout << std::setw(50 + 11) << color("Build: ", "green")
             << color("Upgrade: ", "green");
   std::cout << "\nFarm:" << std::string(14, ' ') << actionPrefix[0][0] + action[0][0] + actionPrefix[0][1] + action[0][1] + actionPrefix[0][2] + action[0][2] + actionPrefix[0][3] + action[0][3]
-            << std::string(11 - std::to_string(maxBuild[0]).length(), ' ')
+            << std::string(10 - std::to_string(maxBuild[0]).length(), ' ')
             << "Farm 1 -> 2:" << std::string(12, ' ') << actionPrefix[0][4] + action[0][4] + actionPrefix[0][5] + action[0][5] + actionPrefix[0][6] + action[0][6] + actionPrefix[0][7] + action[0][7];
   std::cout << "\nCivilian Factory:" << std::string(2, ' ') << actionPrefix[1][0] + action[1][0] + actionPrefix[1][1] + action[1][1] + actionPrefix[1][2] + action[1][2] + actionPrefix[1][3] + action[1][3]
-            << std::string(11 - std::to_string(maxBuild[1]).length(), ' ')
+            << std::string(10 - std::to_string(maxBuild[1]).length(), ' ')
             << "Farm 2 -> 3:" << std::string(12, ' ') << actionPrefix[1][4] + action[1][4] + actionPrefix[1][5] + action[1][5] + actionPrefix[1][6] + action[1][6] + actionPrefix[1][7] + action[1][7];
   std::cout << "\nMilitary Factory:" << std::string(2, ' ') << actionPrefix[2][0] + action[2][0] + actionPrefix[2][1] + action[2][1] + actionPrefix[2][2] + action[2][2] + actionPrefix[2][3] + action[2][3]
-            << std::string(11 - std::to_string(maxBuild[2]).length(), ' ')
+            << std::string(10 - std::to_string(maxBuild[2]).length(), ' ')
             << "Civilian Factory 1 -> 2:" + actionPrefix[2][4] + action[2][4] + actionPrefix[2][5] + action[2][5] + actionPrefix[2][6] + action[2][6] + actionPrefix[2][7] + action[2][7];
   std::cout << "\nTraining Camp:" << std::string(5, ' ') << actionPrefix[3][0] + action[3][0] + actionPrefix[3][1] + action[3][1] + actionPrefix[3][2] + action[3][2] + actionPrefix[3][3] + action[3][3]
-            << std::string(11 - std::to_string(maxBuild[3]).length(), ' ')
+            << std::string(10 - std::to_string(maxBuild[3]).length(), ' ')
             << "Civilian Factory 2 -> 3:" << actionPrefix[3][4] + action[3][4] + actionPrefix[3][5] + action[3][5] + actionPrefix[3][6] + action[3][6] + actionPrefix[3][7] + action[3][7];
   std::cout << "\nAirport:" << std::string(11, ' ') << actionPrefix[4][0] + action[4][0] + actionPrefix[4][1] + action[4][1] + actionPrefix[4][2] + action[4][2] + actionPrefix[4][3] + action[4][3]
-            << std::string(11 - std::to_string(maxBuild[4]).length(), ' ')
+            << std::string(10 - std::to_string(maxBuild[4]).length(), ' ')
             << "Military Factory 1 -> 2:" << actionPrefix[4][4] + action[4][4] + actionPrefix[4][5] + action[4][5] + actionPrefix[4][6] + action[4][6] + actionPrefix[4][7] + action[4][7]
             << std::setw(51) << "\n"
             << "Military Factory 2 -> 3:" << actionPrefix[5][0] + action[5][0] + actionPrefix[5][1] + action[5][1] + actionPrefix[5][2] + action[5][2] + actionPrefix[5][3] + action[5][3]

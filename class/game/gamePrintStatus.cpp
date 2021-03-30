@@ -23,6 +23,9 @@ void Game::printStatus(int x, int y)
   std::cout << color("Day: ", "magenta") << this->day << " (" << std::to_string(this->setting["speed"] / 1000) << "s)"
             << std::endl
             << std::endl;
+
+  this->lg.unlock();
+  this->lg3.lock();
   std::cout << color("Resources:", "green") << "\n"
             << "Food: " << this->troop->totalFoodRequired << "/" <<  this->resource->food
             << "   Equipment: " << this->resource->equipment << "/" << this->troop->totalEquipmentRequired
@@ -96,6 +99,5 @@ void Game::printStatus(int x, int y)
             << std::setw(41) << "\nRecovery: " + this->helper(this->research->recovery)
             << actionPrefix[1][0] + underline("Speed      ", "green") + actionPrefix[1][1] + underline("Pause      ", "green") + actionPrefix[1][2] + underline("Save As    ", "green") + actionPrefix[1][3] + underline("Restart    ", "green") + actionPrefix[1][4] + underline("Quit       ", "green")
             << std::endl;
-
-  this->lg.unlock();
+  this->lg3.unlock();
 }
