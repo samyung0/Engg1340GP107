@@ -1,4 +1,5 @@
 #include <string>
+#include <iostream>
 
 #include "../game.h"
 void Game::buildfarm1(int &currentPhase, int prevPhase)

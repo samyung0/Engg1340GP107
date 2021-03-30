@@ -19,15 +19,11 @@ void Game::buildBase(std::string type, int time, std::function<void(data::Resour
   this->lg3.lock();
   std::string id = this->uuid();
   this->building->progressTrack.push_back({type, id, desc});
-  this->lg3.unlock();
-
   this->building->progressAsync[id] = std::async(std::launch::async, [this, id, time, callBack, type]() {
-    this->lg3.lock();
     this->building->progress[id] = new Progress(time, this->setting["speed"]);
     this->lg3.unlock();
     this->building->progress[id]->start(this->lg3);
     this->lg3.lock();
-
     callBack(*this->resource);
     delete this->building->progress[id];
     this->building->progress.erase(id);
@@ -49,4 +45,5 @@ void Game::buildBase(std::string type, int time, std::function<void(data::Resour
 
     this->lg3.unlock();
   });
+  
 }

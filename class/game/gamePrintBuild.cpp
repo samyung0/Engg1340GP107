@@ -8,6 +8,7 @@
 #include "game.h"
 void Game::printBuild(int x, int y)
 {
+
   // lock lg3 just in case the calculation is slow, becasue of the use of reference to class variables which are subjected to change anytime
   // (copying may slow down performace significantly later into the game, though not tested)
   this->lg3.lock();
@@ -209,7 +210,6 @@ void Game::printBuild(int x, int y)
   {
     inProgressCount[std::get<0>(this->building->progressTrack[i])].push_back(&this->building->progressTrack[i]);
   }
-
   actionPrefix[x][y].erase(1, 1);
   actionPrefix[x][y].insert(1, color(">", "cyan"));
 
