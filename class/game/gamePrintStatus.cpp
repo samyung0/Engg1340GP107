@@ -15,11 +15,9 @@ void Game::printStatus(int x, int y)
   actionPrefix[x][y].insert(1, color(">", "cyan"));
 
   this->lg.lock();
-  // system("clear");
 
-  // std::cout << std::string(100, '\n') << std::endl;
+
   std::cout << "\033[2J\033[1;1H";
-
   std::cout << color("Day: ", "magenta") << this->day << " (" << std::to_string(this->setting["speed"] / 1000) << "s)"
             << std::endl
             << std::endl;
