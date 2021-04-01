@@ -197,4 +197,84 @@ private:
   // mutable
   double hp=1000;
 };
+class Cas : public Troop
+{
+private:
+  // permanent
+  int trainingCamp = 1;
+  int trainingTime = 30;
+  int softAttack = 15;
+  int hardAttack = 15;
+  int defense = 0;
+  int speed = 0;
+  int equipment = 10;
+  int food = 1;
+  int disruption=0;
+  int airAttack=2;
+  int armor=5;
+  // mutable
+  double hp=50;
+
+  int conspicuousness = 2;
+};
+class Fighter : public Troop
+{
+private:
+  // permanent
+  int trainingCamp = 1;
+  int trainingTime = 45;
+  int softAttack = 4;
+  int hardAttack = 2;
+  int defense = 0;
+  int speed = 0;
+  int equipment = 10;
+  int food = 1;
+  int disruption=0;
+  int airAttack=8;
+  int armor=12;
+  // mutable
+  double hp=130;
+
+  int conspicuousness = 10;
+};
+class Bomber : public Troop
+{
+private:
+  // permanent
+  int trainingCamp = 2;
+  int trainingTime = 45;
+  int softAttack = 6;
+  int hardAttack = 20;
+  int defense = 0;
+  int speed = 0;
+  int equipment = 15;
+  int food = 2;
+  int disruption=2;
+  int airAttack=2;
+  int armor=8;
+  // mutable
+  double hp=80;
+
+  int conspicuousness = 6;
+};
+class Kamikaze : public Troop
+{
+private:
+  // permanent
+  int trainingCamp = 4;
+  int trainingTime = 70;
+  int softAttack = 500;
+  int hardAttack = 500;
+  int defense = 0;
+  int speed = 0;
+  int equipment = 10;
+  int food = 1;
+  int disruption=5;
+  int airAttack=150;
+  int armor=0;
+  // mutable
+  double hp=0;
+
+  int conspicuousness = 0;
+};
 #endif
