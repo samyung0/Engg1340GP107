@@ -21,7 +21,7 @@ void Game::buildBase(std::string type, int time, std::function<void(data::Resour
   this->resource->manpowerInUse++;
   this->resource->usedLand += land;
   std::string id = this->uuid();
-  this->building->progressTrack.push_back({type, id, desc});
+  this->building->progressTrack.push_back(std::make_tuple(type, id, desc));
   this->building->progressAsync[id] = std::async(std::launch::async, [this, id, time, callBack, type]() {
     this->building->progress[id] = new Progress(time, this->setting["speed"]);
     this->lg3.unlock();
@@ -57,7 +57,7 @@ void Game::buildBase(std::string type, int time, std::function<void()> callBack,
   this->resource->manpowerInUse++;
   this->resource->usedLand += land;
   std::string id = this->uuid();
-  this->building->progressTrack.push_back({type, id, desc});
+  this->building->progressTrack.push_back(std::make_tuple(type, id, desc));
   this->building->progressAsync[id] = std::async(std::launch::async, [this, id, time, callBack, type]() {
     this->building->progress[id] = new Progress(time, this->setting["speed"]);
     this->lg3.unlock();
