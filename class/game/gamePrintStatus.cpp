@@ -14,6 +14,9 @@ void Game::printStatus(int x, int y)
   actionPrefix[x][y].erase(1, 1);
   actionPrefix[x][y].insert(1, color(">", "cyan"));
 
+  
+
+  // lock lg for day
   this->lg.lock();
 
 
@@ -77,27 +80,29 @@ void Game::printStatus(int x, int y)
             << std::setw(40) << (this->army->total.size() > 7 ? (++++++++++++++this->army->total.begin())->first : "")
             << std::setw(40) << (this->battlePlan->total.size() > 7 ? "8" : "")
             << std::setw(41) << "\nDivision of Labour: " + this->helper(this->research->divisionOfLabor)
-            << std::setw(40) << "Cas: " + std::to_string(this->troop->cas[0]) + "/" + std::to_string(this->troop->cas[1]) + "/" + std::to_string(this->troop->cas[2]) + "/" + std::to_string(this->troop->cas[3])
+            << std::setw(40) << "Tank Oshimai: " + std::to_string(this->troop->tankOshimai[0]) + "/" + std::to_string(this->troop->tankOshimai[1]) + "/" + std::to_string(this->troop->tankOshimai[2]) + "/" + std::to_string(this->troop->tankOshimai[3])
             << std::setw(40) << (this->army->total.size() > 8 ? (++++++++++++++++this->army->total.begin())->first : "")
             << std::setw(40) << (this->battlePlan->total.size() > 8 ? "9" : "")
             << std::setw(41) << "\nProduction Line: " + this->helper(this->research->productionLine)
-            << std::setw(40) << "Fighter: " + std::to_string(this->troop->fighter[0]) + "/" + std::to_string(this->troop->fighter[1]) + "/" + std::to_string(this->troop->fighter[2]) + "/" + std::to_string(this->troop->fighter[3])
+            << std::setw(40) << "Cas: " + std::to_string(this->troop->cas[0]) + "/" + std::to_string(this->troop->cas[1]) + "/" + std::to_string(this->troop->cas[2]) + "/" + std::to_string(this->troop->cas[3])
             << std::setw(40) << (this->army->total.size() > 9 ? (++++++++++++++++++this->army->total.begin())->first : "")
             << std::setw(40) << (this->battlePlan->total.size() > 9 ? "10" : "")
             << std::setw(41) << "\nLand Doctrine: " + this->helper(this->research->landDoctrine)
-            << std::setw(40) << "Bomber: " + std::to_string(this->troop->bomber[0]) + "/" + std::to_string(this->troop->bomber[1]) + "/" + std::to_string(this->troop->bomber[2]) + "/" + std::to_string(this->troop->bomber[3])
+            << std::setw(40) << "Fighter: " + std::to_string(this->troop->fighter[0]) + "/" + std::to_string(this->troop->fighter[1]) + "/" + std::to_string(this->troop->fighter[2]) + "/" + std::to_string(this->troop->fighter[3])
             << std::setw(41) << "\nAir Doctrine: " + this->helper(this->research->airDoctrine)
+            << std::setw(40) << "Bomber: " + std::to_string(this->troop->bomber[0]) + "/" + std::to_string(this->troop->bomber[1]) + "/" + std::to_string(this->troop->bomber[2]) + "/" + std::to_string(this->troop->bomber[3])
+            << std::setw(41) << "\nUrbanization: " + this->helper(this->research->urbanization)
             << std::setw(40) << "Kamikaze: " + std::to_string(this->troop->kamikaze[0]) + "/" + std::to_string(this->troop->kamikaze[1]) + "/" + std::to_string(this->troop->kamikaze[2]) + "/" + std::to_string(this->troop->kamikaze[3])
             << std::setw(51) << color("Battling Country: ", "green") + (this->battle->inBattle ? this->battle->countryBattling : "none")
-            << std::setw(41) << "\nUrbanization: " + this->helper(this->research->urbanization)
+            << std::setw(41) << "\nWeapon: " + this->helper(this->research->weapon)
             << std::setw(40) << ""
             << std::setw(51) << color("Battling Regions: ", "green") + (this->battle->inBattle ? this->helper2(this->battle->regionBattling) : "none")
-            << std::setw(41) << "\nWeapon: " + this->helper(this->research->weapon)
-            << color("Actions: ", "red")
             << std::setw(41) << "\nTraining: " + this->helper(this->research->training)
-            << actionPrefix[0][0] + underline("Build      ", "green") + actionPrefix[0][1] + underline("Research   ", "green") + actionPrefix[0][2] +  underline("Train      ", "green") + actionPrefix[0][3] +  underline("Army       ", "green") + actionPrefix[0][4] +  underline("Battle Plan", "green") + actionPrefix[0][5] +  underline("Battle     ", "magenta")
+            << color("Actions: ", "red")
             << std::setw(41) << "\nRecovery: " + this->helper(this->research->recovery)
-            << actionPrefix[1][0] + underline("Speed      ", "green") + actionPrefix[1][1] + underline("Pause      ", "green") + actionPrefix[1][2] + underline("Save As    ", "green") + actionPrefix[1][3] + underline("Restart    ", "green") + actionPrefix[1][4] + underline("Quit       ", "green")
+            << actionPrefix[0][0] + underline("Build      ", "green") + actionPrefix[0][1] + underline("Research   ", "green") + actionPrefix[0][2] +  underline("Train      ", "green") + actionPrefix[0][3] +  underline("Army       ", "green") + actionPrefix[0][4] +  underline("Battle Plan", "green") + actionPrefix[0][5] +  underline("Battle     ", "magenta")
+            << std::endl
+            << std::setw(40) << "" << actionPrefix[1][0] + underline("Speed      ", "green") + actionPrefix[1][1] + underline("Pause      ", "green") + actionPrefix[1][2] + underline("Save As    ", "green") + actionPrefix[1][3] + underline("Restart    ", "green") + actionPrefix[1][4] + underline("Quit       ", "green")
             << std::endl;
   this->lg3.unlock();
 }

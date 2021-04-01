@@ -61,34 +61,20 @@ public:
         {0}
       },
       {
-        // build troops (1, 5, max)
-        {-84, -85, -86, -87},
-        {-88, -89, -90, -91},
-        {-92, -93, -94, -95},
-        {-96, -97, -98, -99},
-        {-100, -101, -102, -103},
-        {-104, -105, -106, -107},
-        {-108, -109, -110, -111},
-        {-112, -113, -114, -115},
-        {-116, -117, -118, -119},
-        {-120, -121, -122, -123},
-        {-124, -125, -126, -127},
-        {-128, -129, -130, -131},
-        {-132, -133, -134, -135},
-        // delete troop (1, all free)
-        {-136,-137},
-        {-140,-141},
-        {-144,-145},
-        {-148,-149},
-        {-152,-153},
-        {-156,-157},
-        {-160,-161},
-        {-164,-165},
-        {-168,-169},
-        {-172,-173},
-        {-176,-177},
-        {-180,-181},
-        {-184,-185},
+        // build troops (1, 5, max), remove troops (1, all)
+        {-84,-85,-86,-87,-88,-89},
+        {-88,-89,-90,-91,-92,-93},
+        {-92,-93,-94,-95,-96,-97},
+        {-96,-97,-98,-99,-100,-101},
+        {-100,-101,-102,-103,-104,-105},
+        {-104,-105,-106,-107,-108,-109},
+        {-108,-109,-110,-111,-112,-113},
+        {-112,-113,-114,-115,-116,-117},
+        {-116,-117,-118,-119,-120,-121},
+        {-120,-121,-122,-123,-124,-125},
+        {-124,-125,-126,-127,-128,-129},
+        {-128,-129,-130,-131,-132,-133},
+        {-132,-133,-134,-135,-136,-137},
         {0}
       }
   };
@@ -99,7 +85,7 @@ public:
   // function to be executed according to gamePhase (printing)
   // input: x and y value
   std::vector<void (Game::*)(int, int)> print = {
-      &Game::printStatus, &Game::printBuild, &Game::printResearch};
+      &Game::loopPrintStatus, &Game::loopPrintBuild, &Game::loopPrintResearch, &Game::loopPrintTroop};
   // , &Game::printResearch, &Game::printTroopTrain, &Game::printArmyEdit, &Game::printBattlePlan, &Game::printBattle};
 
   // function to be executed according to gamePhase (modifying)
@@ -137,6 +123,7 @@ private:
   std::future<void> loopPrintStatusThread;
   std::future<void> loopPrintBuildThread;
   std::future<void> loopPrintResearchThread;
+  std::future<void> loopPrintTroopThread;
 
   // default to printing the base status every second
   // approach: call async to allocate non-blocking thread to tempLoopPrintStatus
@@ -168,7 +155,7 @@ private:
     {
       this->printStatus(x, y);
       std::unique_lock<std::mutex> lock(this->lgcv1b);
-      terminatePrintCV.wait_for(lock, std::chrono::milliseconds(1000));
+      terminatePrintCV.wait_for(lock, std::chrono::milliseconds(this->setting["speed"]));
     }
   }
   void loopPrintBuild(int x, int y)
@@ -193,7 +180,7 @@ private:
     {
       this->printBuild(x, y);
       std::unique_lock<std::mutex> lock(this->lgcv2b);
-      terminateBuildCV.wait_for(lock, std::chrono::milliseconds(1000));
+      terminateBuildCV.wait_for(lock, std::chrono::milliseconds(this->setting["speed"]));
     }
   }
   void loopPrintResearch(int x, int y)
@@ -218,7 +205,32 @@ private:
     {
       this->printResearch(x, y);
       std::unique_lock<std::mutex> lock(this->lgcv3b);
-      terminateResearchCV.wait_for(lock, std::chrono::milliseconds(1000));
+      terminateResearchCV.wait_for(lock, std::chrono::milliseconds(this->setting["speed"]));
+    }
+  }
+  void loopPrintTroop(int x, int y)
+  {
+    this->loopPrintTroopThread = std::async(std::launch::async, &Game::tempLoopPrintTroop, this, x, y);
+  };
+  void stopLoopPrintTroop()
+  {
+    if (this->loopPrintTroopThread.valid())
+    {
+      this->lgcv4a.lock();
+      this->terminateTroop = true;
+      this->lgcv4a.unlock();
+      terminateTroopCV.notify_all();
+      this->loopPrintTroopThread.get();
+    }
+  }
+  void tempLoopPrintTroop(int x, int y)
+  {
+    this->terminateTroop = false;
+    while (!terminateTroop)
+    {
+      this->printTroop(x, y);
+      std::unique_lock<std::mutex> lock(this->lgcv4b);
+      terminateTroopCV.wait_for(lock, std::chrono::milliseconds(this->setting["speed"]));
     }
   }
 
@@ -342,9 +354,11 @@ private:
   bool terminatePrint = false;
   bool terminateBuild = false;
   bool terminateResearch = false;
+  bool terminateTroop = false;
   std::condition_variable terminatePrintCV;
   std::condition_variable terminateBuildCV;
   std::condition_variable terminateResearchCV;
+  std::condition_variable terminateTroopCV;
 
   int day = 1;
 
@@ -370,6 +384,9 @@ private:
   // for research cv
   std::mutex lgcv3a;
   std::mutex lgcv3b;
+  // for troop cv
+  std::mutex lgcv4a;
+  std::mutex lgcv4b;
   // for loop thread
   std::mutex lg2;
   // for any mutation of data
@@ -377,7 +394,7 @@ private:
   // user action lock (prevent spamming)
   std::mutex lguser;
 
-  std::function<std::string()> uuid = [&]() -> std::string {sole::uuid A = sole::uuid1();return A.str(); };
+  std::function<std::string()> uuid = [&]() -> std::string { sole::uuid A = sole::uuid1(); return A.str(); };
 
   // format researches when printing, return string
   std::string helper(std::vector<bool> &level)

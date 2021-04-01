@@ -46,7 +46,7 @@ void Game::start()
   char input;
 
   (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
-  this->loopPrintStatus(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+  // this->loopPrintStatus(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
   while (1)
   {
     int prevGamePhase = this->gamePhase;
@@ -107,13 +107,9 @@ void Game::start()
     this->stopLoopPrintStatus();
     this->stopLoopPrintBuild();
     this->stopLoopPrintResearch();
-    if (this->gamePhase == 0)
-      this->loopPrintStatus(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
-    else if (this->gamePhase == 1)
-      this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
-    else if (this->gamePhase == 2)
-      this->loopPrintResearch(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
-    else if (this->gamePhase > 0)
+    this->stopLoopPrintTroop();
+    
+    if (this->gamePhase >= 0)
     {
       (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
     }
