@@ -9,6 +9,7 @@
 #include "game.h"
 #include "../../lib/uuid/uuid.hpp"
 #include "../../io/io.h"
+#include "../../data/troop/troop.h"
 
 ArmyUnit::ArmyUnit(std::string name_) : name(name_) {}
 

@@ -190,7 +190,7 @@ namespace data
   {
     std::vector<Troop*> allTroop;
 
-    // indices: total, in Army, in Battle plan, in Battle
+    // indices: free, in Army, in Battle plan, in Battle
     std::vector<int> infantry = {0, 0, 0, 0};
     std::vector<int> calvary = {0, 0, 0, 0};
     std::vector<int> suicideBomber = {0, 0, 0, 0};
@@ -199,6 +199,7 @@ namespace data
     std::vector<int> armoredCar = {0, 0, 0, 0};
     std::vector<int> tank1 = {0, 0, 0, 0};
     std::vector<int> tank2 = {0, 0, 0, 0};
+    std::vector<int> tankOshimai = {0, 0, 0, 0};
     std::vector<int> cas = {0, 0, 0, 0};
     std::vector<int> fighter = {0, 0, 0, 0};
     std::vector<int> bomber = {0, 0, 0, 0};

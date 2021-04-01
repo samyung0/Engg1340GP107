@@ -38,7 +38,7 @@ void Game::printStatus(int x, int y)
             << std::endl
             << std::endl;
   std::cout << std::left << std::setw(40) << "(Level 1 , 2, 3)"
-            << "(total, in army, in battle plan, in battle)"
+            << "(free, in army, in battle plan, in battle)"
             << std::endl;
   std::cout << std::setw(51) << color("Buildings:", "green")
             << std::setw(51) << color("Troops: ", "green")

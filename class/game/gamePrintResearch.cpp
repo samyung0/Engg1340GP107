@@ -126,9 +126,10 @@ void Game::printResearch(int x, int y)
         shouldPrint[8] = 0;
 
     for (int i = 0; i < name.size(); i++)
-    if (shouldPrint[i] && std::get<1>(this->research->progressTrack) == "")
-        name[i] = underline(name[i] + suffix[i], "green");
-    else name[i] = color(name[i] + suffix[i], "red");
+        if (shouldPrint[i] && std::get<1>(this->research->progressTrack) == "")
+            name[i] = underline(name[i] + suffix[i], "green");
+        else
+            name[i] = color(name[i] + suffix[i], "red");
 
     prefix[x].erase(1, 1);
     prefix[x].insert(1, color(">", "cyan"));
@@ -143,7 +144,8 @@ void Game::printResearch(int x, int y)
 
             printingList.push_back(prefix[i] + body + data[i][dataMatch[i]]);
         }
-        else printingList.push_back(prefix[i] + body + " (Max)");
+        else
+            printingList.push_back(prefix[i] + body + " (Max)");
     }
 
     bool hasProgress = std::get<1>(this->research->progressTrack) != "";
@@ -158,8 +160,18 @@ void Game::printResearch(int x, int y)
     std::cout << "\033[2J\033[1;1H";
     std::cout << color("Research", "magenta")
               << std::endl
+              << std::endl;
+    std::cout << color("Resources:", "green") << "\n"
+              << "Food: " << this->troop->totalFoodRequired << "/" << this->resource->food
+              << "   Equipment: " << this->resource->equipment << "/" << this->troop->totalEquipmentRequired
+              << "   Manpower: " << (this->resource->manpower - this->resource->manpowerInUse) << "/" << this->resource->manpower
+              << "   Land: " << (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand) << "/" << this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand
+              << "   Troop: " << this->troop->totalTroops
+              << "   Armies: " << this->army->total.size() << "/10"
+              << "   Battle Plans: " << this->battlePlan->total.size() << "/10"
               << std::endl
-              << std::setw(130) << color("Upgrade", "green") << color("Overview", "green") << std::endl
+              << std::endl;
+    std::cout << std::setw(130) << color("Upgrade", "green") << color("Overview", "green") << std::endl
               << std::setw((x == 0 ? 141 : 130)) << printingList[0] << "Farm: " << this->helper(this->research->farm) << std::endl
               << std::setw((x == 1 ? 141 : 130)) << printingList[1] << "Division of Labour: " << this->helper(this->research->divisionOfLabor) << std::endl
               << std::setw((x == 2 ? 141 : 130)) << printingList[2] << "Production Line: " << this->helper(this->research->productionLine) << std::endl

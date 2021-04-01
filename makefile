@@ -5,10 +5,10 @@ all: main
 # action phase object files ends with f
 # class/struct object files ends with c
 
-main: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/menu.o objectFiles/play.o objectFiles/level.o objectFiles/setting.o objectFiles/statf.o objectFiles/settingf.o objectFiles/menuWrapperc.o objectFiles/color.o objectFiles/levelf.o objectFiles/infantryc.o objectFiles/gamePrintStatusc.o objectFiles/gamePrintBuildc.o objectFiles/gameBuildf.o objectFiles/gameBuildSubf.o objectFiles/gameRemoveBuildSubf.o objectFiles/gamePrintResearchf.o objectFiles/gameResearchf.o objectFiles/gameResearchSubf.o objectFiles/gameUpgradeSub.o
+main: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/menu.o objectFiles/play.o objectFiles/level.o objectFiles/setting.o objectFiles/statf.o objectFiles/settingf.o objectFiles/menuWrapperc.o objectFiles/color.o objectFiles/levelf.o objectFiles/gamePrintStatusc.o objectFiles/gamePrintBuildc.o objectFiles/gameBuildf.o objectFiles/gameBuildSubf.o objectFiles/gameRemoveBuildSubf.o objectFiles/gamePrintResearchf.o objectFiles/gameResearchf.o objectFiles/gameResearchSubf.o objectFiles/gameUpgradeSubf.o objectFiles/infantryc.o objectFiles/calvaryc.o objectFiles/suicideBomberc.o objectFiles/artilleryc.o objectFiles/logisticc.o objectFiles/armoredCarc.o objectFiles/tank1c.o objectFiles/tank2c.o objectFiles/tankOshimaic.o objectFiles/casc.o objectFiles/fighterc.o objectFiles/bomberc.o objectFiles/kamikazec.o objectFiles/troopc.o objectFiles/gamePrintTroopc.o
 	g++ -o $@ $^ -pthread
 
-main.exe: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/menu.o objectFiles/play.o objectFiles/level.o objectFiles/setting.o objectFiles/statf.o objectFiles/settingf.o objectFiles/menuWrapperc.o objectFiles/color.o objectFiles/levelf.o objectFiles/infantryc.o objectFiles/gamePrintStatusc.o objectFiles/gamePrintBuildc.o objectFiles/gameBuildf.o objectFiles/gameBuildSubf.o objectFiles/gameRemoveBuildSubf.o objectFiles/gamePrintResearchf.o objectFiles/gameResearchf.o objectFiles/gameResearchSubf.o objectFiles/gameUpgradeSub.o
+main.exe: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/menu.o objectFiles/play.o objectFiles/level.o objectFiles/setting.o objectFiles/statf.o objectFiles/settingf.o objectFiles/menuWrapperc.o objectFiles/color.o objectFiles/levelf.o objectFiles/gamePrintStatusc.o objectFiles/gamePrintBuildc.o objectFiles/gameBuildf.o objectFiles/gameBuildSubf.o objectFiles/gameRemoveBuildSubf.o objectFiles/gamePrintResearchf.o objectFiles/gameResearchf.o objectFiles/gameResearchSubf.o objectFiles/gameUpgradeSubf.o objectFiles/infantryc.o objectFiles/calvaryc.o objectFiles/suicideBomberc.o objectFiles/artilleryc.o objectFiles/logisticc.o objectFiles/armoredCarc.o objectFiles/tank1c.o objectFiles/tank2c.o objectFiles/tankOshimaic.o objectFiles/casc.o objectFiles/fighterc.o objectFiles/bomberc.o objectFiles/kamikazec.o objectFiles/troopc.o objectFiles/gamePrintTroopc.o
 	x86_64-w64-mingw32-gcc -o $@ $^ -pthread
 
 objectFiles/main.o: main.cpp class/game/game.h menu/menu.h io/io.h action/stat/stat.h action/setting/setting.h
@@ -47,9 +47,6 @@ objectFiles/color.o: io/color.cpp io/io.h
 objectFiles/levelf.o: action/level/level.cpp action/level/level.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/infantryc.o: data/troop/infantry.cpp data/troop/troop.h
-	g++ ${CPPFLAGS} -c $< -o $@
-
 objectFiles/gamePrintStatusc.o: class/game/gamePrintStatus.cpp class/game/game.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
@@ -74,7 +71,52 @@ objectFiles/gameResearchf.o: class/game/actionClass/gameResearch.cpp class/game/
 objectFiles/gameResearchSubf.o: class/game/actionClass/gameResearchSub.cpp class/game/game.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/gameUpgradeSub.o: class/game/actionClass/gameUpgradeSub.cpp class/game/game.h
+objectFiles/gameUpgradeSubf.o: class/game/actionClass/gameUpgradeSub.cpp class/game/game.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/infantryc.o: data/troop/infantry.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/calvaryc.o: data/troop/calvary.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/suicideBomberc.o: data/troop/suicideBomber.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/artilleryc.o: data/troop/artillery.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/logisticc.o: data/troop/logistic.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/armoredCarc.o: data/troop/armoredCar.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/tank1c.o: data/troop/tank1.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/tank2c.o: data/troop/tank2.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/tankOshimaic.o: data/troop/tankOshimai.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/casc.o: data/troop/cas.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/fighterc.o: data/troop/fighter.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/bomberc.o: data/troop/bomber.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/kamikazec.o: data/troop/kamikaze.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/troopc.o: data/troop/troop.cpp data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/gamePrintTroopc.o: class/game/gamePrintTroop.cpp class/game/game.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 clean:

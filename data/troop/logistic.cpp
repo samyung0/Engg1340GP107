@@ -1,15 +1,15 @@
 #include "troop.h"
-void Infantry::takeDamage(double damage)
+void Logistic::takeDamage(double damage)
 {
   hp -= damage;
 }
 
-double Infantry::getHealth()
+double Logistic::getHealth()
 {
   return hp;
 }
 
-void Infantry::increaseHealth(double recovery)
+void Logistic::increaseHealth(double recovery)
 {
   hp += recovery;
 }

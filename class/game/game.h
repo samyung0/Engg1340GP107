@@ -34,19 +34,21 @@ public:
       // build (1-4), upgrade (5-8)
       // delete (1-2), upgraed (3 - 6)
       {
-          {-5, -6, -7, -8, -9, -10, -11, -12},
-          {-14, -15, -16, -17, -18, -19, -20, -21},
-          {-23, -24, -25, -26, -27, -28, -29, -30},
-          {-32, -33, -34, -35, -36, -37, -38, -39},
-          {-41, -42, -43, -44, -45, -46, -47, -48},
-          {-49, -50, -51, -52},
-          {-53, -54, -55, -56, -57, -58},
-          {-59, -60, -61, -62, -63, -64},
-          {-65, -66, -67, -68, -69, -70},
-          {-71, -72},
-          {-73, -74},
-          {0}},
+        {-5, -6, -7, -8, -9, -10, -11, -12},
+        {-14, -15, -16, -17, -18, -19, -20, -21},
+        {-23, -24, -25, -26, -27, -28, -29, -30},
+        {-32, -33, -34, -35, -36, -37, -38, -39},
+        {-41, -42, -43, -44, -45, -46, -47, -48},
+        {-49, -50, -51, -52},
+        {-53, -54, -55, -56, -57, -58},
+        {-59, -60, -61, -62, -63, -64},
+        {-65, -66, -67, -68, -69, -70},
+        {-71, -72},
+        {-73, -74},
+        {0}
+      },
       {
+        // researches
         {-75},
         {-76},
         {-77},
@@ -57,6 +59,37 @@ public:
         {-82},
         {-83},
         {0}
+      },
+      {
+        // build troops (1, 5, max)
+        {-84, -85, -86, -87},
+        {-88, -89, -90, -91},
+        {-92, -93, -94, -95},
+        {-96, -97, -98, -99},
+        {-100, -101, -102, -103},
+        {-104, -105, -106, -107},
+        {-108, -109, -110, -111},
+        {-112, -113, -114, -115},
+        {-116, -117, -118, -119},
+        {-120, -121, -122, -123},
+        {-124, -125, -126, -127},
+        {-128, -129, -130, -131},
+        {-132, -133, -134, -135},
+        // delete troop (1, all free)
+        {-136,-137},
+        {-140,-141},
+        {-144,-145},
+        {-148,-149},
+        {-152,-153},
+        {-156,-157},
+        {-160,-161},
+        {-164,-165},
+        {-168,-169},
+        {-172,-173},
+        {-176,-177},
+        {-180,-181},
+        {-184,-185},
+        {0}
       }
   };
   int gamePhase = 0;
@@ -66,7 +99,7 @@ public:
   // function to be executed according to gamePhase (printing)
   // input: x and y value
   std::vector<void (Game::*)(int, int)> print = {
-      &Game::printStatus, &Game::printBuild , &Game::printResearch};
+      &Game::printStatus, &Game::printBuild, &Game::printResearch};
   // , &Game::printResearch, &Game::printTroopTrain, &Game::printArmyEdit, &Game::printBattlePlan, &Game::printBattle};
 
   // function to be executed according to gamePhase (modifying)
@@ -192,7 +225,7 @@ private:
   void printStatus(int x, int y);
   void printBuild(int x, int y);
   void printResearch(int x, int y);
-  void printTroopTrain(int x, int y);
+  void printTroop(int x, int y);
   void printArmyEdit(int x, int y);
   void printBattlePlan(int x, int y);
   void printBattle(int x, int y);
@@ -347,14 +380,14 @@ private:
   std::function<std::string()> uuid = [&]() -> std::string {sole::uuid A = sole::uuid1();return A.str(); };
 
   // format researches when printing, return string
-  std::string helper(std::vector<bool>& level)
+  std::string helper(std::vector<bool> &level)
   {
     return (level[2] ? "advanced" : level[1] ? "intermediate"
                                              : "rudimentary");
   }
 
   // format battling regions when printing, return string
-  std::string helper2(std::vector<std::string>& region)
+  std::string helper2(std::vector<std::string> &region)
   {
     std::string out;
     for (auto i : region)

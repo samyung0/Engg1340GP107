@@ -19,8 +19,23 @@ public:
 
   std::string getId() { return uuid; }
 
-protected:
   std::string uuid;
+
+  // reference (all data)
+  // const static int trainingCamp;
+  // const static int trainingTime;
+  // const static int softAttack;
+  // const static int hardAttack;
+  // const static int defense;
+  // const static int speed;
+  // const static int disruption;
+  // const static int airAttack;
+  // const static int armor;
+  // const static int conspicuousness;
+  // double equipment;
+  // double food;
+  // double hp;
+
 };
 class Infantry : public Troop
 {
@@ -34,21 +49,22 @@ public:
   void takeDamage(double) = 0;
   double getHealth() = 0;
   void increaseHealth(double) = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 1;
-  int trainingTime = 10;
-  int softAttack = 10;
-  int hardAttack = 2;
-  int defense = 25;
-  int speed = 5;
-  int equipment = 2;
-  int food = 2;
-  int disruption = 0;
-  int airAttack = 0;
-  int armor = 0;
   // mutable
+  double equipment = 2;
+  double food = 2;
   double hp = 100;
 };
 class Calvary : public Troop
@@ -60,21 +76,22 @@ public:
   void takeDamage(double) = 0;
   double getHealth() = 0;
   void increaseHealth(double) = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 1;
-  int trainingTime = 10;
-  int softAttack = 8;
-  int hardAttack = 1;
-  int defense = 20;
-  int speed = 10;
-  int equipment = 2;
-  int food = 2;
-  int disruption = 0;
-  int airAttack = 0;
-  int armor = 0;
   // mutable
+  double equipment = 2;
+  double food = 2;
   double hp = 150;
 };
 class SuicideBomber : public Troop
@@ -83,22 +100,23 @@ public:
   SuicideBomber(std::string id) : Troop(id) {}
   void giveDamage(double, double, double, double, double, Damage &) = 0;
   double getHealth() = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 2;
-  int trainingTime = 50;
-  int softAttack = 300;
-  int hardAttack = 200;
-  int defense = 0;
-  int speed = 30;
-  int equipment = 2;
-  int food = 1;
-  int disruption = 1;
-  int airAttack = 0;
-  int armor = 0;
   // mutable
-  double hp = -999;
+  double equipment = 2;
+  double food = 1;
+  double hp = 0;
 };
 class Artillery : public Troop
 {
@@ -108,21 +126,22 @@ public:
   void takeDamage(double) = 0;
   double getHealth() = 0;
   void increaseHealth(double) = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 2;
-  int trainingTime = 20;
-  int softAttack = 3;
-  int hardAttack = 12;
-  int defense = 10;
-  int speed = 2;
-  int equipment = 2;
-  int food = 1;
-  int disruption = 0;
-  int airAttack = 0;
-  int armor = 0;
   // mutable
+  double equipment = 2;
+  double food = 1;
   double hp = 170;
 };
 class Logistic : public Troop
@@ -132,21 +151,22 @@ public:
   void takeDamage(double) = 0;
   double getHealth() = 0;
   void increaseHealth(double) = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 1;
-  int trainingTime = 20;
-  int softAttack = 0;
-  int hardAttack = 0;
-  int defense = 15;
-  int speed = 2;
-  int equipment = 2;
-  int food = 2;
-  int disruption = 0;
-  int airAttack = 0;
-  int armor = 0;
   // mutable
+  double equipment = 2;
+  double food = 2;
   double hp = 50;
 };
 class ArmoredCar : public Troop
@@ -157,21 +177,22 @@ public:
   void takeDamage(double) = 0;
   double getHealth() = 0;
   void increaseHealth(double) = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 2;
-  int trainingTime = 30;
-  int softAttack = 18;
-  int hardAttack = 10;
-  int defense = 30;
-  int speed = 15;
-  int equipment = 10;
-  int food = 6;
-  int disruption = 0;
-  int airAttack = 0;
-  int armor = 15;
   // mutable
+  double equipment = 10;
+  double food = 6;
   double hp = 160;
 };
 class Tank1 : public Troop
@@ -182,21 +203,22 @@ public:
   void takeDamage(double) = 0;
   double getHealth() = 0;
   void increaseHealth(double) = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 3;
-  int trainingTime = 40;
-  int softAttack = 12;
-  int hardAttack = 20;
-  int defense = 10;
-  int speed = 6;
-  int equipment = 15;
-  int food = 6;
-  int disruption = 0;
-  int airAttack = 0;
-  int armor = 25;
   // mutable
+  double equipment = 15;
+  double food = 6;
   double hp = 230;
 };
 class Tank2 : public Troop
@@ -207,21 +229,22 @@ public:
   void takeDamage(double) = 0;
   double getHealth() = 0;
   void increaseHealth(double) = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 5;
-  int trainingTime = 60;
-  int softAttack = 12;
-  int hardAttack = 50;
-  int defense = 12;
-  int speed = 8;
-  int equipment = 25;
-  int food = 8;
-  int disruption = 0;
-  int airAttack = 0;
-  int armor = 35;
   // mutable
+  double equipment = 25;
+  double food = 8;
   double hp = 30;
 };
 class TankOshimai : public Troop
@@ -232,21 +255,22 @@ public:
   void takeDamage(double) = 0;
   double getHealth() = 0;
   void increaseHealth(double) = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 20;
-  int trainingTime = 200;
-  int softAttack = 80;
-  int hardAttack = 150;
-  int defense = 40;
-  int speed = 1;
-  int equipment = 50;
-  int food = 25;
-  int disruption = 2;
-  int airAttack = 0;
-  int armor = 80;
   // mutable
+  double equipment = 50;
+  double food = 25;
   double hp = 1000;
 };
 class Cas : public Troop
@@ -257,24 +281,23 @@ public:
   void takeDamage(double) = 0;
   double getHealth() = 0;
   void increaseHealth(double) = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 1;
-  int trainingTime = 30;
-  int softAttack = 15;
-  int hardAttack = 15;
-  int defense = 0;
-  int speed = 0;
-  int equipment = 10;
-  int food = 1;
-  int disruption = 0;
-  int airAttack = 2;
-  int armor = 5;
   // mutable
+  double equipment = 10;
+  double food = 1;
   double hp = 50;
-
-  int conspicuousness = 2;
 };
 class Fighter : public Troop
 {
@@ -284,24 +307,23 @@ public:
   void takeDamage(double) = 0;
   double getHealth() = 0;
   void increaseHealth(double) = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 1;
-  int trainingTime = 45;
-  int softAttack = 4;
-  int hardAttack = 2;
-  int defense = 0;
-  int speed = 0;
-  int equipment = 10;
-  int food = 1;
-  int disruption = 0;
-  int airAttack = 8;
-  int armor = 12;
   // mutable
+  double equipment = 10;
+  double food = 1;
   double hp = 130;
-
-  int conspicuousness = 10;
 };
 class Bomber : public Troop
 {
@@ -311,24 +333,23 @@ public:
   void takeDamage(double) = 0;
   double getHealth() = 0;
   void increaseHealth(double) = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 2;
-  int trainingTime = 45;
-  int softAttack = 6;
-  int hardAttack = 20;
-  int defense = 0;
-  int speed = 0;
-  int equipment = 15;
-  int food = 2;
-  int disruption = 2;
-  int airAttack = 2;
-  int armor = 8;
   // mutable
+  double equipment = 15;
+  double food = 2;
   double hp = 80;
-
-  int conspicuousness = 6;
 };
 class Kamikaze : public Troop
 {
@@ -336,23 +357,22 @@ public:
   Kamikaze(std::string id) : Troop(id) {}
   void giveDamage(double, double, double, double, double, Damage &) = 0;
   double getHealth() = 0;
+  
+  //permanent
+  const static int trainingCamp;
+  const static int trainingTime;
+  const static int softAttack;
+  const static int hardAttack;
+  const static int defense;
+  const static int speed;
+  const static int disruption;
+  const static int airAttack;
+  const static int armor;
+  const static int conspicuousness;
 
-private:
-  // permanent
-  int trainingCamp = 4;
-  int trainingTime = 70;
-  int softAttack = 500;
-  int hardAttack = 500;
-  int defense = 0;
-  int speed = 0;
-  int equipment = 10;
-  int food = 1;
-  int disruption = 5;
-  int airAttack = 150;
-  int armor = 0;
   // mutable
+  double equipment = 10;
+  double food = 1;
   double hp = 0;
-
-  int conspicuousness = 0;
 };
 #endif
