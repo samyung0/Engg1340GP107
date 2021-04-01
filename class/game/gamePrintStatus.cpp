@@ -29,7 +29,7 @@ void Game::printStatus(int x, int y)
   this->lg3.lock();
   std::cout << color("Resources:", "green") << "\n"
             << "Food: " << this->troop->totalFoodRequired << "/" <<  this->resource->food
-            << "   Equipment: " << this->resource->equipment << "/" << this->troop->totalEquipmentRequired
+            << "   Equipment: " << this->troop->totalEquipmentRequired << "/" << this->resource->equipment
             << "   Manpower: " << (this->resource->manpower - this->resource->manpowerInUse) << "/" << this->resource->manpower
             << "   Land: " << (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand) << "/" << this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand
             << "   Troop: " << this->troop->totalTroops
