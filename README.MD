@@ -211,6 +211,7 @@ ___Commands:___
   6. Armored car
   7. Tank 1
   8. Tank 2
+  9. Tank oshimai (お終い)
 
   Planes:
   1. Close air support
@@ -231,16 +232,17 @@ ___Commands:___
   Details of each troop (1 unit):
   - __Infantry__: camp: 1, time: 10 days, soft attack: 10, hard attack: 2, defenses: 25, speed: 5, equipment: 2, food: 2, hp: 100
   - __Calvary__: camp: 1, time: 10 days, soft attack: 8, hard attack: 1, defenses: 20, speed: 10, equipment: 2, food: 2, hp: 150
-  - __Suicide bomber__: camp: 2, time: 50 days, soft attack: 300, hard attack: 200, defenses: 5, equipment: 10, food: 2 (_suicide bombers are a one-time use, when you send them to battles, they will not return. Also, the damage output will be only __once__ , only 1 day._), hp: N/A
-  - __Artillery__: camp: 2, time: 20 days, soft attack: 18, hard attack: 1, defenses: 1, speed: 2, equipment: 2, food: 1, hp: 30
-  - __Logistic__: camp: 1, time: 20 days, equipment: 2, food: 2 (_effect: increase all land troops within the same army's speed by 2 per unit and reduce food consumption by 1, max units per army: 2_), hp: 50
-  - __Armored car__: camp: 2, time: 30 days, soft attack: 18, hard attack: 10, armor: 10, defenses: 30, speed: 15, equipment: 10, food: 6, hp: 200
+  - __Suicide bomber__: camp: 2, time: 50 days, soft attack: 300, hard attack: 200, defenses: 0, speed: 30, equipment: 10, food: 2, disruption: 1 (_suicide bombers are a one-time use and They die immediately after dealing damage once. They ONLY deal damage when they are not taking ANY damage, meaning you must edit them into an army._), hp: N/A
+  - __Artillery__: camp: 2, time: 20 days, soft attack: 3, hard attack: 12, defenses: 10, speed: 2, equipment: 2, food: 1, hp: 170
+  - __Logistic__: camp: 1, time: 20 days, equipment: 2, defenses: 15, food: 2 (_effect: increase all land troops within the same army's speed by 2 per unit and reduce food consumption by 1, including itself, max units per army: 2_), hp: 50
+  - __Armored car__: camp: 2, time: 30 days, soft attack: 18, hard attack: 8, armor: 10, defenses: 30, speed: 15, equipment: 10, food: 6, hp: 160
   - __Tank 1__: camp: 3, time: 40 days, soft attack: 12, hard attack: 20, armor: 25, defenses: 10, speed: 6, equipment: 15, food: 6, hp: 230
   - __Tank 2__: camp: 5, time: 60 days, soft attack: 12, hard attack: 50, armor: 35, defenses: 12, speed: 8, equipment: 25, food: 8, hp: 300
+  - __Tank oshimai__: camp: 20, time: 200 days, soft attack: 80, hard attack: 150, armor: 80, defenses: 40, speed: 1, equipment: 50, food: 25, hp: 1000
   - __Close Air Support (cas)__: camp: 1, time: 30 days, soft attack: 15, hard attack: 15, air attack: 2, armor: 5, speed: 5, equipment: 10, food: 1 (_to support land troops by soft and hard attack_), hp: 50
   - __Fighter__: camp: 1, time: 30 days, soft attack: 6, hard attack: 6, air attack: 8, armor: 12, equipment: 10, food: 1 (_to support Cas by taking down other enemy planes by air attack_), hp: 130
   - __Bomber__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 10, air attack: 2, armor: 8, equipment: 15, food: 2 (_to distroy enemy's farm/ infrastructure and lower their reinforcement rate and possibly induce attrition_), hp: 80
-  - __Kamikaze__: camp: 4, time: 70 days, soft attack: 500, hard attack: 500, disruption: 5, air attack: 150, armor: 8, equipment: 10, food: 1 (_similar to suicide bombers, they will not return from battle and deals only __1__ damage output._), hp: N/A
+  - __Kamikaze__: camp: 4, time: 70 days, soft attack: 500, hard attack: 500, disruption: 5, air attack: 150, armor: 0, equipment: 10, food: 1 (_similar to suicide bombers, they will not return from battle and only deals damage once given they are not taking damage._), hp: N/A
 - ### <a name="army"></a>Army Editing
   You are always encouraged to groups troops trained into army because not only can you use logistics (troop), you can also customize the layout and increase your attacking efficiency by battle plans. You can specify what troops you go first, then what troops stay behind. For example, it may be useful to put infantry/ tanks in the front and Artillery at the back. The formation of an army is shown as below.
 
@@ -264,7 +266,7 @@ ___Commands:___
 
   _You may not need to occupy all the slots within the army, but say if you only put 1 troop in column A, or all except 1 troop in column A died, the remaining 1 troop will take all the 60% attack. So think carefully when editing._ 
 
-  ___Note the army name cannot coincide with the any troop's name. e.g. You cannot name the army to infrantry/ Infantry.___
+  ___Note the army name must be unique and cannot coincide with the any troop's name. e.g. You cannot name the army to infrantry/ Infantry.___
 
    ___Commands:___
 
