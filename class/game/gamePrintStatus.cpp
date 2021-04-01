@@ -32,6 +32,8 @@ void Game::printStatus(int x, int y)
             << "   Troop: " << this->troop->totalTroops
             << "   Armies: " << this->army->total.size() << "/10"
             << "   Battle Plans: " << this->battlePlan->total.size() << "/10"
+            << "   Camps: " << this->resource->campUsed << "/"<<this->resource->camp
+            << "   Airports: " << this->resource->airportUsed << "/"<<this->resource->airport
             << std::endl
             << std::endl
             << std::endl;

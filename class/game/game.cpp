@@ -14,9 +14,10 @@ ArmyUnit::ArmyUnit(std::string name_) : name(name_) {}
 
 // decrement remain by 1 every interval until 0
 Progress::Progress(int time, int interval_)
-    : remain(time), interval(interval_){
-    }
-void Progress::start(std::mutex& lg3)
+    : remain(time), interval(interval_)
+{
+}
+void Progress::start(std::mutex &lg3)
 {
   while (this->remain > 0)
   {
@@ -84,6 +85,11 @@ void Game::start()
         this->gamePhaseSelect[0] = 0;
         this->gamePhaseSelect[1] = 0;
       }
+      else if (gamePhase == 0)
+      {
+        this->gamePhaseSelect[0] = 0;
+        this->gamePhaseSelect[1] = 0;
+      }
     }
     // default shortcut key for back
     else if (input == ' ')
@@ -99,10 +105,13 @@ void Game::start()
 
     this->stopLoopPrintStatus();
     this->stopLoopPrintBuild();
+    this->stopLoopPrintResearch();
     if (this->gamePhase == 0)
       this->loopPrintStatus(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
     else if (this->gamePhase == 1)
       this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+    else if (this->gamePhase == 2)
+      this->loopPrintResearch(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
     else if (this->gamePhase > 0)
     {
       (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);

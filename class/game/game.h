@@ -45,7 +45,20 @@ public:
           {-65, -66, -67, -68, -69, -70},
           {-71, -72},
           {-73, -74},
-          {0}}};
+          {0}},
+      {
+        {-75},
+        {-76},
+        {-77},
+        {-78},
+        {-79},
+        {-80},
+        {-81},
+        {-82},
+        {-83},
+        {0}
+      }
+  };
   int gamePhase = 0;
   std::vector<int> prevGamePhase = {};
   int gamePhaseSelect[2] = {0, 0};
@@ -53,26 +66,44 @@ public:
   // function to be executed according to gamePhase (printing)
   // input: x and y value
   std::vector<void (Game::*)(int, int)> print = {
-      &Game::printStatus, &Game::printBuild};
+      &Game::printStatus, &Game::printBuild , &Game::printResearch};
   // , &Game::printResearch, &Game::printTroopTrain, &Game::printArmyEdit, &Game::printBattlePlan, &Game::printBattle};
 
   // function to be executed according to gamePhase (modifying)
   // length: 74
   std::vector<void (Game::*)(int &, int)> action = {
       NULL, NULL, NULL, NULL, NULL,
-      &Game::buildfarm1, &Game::buildfarm5, &Game::buildfarm10, &Game::buildfarmmax, NULL, NULL, NULL, NULL,
+      &Game::buildfarm1, &Game::buildfarm5, &Game::buildfarm10, &Game::buildfarmmax, &Game::upgradefarm1, &Game::upgradefarm5, &Game::upgradefarm10, &Game::upgradefarmmax,
       NULL,
-      &Game::buildcivilianFactory1, &Game::buildcivilianFactory5, &Game::buildcivilianFactory10, &Game::buildcivilianFactorymax, NULL, NULL, NULL, NULL,
+      &Game::buildcivilianFactory1, &Game::buildcivilianFactory5, &Game::buildcivilianFactory10, &Game::buildcivilianFactorymax, &Game::upgradefarm21, &Game::upgradefarm25, &Game::upgradefarm210, &Game::upgradefarm2max,
       NULL,
-      &Game::buildmilitaryFactory1, &Game::buildmilitaryFactory5, &Game::buildmilitaryFactory10, &Game::buildmilitaryFactorymax, NULL, NULL, NULL, NULL,
+      &Game::buildmilitaryFactory1, &Game::buildmilitaryFactory5, &Game::buildmilitaryFactory10, &Game::buildmilitaryFactorymax, &Game::upgradecivilianFactory1, &Game::upgradecivilianFactory5, &Game::upgradecivilianFactory10, &Game::upgradecivilianFactorymax,
       NULL,
-      NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+      &Game::buildtrainingCamp1, &Game::buildtrainingCamp5, &Game::buildtrainingCamp10, &Game::buildtrainingCampmax, &Game::upgradecivilianFactory21, &Game::upgradecivilianFactory25, &Game::upgradecivilianFactory210, &Game::upgradecivilianFactory2max,
+      NULL,
+      &Game::buildairport1, &Game::buildairport5, &Game::buildairport10, &Game::buildairportmax, &Game::upgrademilitaryFactory1, &Game::upgrademilitaryFactory5, &Game::upgrademilitaryFactory10, &Game::upgrademilitaryFactorymax,
+      &Game::upgrademilitaryFactory21, &Game::upgrademilitaryFactory25, &Game::upgrademilitaryFactory210, &Game::upgrademilitaryFactory2max,
+      &Game::removefarm1, &Game::removefarmmax, &Game::removefarmLV21, &Game::removefarmLV2max, &Game::removefarmLV31, &Game::removefarmLV3max,
+      &Game::removecivilianFactory1, &Game::removecivilianFactorymax, &Game::removecivilianFactoryLV21, &Game::removecivilianFactoryLV2max, &Game::removecivilianFactoryLV31, &Game::removecivilianFactoryLV3max,
+      &Game::removemilitaryFactory1, &Game::removemilitaryFactorymax, &Game::removemilitaryFactoryLV21, &Game::removemilitaryFactoryLV2max, &Game::removemilitaryFactoryLV31, &Game::removemilitaryFactoryLV3max,
+      &Game::removetrainingCamp1, &Game::removetrainingCampmax,
+      &Game::removeairport1, &Game::removeairportmax,
+      &Game::researchFarm,
+      &Game::researchDivisionOfLabor,
+      &Game::researchProductionLine,
+      &Game::researchLandDoctrine,
+      &Game::researchAirDoctrine,
+      &Game::researchUrbanization,
+      &Game::researchWeapon,
+      &Game::researchTraining,
+      &Game::researchRecovery};
 
 private:
   // separate timer thread to increment time only
   std::thread *timerThread;
   std::future<void> loopPrintStatusThread;
   std::future<void> loopPrintBuildThread;
+  std::future<void> loopPrintResearchThread;
 
   // default to printing the base status every second
   // approach: call async to allocate non-blocking thread to tempLoopPrintStatus
@@ -132,6 +163,31 @@ private:
       terminateBuildCV.wait_for(lock, std::chrono::milliseconds(1000));
     }
   }
+  void loopPrintResearch(int x, int y)
+  {
+    this->loopPrintResearchThread = std::async(std::launch::async, &Game::tempLoopPrintResearch, this, x, y);
+  };
+  void stopLoopPrintResearch()
+  {
+    if (this->loopPrintResearchThread.valid())
+    {
+      this->lgcv3a.lock();
+      this->terminateResearch = true;
+      this->lgcv3a.unlock();
+      terminateResearchCV.notify_all();
+      this->loopPrintResearchThread.get();
+    }
+  }
+  void tempLoopPrintResearch(int x, int y)
+  {
+    this->terminateResearch = false;
+    while (!terminateResearch)
+    {
+      this->printResearch(x, y);
+      std::unique_lock<std::mutex> lock(this->lgcv3b);
+      terminateResearchCV.wait_for(lock, std::chrono::milliseconds(1000));
+    }
+  }
 
   void printStatus(int x, int y);
   void printBuild(int x, int y);
@@ -143,6 +199,7 @@ private:
   void printSetSpeed(int x, int y);
 
   void buildBase(std::string, int, std::function<void(data::Resource &)> &, std::string, double);
+  void buildBase(std::string, int, std::function<void()>, std::string, double);
   // each of these parent build function:
   // check if enough resources to build, calls buildbase, and start the printing build loop
   void buildfarm1(int &currentPhase, int prevPhase);
@@ -157,6 +214,78 @@ private:
   void buildmilitaryFactory5(int &currentPhase, int prevPhase);
   void buildmilitaryFactory10(int &currentPhase, int prevPhase);
   void buildmilitaryFactorymax(int &currentPhase, int prevPhase);
+  void buildtrainingCamp1(int &currentPhase, int prevPhase);
+  void buildtrainingCamp5(int &currentPhase, int prevPhase);
+  void buildtrainingCamp10(int &currentPhase, int prevPhase);
+  void buildtrainingCampmax(int &currentPhase, int prevPhase);
+  void buildairport1(int &currentPhase, int prevPhase);
+  void buildairport5(int &currentPhase, int prevPhase);
+  void buildairport10(int &currentPhase, int prevPhase);
+  void buildairportmax(int &currentPhase, int prevPhase);
+
+  // each of these parent build function:
+  // removes selected type of building with specified amount and add back specified amount of land
+  void removefarm1(int &currentPhase, int prevPhase);
+  void removefarmmax(int &currentPhase, int prevPhase);
+  void removefarmLV21(int &currentPhase, int prevPhase);
+  void removefarmLV2max(int &currentPhase, int prevPhase);
+  void removefarmLV31(int &currentPhase, int prevPhase);
+  void removefarmLV3max(int &currentPhase, int prevPhase);
+  void removecivilianFactory1(int &currentPhase, int prevPhase);
+  void removecivilianFactorymax(int &currentPhase, int prevPhase);
+  void removecivilianFactoryLV21(int &currentPhase, int prevPhase);
+  void removecivilianFactoryLV2max(int &currentPhase, int prevPhase);
+  void removecivilianFactoryLV31(int &currentPhase, int prevPhase);
+  void removecivilianFactoryLV3max(int &currentPhase, int prevPhase);
+  void removemilitaryFactory1(int &currentPhase, int prevPhase);
+  void removemilitaryFactorymax(int &currentPhase, int prevPhase);
+  void removemilitaryFactoryLV21(int &currentPhase, int prevPhase);
+  void removemilitaryFactoryLV2max(int &currentPhase, int prevPhase);
+  void removemilitaryFactoryLV31(int &currentPhase, int prevPhase);
+  void removemilitaryFactoryLV3max(int &currentPhase, int prevPhase);
+  void removetrainingCamp1(int &currentPhase, int prevPhase);
+  void removetrainingCampmax(int &currentPhase, int prevPhase);
+  void removeairport1(int &currentPhase, int prevPhase);
+  void removeairportmax(int &currentPhase, int prevPhase);
+
+  void researchBase(std::string, std::function<void(data::Resource &, data::Building &, data::Troop &, data::Army &, data::BattlePlan &, data::Battle &)> &, int);
+  // researches the particular area
+  void researchFarm(int &currentPhase, int prevPhase);
+  void researchDivisionOfLabor(int &currentPhase, int prevPhase);
+  void researchProductionLine(int &currentPhase, int prevPhase);
+  void researchLandDoctrine(int &currentPhase, int prevPhase);
+  void researchAirDoctrine(int &currentPhase, int prevPhase);
+  void researchUrbanization(int &currentPhase, int prevPhase);
+  void researchWeapon(int &currentPhase, int prevPhase);
+  void researchTraining(int &currentPhase, int prevPhase);
+  void researchRecovery(int &currentPhase, int prevPhase);
+
+  // these upgrade functions first call build function, then remove
+  // cannot swap the order because removing it first may lead to negative numbers in manpower etc.
+  void upgradefarm1(int &currentPhase, int prevPhase);
+  void upgradefarm5(int &currentPhase, int prevPhase);
+  void upgradefarm10(int &currentPhase, int prevPhase);
+  void upgradefarmmax(int &currentPhase, int prevPhase);
+  void upgradefarm21(int &currentPhase, int prevPhase);
+  void upgradefarm25(int &currentPhase, int prevPhase);
+  void upgradefarm210(int &currentPhase, int prevPhase);
+  void upgradefarm2max(int &currentPhase, int prevPhase);
+  void upgradecivilianFactory1(int &currentPhase, int prevPhase);
+  void upgradecivilianFactory5(int &currentPhase, int prevPhase);
+  void upgradecivilianFactory10(int &currentPhase, int prevPhase);
+  void upgradecivilianFactorymax(int &currentPhase, int prevPhase);
+  void upgradecivilianFactory21(int &currentPhase, int prevPhase);
+  void upgradecivilianFactory25(int &currentPhase, int prevPhase);
+  void upgradecivilianFactory210(int &currentPhase, int prevPhase);
+  void upgradecivilianFactory2max(int &currentPhase, int prevPhase);
+  void upgrademilitaryFactory1(int &currentPhase, int prevPhase);
+  void upgrademilitaryFactory5(int &currentPhase, int prevPhase);
+  void upgrademilitaryFactory10(int &currentPhase, int prevPhase);
+  void upgrademilitaryFactorymax(int &currentPhase, int prevPhase);
+  void upgrademilitaryFactory21(int &currentPhase, int prevPhase);
+  void upgrademilitaryFactory25(int &currentPhase, int prevPhase);
+  void upgrademilitaryFactory210(int &currentPhase, int prevPhase);
+  void upgrademilitaryFactory2max(int &currentPhase, int prevPhase);
 
   void pause();
   void saveAs();
@@ -179,8 +308,10 @@ private:
   bool terminate = false;
   bool terminatePrint = false;
   bool terminateBuild = false;
+  bool terminateResearch = false;
   std::condition_variable terminatePrintCV;
   std::condition_variable terminateBuildCV;
+  std::condition_variable terminateResearchCV;
 
   int day = 1;
 
@@ -203,6 +334,9 @@ private:
   // for build cv
   std::mutex lgcv2a;
   std::mutex lgcv2b;
+  // for research cv
+  std::mutex lgcv3a;
+  std::mutex lgcv3b;
   // for loop thread
   std::mutex lg2;
   // for any mutation of data
@@ -213,14 +347,14 @@ private:
   std::function<std::string()> uuid = [&]() -> std::string {sole::uuid A = sole::uuid1();return A.str(); };
 
   // format researches when printing, return string
-  std::string helper(std::vector<bool> level)
+  std::string helper(std::vector<bool>& level)
   {
     return (level[2] ? "advanced" : level[1] ? "intermediate"
                                              : "rudimentary");
   }
 
   // format battling regions when printing, return string
-  std::string helper2(std::vector<std::string> region)
+  std::string helper2(std::vector<std::string>& region)
   {
     std::string out;
     for (auto i : region)
