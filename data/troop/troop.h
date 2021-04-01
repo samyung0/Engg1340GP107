@@ -179,4 +179,22 @@ private:
   // mutable
   double hp=30;
 };
+class TankOshimai : public Troop
+{
+private:
+  // permanent
+  int trainingCamp = 20;
+  int trainingTime = 200;
+  int softAttack = 80;
+  int hardAttack = 150;
+  int defense = 40;
+  int speed = 1;
+  int equipment = 50;
+  int food = 25;
+  int disruption=2;
+  int airAttack=0;
+  int armor=80;
+  // mutable
+  double hp=1000;
+};
 #endif

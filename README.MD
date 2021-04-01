@@ -238,11 +238,11 @@ ___Commands:___
   - __Armored car__: camp: 2, time: 30 days, soft attack: 18, hard attack: 8, armor: 10, defenses: 30, speed: 15, equipment: 10, food: 6, hp: 160
   - __Tank 1__: camp: 3, time: 40 days, soft attack: 12, hard attack: 20, armor: 25, defenses: 10, speed: 6, equipment: 15, food: 6, hp: 230
   - __Tank 2__: camp: 5, time: 60 days, soft attack: 12, hard attack: 50, armor: 35, defenses: 12, speed: 8, equipment: 25, food: 8, hp: 300
-  - __Tank oshimai__: camp: 20, time: 200 days, soft attack: 80, hard attack: 150, armor: 80, defenses: 40, speed: 1, equipment: 50, food: 25, hp: 1000
-  - __Close Air Support (cas)__: camp: 1, time: 30 days, soft attack: 15, hard attack: 15, air attack: 2, armor: 5, speed: 5, equipment: 10, food: 1 (_to support land troops by soft and hard attack_), hp: 50
-  - __Fighter__: camp: 1, time: 30 days, soft attack: 6, hard attack: 6, air attack: 8, armor: 12, equipment: 10, food: 1 (_to support Cas by taking down other enemy planes by air attack_), hp: 130
-  - __Bomber__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 10, air attack: 2, armor: 8, equipment: 15, food: 2 (_to distroy enemy's farm/ infrastructure and lower their reinforcement rate and possibly induce attrition_), hp: 80
-  - __Kamikaze__: camp: 4, time: 70 days, soft attack: 500, hard attack: 500, disruption: 5, air attack: 150, armor: 0, equipment: 10, food: 1 (_similar to suicide bombers, they will not return from battle and only deals damage once given they are not taking damage._), hp: N/A
+  - __Tank oshimai__: camp: 20, time: 200 days, soft attack: 80, hard attack: 150, armor: 80, defenses: 40, speed: 1, equipment: 50, food: 25, disruption: 2,  hp: 1000
+  - __Close Air Support (cas)__: camp: 1, time: 30 days, soft attack: 15, hard attack: 15, air attack: 2, armor: 5, speed: 5, equipment: 10, food: 1, conspicuousness: 2 (_how much attack are spreaded to it_), hp: 50
+  - __Fighter__: camp: 1, time: 30 days, soft attack: 4, hard attack: 2, air attack: 8, armor: 12, equipment: 10, food: 1, conspicuousness: 10, hp: 130
+  - __Bomber__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 2, air attack: 2, armor: 8, equipment: 15, food: 2, conspicuousness: 6 , hp: 80
+  - __Kamikaze__: camp: 4, time: 70 days, soft attack: 500, hard attack: 500, disruption: 5, air attack: 150, armor: 0, equipment: 10, food: 1, conspicuousness: 0 (_similar to suicide bombers, they will not return from battle and only deals damage once given they are not taking damage. Kamikaze does not take any damage when any other planes belonging to you are present._), hp: N/A
 - ### <a name="army"></a>Army Editing
   You are always encouraged to groups troops trained into army because not only can you use logistics (troop), you can also customize the layout and increase your attacking efficiency by battle plans. You can specify what troops you go first, then what troops stay behind. For example, it may be useful to put infantry/ tanks in the front and Artillery at the back. The formation of an army is shown as below.
 
@@ -256,7 +256,7 @@ ___Commands:___
 
   An army can only have a maximum of 16 troops.
 
-  When all troops are up, column A recieves 60% of all attacks while column B gets 30% and C gets the remaining 10% and D receiving none.
+  When all troops are up, column A recieves 60% of all attacks while column B gets 30% and C gets the remaining 10% and D receiving none. (_Not applicable to planes_)
 
   _An attack is received every day in the game (every second in real life)._
 
@@ -386,7 +386,7 @@ ___Commands:___
 
     Decrease in hp from land attack per troop (armored) = Decrease in hp from attack per troop (non-armored)/4 + (Total hard attack/ number of armored land troops - armor) * 1.1
     
-    Decrease in hp from air attack per troop (plane) = Total air attack / number of planes - armor
+    Decrease in hp from air attack per troop (plane) = Total air attack * base conpicuousness/ total conpicuousness - armor
 
     Increase in hp from recovery per land troop = base value (research) * (1 - disruption/2) * (food supplied/ food required)^1.5
 
