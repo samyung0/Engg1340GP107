@@ -6,9 +6,8 @@
 class Troop
 {
 public:
-
   // Each troop is uniquely identified with a uuid
-  Troop(std::string id):uuid(id){}
+  Troop(std::string id) : uuid(id) {}
 
   // food supplied, equipment supplied, disruption, attack debuff, air supremacy, accumulate to Damage struct
   virtual void giveDamage(double, double, double, double, double, Damage &) = 0;
@@ -20,14 +19,13 @@ public:
 
   std::string getId() { return uuid; }
 
-  protected:
-    std::string uuid;
+protected:
+  std::string uuid;
 };
 class Infantry : public Troop
 {
 public:
-
-  Infantry(std::string id):Troop(id){}
+  Infantry(std::string id) : Troop(id) {}
 
   // food supplied, equipment supplied, disruption, attack debuff, air supremacy, accumulate to Damage struct
   void giveDamage(double, double, double, double, double, Damage &) = 0;
@@ -47,14 +45,22 @@ private:
   int speed = 5;
   int equipment = 2;
   int food = 2;
-  int disruption=0;
-  int airAttack=0;
-  int armor=0;
+  int disruption = 0;
+  int airAttack = 0;
+  int armor = 0;
   // mutable
-  double hp=100;
+  double hp = 100;
 };
 class Calvary : public Troop
 {
+
+public:
+  Calvary(std::string id) : Troop(id) {}
+  void giveDamage(double, double, double, double, double, Damage &) = 0;
+  void takeDamage(double) = 0;
+  double getHealth() = 0;
+  void increaseHealth(double) = 0;
+
 private:
   // permanent
   int trainingCamp = 1;
@@ -65,14 +71,19 @@ private:
   int speed = 10;
   int equipment = 2;
   int food = 2;
-  int disruption=0;
-  int airAttack=0;
-  int armor=0;
+  int disruption = 0;
+  int airAttack = 0;
+  int armor = 0;
   // mutable
-  double hp=150;
+  double hp = 150;
 };
 class SuicideBomber : public Troop
 {
+public:
+  SuicideBomber(std::string id) : Troop(id) {}
+  void giveDamage(double, double, double, double, double, Damage &) = 0;
+  double getHealth() = 0;
+
 private:
   // permanent
   int trainingCamp = 2;
@@ -83,14 +94,21 @@ private:
   int speed = 30;
   int equipment = 2;
   int food = 1;
-  int disruption=1;
-  int airAttack=0;
-  int armor=0;
+  int disruption = 1;
+  int airAttack = 0;
+  int armor = 0;
   // mutable
-  double hp=-999;
+  double hp = -999;
 };
 class Artillery : public Troop
 {
+public:
+  Artillery(std::string id) : Troop(id) {}
+  void giveDamage(double, double, double, double, double, Damage &) = 0;
+  void takeDamage(double) = 0;
+  double getHealth() = 0;
+  void increaseHealth(double) = 0;
+
 private:
   // permanent
   int trainingCamp = 2;
@@ -101,14 +119,20 @@ private:
   int speed = 2;
   int equipment = 2;
   int food = 1;
-  int disruption=0;
-  int airAttack=0;
-  int armor=0;
+  int disruption = 0;
+  int airAttack = 0;
+  int armor = 0;
   // mutable
-  double hp=170;
+  double hp = 170;
 };
 class Logistic : public Troop
 {
+public:
+  Logistic(std::string id) : Troop(id) {}
+  void takeDamage(double) = 0;
+  double getHealth() = 0;
+  void increaseHealth(double) = 0;
+
 private:
   // permanent
   int trainingCamp = 1;
@@ -119,14 +143,21 @@ private:
   int speed = 2;
   int equipment = 2;
   int food = 2;
-  int disruption=0;
-  int airAttack=0;
-  int armor=0;
+  int disruption = 0;
+  int airAttack = 0;
+  int armor = 0;
   // mutable
-  double hp=50;
+  double hp = 50;
 };
 class ArmoredCar : public Troop
 {
+public:
+  ArmoredCar(std::string id) : Troop(id) {}
+  void giveDamage(double, double, double, double, double, Damage &) = 0;
+  void takeDamage(double) = 0;
+  double getHealth() = 0;
+  void increaseHealth(double) = 0;
+
 private:
   // permanent
   int trainingCamp = 2;
@@ -137,14 +168,21 @@ private:
   int speed = 15;
   int equipment = 10;
   int food = 6;
-  int disruption=0;
-  int airAttack=0;
-  int armor=15;
+  int disruption = 0;
+  int airAttack = 0;
+  int armor = 15;
   // mutable
-  double hp=160;
+  double hp = 160;
 };
 class Tank1 : public Troop
 {
+public:
+  Tank1(std::string id) : Troop(id) {}
+  void giveDamage(double, double, double, double, double, Damage &) = 0;
+  void takeDamage(double) = 0;
+  double getHealth() = 0;
+  void increaseHealth(double) = 0;
+
 private:
   // permanent
   int trainingCamp = 3;
@@ -155,14 +193,21 @@ private:
   int speed = 6;
   int equipment = 15;
   int food = 6;
-  int disruption=0;
-  int airAttack=0;
-  int armor=25;
+  int disruption = 0;
+  int airAttack = 0;
+  int armor = 25;
   // mutable
-  double hp=230;
+  double hp = 230;
 };
 class Tank2 : public Troop
 {
+public:
+  Tank2(std::string id) : Troop(id) {}
+  void giveDamage(double, double, double, double, double, Damage &) = 0;
+  void takeDamage(double) = 0;
+  double getHealth() = 0;
+  void increaseHealth(double) = 0;
+
 private:
   // permanent
   int trainingCamp = 5;
@@ -173,14 +218,21 @@ private:
   int speed = 8;
   int equipment = 25;
   int food = 8;
-  int disruption=0;
-  int airAttack=0;
-  int armor=35;
+  int disruption = 0;
+  int airAttack = 0;
+  int armor = 35;
   // mutable
-  double hp=30;
+  double hp = 30;
 };
 class TankOshimai : public Troop
 {
+public:
+  TankOshimai(std::string id) : Troop(id) {}
+  void giveDamage(double, double, double, double, double, Damage &) = 0;
+  void takeDamage(double) = 0;
+  double getHealth() = 0;
+  void increaseHealth(double) = 0;
+
 private:
   // permanent
   int trainingCamp = 20;
@@ -191,14 +243,21 @@ private:
   int speed = 1;
   int equipment = 50;
   int food = 25;
-  int disruption=2;
-  int airAttack=0;
-  int armor=80;
+  int disruption = 2;
+  int airAttack = 0;
+  int armor = 80;
   // mutable
-  double hp=1000;
+  double hp = 1000;
 };
 class Cas : public Troop
 {
+public:
+  Cas(std::string id) : Troop(id) {}
+  void giveDamage(double, double, double, double, double, Damage &) = 0;
+  void takeDamage(double) = 0;
+  double getHealth() = 0;
+  void increaseHealth(double) = 0;
+
 private:
   // permanent
   int trainingCamp = 1;
@@ -209,16 +268,23 @@ private:
   int speed = 0;
   int equipment = 10;
   int food = 1;
-  int disruption=0;
-  int airAttack=2;
-  int armor=5;
+  int disruption = 0;
+  int airAttack = 2;
+  int armor = 5;
   // mutable
-  double hp=50;
+  double hp = 50;
 
   int conspicuousness = 2;
 };
 class Fighter : public Troop
 {
+public:
+  Fighter(std::string id) : Troop(id) {}
+  void giveDamage(double, double, double, double, double, Damage &) = 0;
+  void takeDamage(double) = 0;
+  double getHealth() = 0;
+  void increaseHealth(double) = 0;
+
 private:
   // permanent
   int trainingCamp = 1;
@@ -229,16 +295,23 @@ private:
   int speed = 0;
   int equipment = 10;
   int food = 1;
-  int disruption=0;
-  int airAttack=8;
-  int armor=12;
+  int disruption = 0;
+  int airAttack = 8;
+  int armor = 12;
   // mutable
-  double hp=130;
+  double hp = 130;
 
   int conspicuousness = 10;
 };
 class Bomber : public Troop
 {
+public:
+  Bomber(std::string id) : Troop(id) {}
+  void giveDamage(double, double, double, double, double, Damage &) = 0;
+  void takeDamage(double) = 0;
+  double getHealth() = 0;
+  void increaseHealth(double) = 0;
+
 private:
   // permanent
   int trainingCamp = 2;
@@ -249,16 +322,21 @@ private:
   int speed = 0;
   int equipment = 15;
   int food = 2;
-  int disruption=2;
-  int airAttack=2;
-  int armor=8;
+  int disruption = 2;
+  int airAttack = 2;
+  int armor = 8;
   // mutable
-  double hp=80;
+  double hp = 80;
 
   int conspicuousness = 6;
 };
 class Kamikaze : public Troop
 {
+public:
+  Kamikaze(std::string id) : Troop(id) {}
+  void giveDamage(double, double, double, double, double, Damage &) = 0;
+  double getHealth() = 0;
+
 private:
   // permanent
   int trainingCamp = 4;
@@ -269,11 +347,11 @@ private:
   int speed = 0;
   int equipment = 10;
   int food = 1;
-  int disruption=5;
-  int airAttack=150;
-  int armor=0;
+  int disruption = 5;
+  int airAttack = 150;
+  int armor = 0;
   // mutable
-  double hp=0;
+  double hp = 0;
 
   int conspicuousness = 0;
 };

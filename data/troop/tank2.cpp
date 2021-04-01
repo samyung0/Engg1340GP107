@@ -1,6 +1,6 @@
 #include "troop.h"
 #include "../../class/damage/damage.h"
-void Infantry::giveDamage(double foodS, double equipmentS, double disruption, double attackDebuff, double airSupremacy, Damage &damage)
+void Tank2::giveDamage(double foodS, double equipmentS, double disruption, double attackDebuff, double airSupremacy, Damage &damage)
 {
   double strength = ((foodS / food > 1 ? 1 : foodS / food) + (equipmentS / equipment > 1 ? 1 : equipmentS / equipment)) / 2 * 100;
   double debuff = attackDebuff * (1 - speed / 10);
@@ -12,17 +12,17 @@ void Infantry::giveDamage(double foodS, double equipmentS, double disruption, do
   damage.hardAttack += hardAttackC;
 }
 
-void Infantry::takeDamage(double damage)
+void Tank2::takeDamage(double damage)
 {
   hp -= damage;
 }
 
-double Infantry::getHealth()
+double Tank2::getHealth()
 {
   return hp;
 }
 
-void Infantry::increaseHealth(double recovery)
+void Tank2::increaseHealth(double recovery)
 {
   hp += recovery;
 }
