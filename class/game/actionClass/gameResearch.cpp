@@ -4,6 +4,7 @@
 #include "../game.h"
 #include "../gameStruct.h"
 
+// visit Game::buildBase for documentation
 void Game::researchBase(std::string desc, std::function<void(data::Resource &, data::Building &, data::Troop &, data::Army &, data::BattlePlan &, data::Battle &)> & callBack, int time){
   this->lg3.lock();
   

@@ -1,0 +1,46 @@
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include "../game.h"
+#include "../../../data/troop/troop.h"
+
+void trainInfantry(){};
+  void trainCalvary(){};
+  void trainSuicideBomber(){};
+  void trainLogistic(){};
+  void trainArtillery(){};
+  void trainArmoredCar(){};
+  void trainTank1(){};
+  void trainTank2(){};
+  void trainTankOshimai(){};
+  void trainCas(){};
+  void trainFighter(){};
+  void trainBomber(){};
+  void trainKamikaze(){};
+  void trainInfantry5(){};
+  void trainCalvary5(){};
+  void trainSuicideBomber5(){};
+  void trainLogistic5(){};
+  void trainArtillery5(){};
+  void trainArmoredCar5(){};
+  void trainTank15(){};
+  void trainTank25(){};
+  void trainTankOshimai5(){};
+  void trainCas5(){};
+  void trainFighter5(){};
+  void trainBomber5(){};
+  void trainKamikaze5(){};
+  void trainInfantry10(){};
+  void trainCalvary10(){};
+  void trainSuicideBomber10(){};
+  void trainLogistic10(){};
+  void trainArtillery10(){};
+  void trainArmoredCar10(){};
+  void trainTank110(){};
+  void trainTank210(){};
+  void trainTankOshimai10(){};
+  void trainCas10(){};
+  void trainFighter10(){};
+  void trainBomber10(){};
+  void trainKamikaze10(){};

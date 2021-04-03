@@ -205,8 +205,11 @@ namespace data
     std::vector<int> bomber = {0, 0, 0, 0};
     std::vector<int> kamikaze = {0, 0, 0, 0};
 
-    std::vector<Progress *> progress;
-    std::vector<std::future<void>> progressAsync;
+     // type, id
+    std::vector<std::tuple<std::string, std::string>> progressTrack = {
+    };
+    std::unordered_map<std::string, Progress *> progress;
+    std::unordered_map<std::string, std::future<void>> progressAsync;
 
     int totalTroops = 0;
     int totalFoodRequired = 0;
