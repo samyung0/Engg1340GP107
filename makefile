@@ -46,14 +46,14 @@ objectFiles/color.o: io/color.cpp io/io.h
 
 objectFiles/levelf.o: action/level/level.cpp action/level/level.h
 	g++ ${CPPFLAGS} -c $< -o $@
-
-objectFiles/gamePrintStatusc.o: class/game/gamePrintStatus.cpp class/game/game.h
+ 
+objectFiles/gamePrintStatusc.o: class/game/gamePrintStatus.cpp class/game/game.h io/io.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/gamePrintBuildc.o: class/game/gamePrintBuild.cpp class/game/game.h
+objectFiles/gamePrintBuildc.o: class/game/gamePrintBuild.cpp class/game/game.h io/io.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/gameBuildf.o: class/game/actionClass/gameBuild.cpp class/game/game.h
+objectFiles/gameBuildf.o: class/game/actionClass/gameBuild.cpp class/game/game.h class/game/gameStruct.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 objectFiles/gameBuildSubf.o: class/game/actionClass/gameBuildSub.cpp class/game/game.h
