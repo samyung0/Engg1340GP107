@@ -9,9 +9,11 @@
 void Game::printBuild(int x, int y)
 {
 
-  // lock lg3 just in case the calculation is slow, becasue of the use of reference to class variables which are subjected to change anytime
-  // (copying may slow down performace significantly later into the game, though not tested)
+  this->lg3low.lock();
+  this->lg3high.lock();
   this->lg3.lock();
+
+  this->lg3high.unlock();
 
   std::vector<std::vector<std::string>> actionPrefix = {
 
@@ -311,6 +313,7 @@ void Game::printBuild(int x, int y)
             << std::endl;
   std::cout << actionPrefix[11][0] << action[11][0] << " (Or spacebar)" << std::endl
             << std::endl;
-  // unlock after all results are printed because of the same reference thing
+
   this->lg3.unlock();
+  this->lg3low.unlock();
 }
