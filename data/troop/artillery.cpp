@@ -17,11 +17,6 @@ void Artillery::takeDamage(double damage)
   hp -= damage;
 }
 
-double Artillery::getHealth()
-{
-  return hp;
-}
-
 void Artillery::increaseHealth(double recovery)
 {
   hp += recovery;

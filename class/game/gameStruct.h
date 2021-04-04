@@ -28,14 +28,14 @@ namespace data
   struct Resource
   {
     // to be updated in game fetchData
-    int food = 0;
-    int equipment = 0;
+    double food = 0;
+    double equipment = 0;
     int manpower = 10;
     int manpowerInUse = 0;
     double baseLand = 100;
     double usedLand = 0;
     double capturedLand = 0;
-    int camp = 0;
+    int camp = 100;
     int campUsed = 0;
     int airport = 0;
     int airportUsed = 0;
@@ -188,7 +188,7 @@ namespace data
   };
   struct Troop
   {
-    std::vector<Troop*> allTroop;
+    std::vector<TroopUnit*> allTroop;
 
     // indices: free, in Army, in Battle plan, in Battle
     std::vector<int> infantry = {0, 0, 0, 0};

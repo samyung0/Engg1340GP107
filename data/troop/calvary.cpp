@@ -17,11 +17,6 @@ void Calvary::takeDamage(double damage)
   hp -= damage;
 }
 
-double Calvary::getHealth()
-{
-  return hp;
-}
-
 void Calvary::increaseHealth(double recovery)
 {
   hp += recovery;

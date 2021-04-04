@@ -34,50 +34,44 @@ public:
       // build (1-4), upgrade (5-8)
       // delete (1-2), upgraed (3 - 6)
       {
-        {-5, -6, -7, -8, -9, -10, -11, -12},
-        {-14, -15, -16, -17, -18, -19, -20, -21},
-        {-23, -24, -25, -26, -27, -28, -29, -30},
-        {-32, -33, -34, -35, -36, -37, -38, -39},
-        {-41, -42, -43, -44, -45, -46, -47, -48},
-        {-49, -50, -51, -52},
-        {-53, -54, -55, -56, -57, -58},
-        {-59, -60, -61, -62, -63, -64},
-        {-65, -66, -67, -68, -69, -70},
-        {-71, -72},
-        {-73, -74},
-        {0}
-      },
-      {
-        // researches
-        {-75},
-        {-76},
-        {-77},
-        {-78},
-        {-79},
-        {-80},
-        {-81},
-        {-82},
-        {-83},
-        {0}
-      },
-      {
-        // build troops (1, 5, max), remove troops (1, all)
-        {-84,-85,-86,-87,-88,-89},
-        {-88,-89,-90,-91,-92,-93},
-        {-92,-93,-94,-95,-96,-97},
-        {-96,-97,-98,-99,-100,-101},
-        {-100,-101,-102,-103,-104,-105},
-        {-104,-105,-106,-107,-108,-109},
-        {-108,-109,-110,-111,-112,-113},
-        {-112,-113,-114,-115,-116,-117},
-        {-116,-117,-118,-119,-120,-121},
-        {-120,-121,-122,-123,-124,-125},
-        {-124,-125,-126,-127,-128,-129},
-        {-128,-129,-130,-131,-132,-133},
-        {-132,-133,-134,-135,-136,-137},
-        {0}
-      }
-  };
+          {-5, -6, -7, -8, -9, -10, -11, -12},
+          {-14, -15, -16, -17, -18, -19, -20, -21},
+          {-23, -24, -25, -26, -27, -28, -29, -30},
+          {-32, -33, -34, -35, -36, -37, -38, -39},
+          {-41, -42, -43, -44, -45, -46, -47, -48},
+          {-49, -50, -51, -52},
+          {-53, -54, -55, -56, -57, -58},
+          {-59, -60, -61, -62, -63, -64},
+          {-65, -66, -67, -68, -69, -70},
+          {-71, -72},
+          {-73, -74},
+          {0}},
+      {// researches
+       {-75},
+       {-76},
+       {-77},
+       {-78},
+       {-79},
+       {-80},
+       {-81},
+       {-82},
+       {-83},
+       {0}},
+      {// train troops (1, 5, max), remove troops (1, all)
+       {-84,-85,-86,-87,-88,-89},
+       {-90,-91,-92,-93,-94,-95},
+       {-96,-97,-98,-99,-100,-101},
+       {-102,-103,-104,-105,-106,-107},
+       {-108,-109,-110,-111,-112,-113},
+       {-114,-115,-116,-117,-118,-119},
+       {-120,-121,-122,-123,-124,-125},
+       {-126,-127,-128,-129,-130,-131},
+       {-132,-133,-134,-135,-136,-137},
+       {-138,-139,-140,-141,-142,-143},
+       {-144,-145,-146,-147,-148,-149},
+       {-150,-151,-152,-153,-154,-155},
+       {-156,-157,-158,-159,-160,-161},
+       {0}}};
   int gamePhase = 0;
   std::vector<int> prevGamePhase = {};
   int gamePhaseSelect[2] = {0, 0};
@@ -89,7 +83,7 @@ public:
   // , &Game::printResearch, &Game::printTroopTrain, &Game::printArmyEdit, &Game::printBattlePlan, &Game::printBattle};
 
   // function to be executed according to gamePhase (modifying)
-  // length: 74
+  // length: 162 (index 0: NULL)
   std::vector<void (Game::*)(int &, int)> action = {
       NULL, NULL, NULL, NULL, NULL,
       &Game::buildfarm1, &Game::buildfarm5, &Game::buildfarm10, &Game::buildfarmmax, &Game::upgradefarm1, &Game::upgradefarm5, &Game::upgradefarm10, &Game::upgradefarmmax,
@@ -115,7 +109,20 @@ public:
       &Game::researchUrbanization,
       &Game::researchWeapon,
       &Game::researchTraining,
-      &Game::researchRecovery};
+      &Game::researchRecovery,
+      &Game::trainInfantry, &Game::trainInfantry5, &Game::trainInfantry10, &Game::trainInfantrymax, &Game::removeInfantry, &Game::removeInfantrymax,
+      &Game::trainCalvary, &Game::trainCalvary5, &Game::trainCalvary10, &Game::trainCalvarymax, &Game::removeCalvary, &Game::removeCalvarymax,
+      &Game::trainSuicideBomber, &Game::trainSuicideBomber5, &Game::trainSuicideBomber10, &Game::trainSuicideBombermax, &Game::removeSuicideBomber, &Game::removeSuicideBombermax,
+      &Game::trainArtillery, &Game::trainArtillery5, &Game::trainArtillery10, &Game::trainArtillerymax, &Game::removeArtillery, &Game::removeArtillerymax,
+      &Game::trainLogistic, &Game::trainLogistic5, &Game::trainLogistic10, &Game::trainLogisticmax, &Game::removeLogistic, &Game::removeLogisticmax,
+      &Game::trainArmoredCar, &Game::trainArmoredCar5, &Game::trainArmoredCar10, &Game::trainArmoredCarmax, &Game::removeArmoredCar, &Game::removeArmoredCarmax,
+      &Game::trainTank1, &Game::trainTank15, &Game::trainTank110, &Game::trainTank1max, &Game::removeTank1, &Game::removeTank1max,
+      &Game::trainTank2, &Game::trainTank25, &Game::trainTank210, &Game::trainTank2max, &Game::removeTank2, &Game::removeTank2max,
+      &Game::trainTankOshimai, &Game::trainTankOshimai5, &Game::trainTankOshimai10, &Game::trainTankOshimaimax, &Game::removeTankOshimai, &Game::removeTankOshimaimax,
+      &Game::trainCas, &Game::trainCas5, &Game::trainCas10, &Game::trainCasmax, &Game::removeCas, &Game::removeCasmax,
+      &Game::trainFighter, &Game::trainFighter5, &Game::trainFighter10, &Game::trainFightermax, &Game::removeFighter, &Game::removeFightermax,
+      &Game::trainBomber, &Game::trainBomber5, &Game::trainBomber10, &Game::trainBombermax, &Game::removeBomber, &Game::removeBombermax,
+      &Game::trainKamikaze, &Game::trainKamikaze5, &Game::trainKamikaze10, &Game::trainKamikazemax, &Game::removeKamikaze, &Game::removeKamikazemax};
 
 private:
   // separate timer thread to increment time only
@@ -332,46 +339,86 @@ private:
   void upgrademilitaryFactory210(int &currentPhase, int prevPhase);
   void upgrademilitaryFactory2max(int &currentPhase, int prevPhase);
 
+  // train troops
   void trainBase(std::string, std::function<void(data::Resource &, data::Troop &)>, int, int, int);
-  void trainInfantry(){};
-  void trainCalvary(){};
-  void trainSuicideBomber(){};
-  void trainLogistic(){};
-  void trainArtillery(){};
-  void trainArmoredCar(){};
-  void trainTank1(){};
-  void trainTank2(){};
-  void trainTankOshimai(){};
-  void trainCas(){};
-  void trainFighter(){};
-  void trainBomber(){};
-  void trainKamikaze(){};
-  void trainInfantry5(){};
-  void trainCalvary5(){};
-  void trainSuicideBomber5(){};
-  void trainLogistic5(){};
-  void trainArtillery5(){};
-  void trainArmoredCar5(){};
-  void trainTank15(){};
-  void trainTank25(){};
-  void trainTankOshimai5(){};
-  void trainCas5(){};
-  void trainFighter5(){};
-  void trainBomber5(){};
-  void trainKamikaze5(){};
-  void trainInfantry10(){};
-  void trainCalvary10(){};
-  void trainSuicideBomber10(){};
-  void trainLogistic10(){};
-  void trainArtillery10(){};
-  void trainArmoredCar10(){};
-  void trainTank110(){};
-  void trainTank210(){};
-  void trainTankOshimai10(){};
-  void trainCas10(){};
-  void trainFighter10(){};
-  void trainBomber10(){};
-  void trainKamikaze10(){};
+  void trainInfantry(int &, int);
+  void trainCalvary(int &, int);
+  void trainSuicideBomber(int &, int);
+  void trainLogistic(int &, int);
+  void trainArtillery(int &, int);
+  void trainArmoredCar(int &, int);
+  void trainTank1(int &, int);
+  void trainTank2(int &, int);
+  void trainTankOshimai(int &, int);
+  void trainCas(int &, int);
+  void trainFighter(int &, int);
+  void trainBomber(int &, int);
+  void trainKamikaze(int &, int);
+  void trainInfantry5(int &, int);
+  void trainCalvary5(int &, int);
+  void trainSuicideBomber5(int &, int);
+  void trainLogistic5(int &, int);
+  void trainArtillery5(int &, int);
+  void trainArmoredCar5(int &, int);
+  void trainTank15(int &, int);
+  void trainTank25(int &, int);
+  void trainTankOshimai5(int &, int);
+  void trainCas5(int &, int);
+  void trainFighter5(int &, int);
+  void trainBomber5(int &, int);
+  void trainKamikaze5(int &, int);
+  void trainInfantry10(int &, int);
+  void trainCalvary10(int &, int);
+  void trainSuicideBomber10(int &, int);
+  void trainLogistic10(int &, int);
+  void trainArtillery10(int &, int);
+  void trainArmoredCar10(int &, int);
+  void trainTank110(int &, int);
+  void trainTank210(int &, int);
+  void trainTankOshimai10(int &, int);
+  void trainCas10(int &, int);
+  void trainFighter10(int &, int);
+  void trainBomber10(int &, int);
+  void trainKamikaze10(int &, int);
+  void trainInfantrymax(int &, int);
+  void trainCalvarymax(int &, int);
+  void trainSuicideBombermax(int &, int);
+  void trainLogisticmax(int &, int);
+  void trainArtillerymax(int &, int);
+  void trainArmoredCarmax(int &, int);
+  void trainTank1max(int &, int);
+  void trainTank2max(int &, int);
+  void trainTankOshimaimax(int &, int);
+  void trainCasmax(int &, int);
+  void trainFightermax(int &, int);
+  void trainBombermax(int &, int);
+  void trainKamikazemax(int &, int);
+  void removeInfantry(int &, int);
+  void removeCalvary(int &, int);
+  void removeSuicideBomber(int &, int);
+  void removeLogistic(int &, int);
+  void removeArtillery(int &, int);
+  void removeArmoredCar(int &, int);
+  void removeTank1(int &, int);
+  void removeTank2(int &, int);
+  void removeTankOshimai(int &, int);
+  void removeCas(int &, int);
+  void removeFighter(int &, int);
+  void removeBomber(int &, int);
+  void removeKamikaze(int &, int);
+  void removeInfantrymax(int &, int);
+  void removeCalvarymax(int &, int);
+  void removeSuicideBombermax(int &, int);
+  void removeLogisticmax(int &, int);
+  void removeArtillerymax(int &, int);
+  void removeArmoredCarmax(int &, int);
+  void removeTank1max(int &, int);
+  void removeTank2max(int &, int);
+  void removeTankOshimaimax(int &, int);
+  void removeCasmax(int &, int);
+  void removeFightermax(int &, int);
+  void removeBombermax(int &, int);
+  void removeKamikazemax(int &, int);
 
   void pause();
   void saveAs();

@@ -11,8 +11,3 @@ void Kamikaze::giveDamage(double foodS, double equipmentS, double disruption, do
   damage.softAttack += softAttackC;
   damage.hardAttack += hardAttackC;
 }
-
-double Kamikaze::getHealth()
-{
-  return hp;
-}

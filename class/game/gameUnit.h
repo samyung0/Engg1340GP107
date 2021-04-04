@@ -26,10 +26,10 @@ public:
   double casualtyPercentage = 0;
 
   // pointer to dynamically created troops
-  std::vector<Troop**> columnA = {NULL, NULL, NULL, NULL};
-  std::vector<Troop**> columnB = {NULL, NULL, NULL, NULL};
-  std::vector<Troop**> columnC = {NULL, NULL, NULL, NULL};
-  std::vector<Troop**> columnD = {NULL, NULL, NULL, NULL};
+  std::vector<TroopUnit**> columnA = {NULL, NULL, NULL, NULL};
+  std::vector<TroopUnit**> columnB = {NULL, NULL, NULL, NULL};
+  std::vector<TroopUnit**> columnC = {NULL, NULL, NULL, NULL};
+  std::vector<TroopUnit**> columnD = {NULL, NULL, NULL, NULL};
 
   ArmyUnit(std::string);
 };

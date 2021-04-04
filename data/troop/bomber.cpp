@@ -17,11 +17,6 @@ void Bomber::takeDamage(double damage)
   hp -= damage;
 }
 
-double Bomber::getHealth()
-{
-  return hp;
-}
-
 void Bomber::increaseHealth(double recovery)
 {
   hp += recovery;

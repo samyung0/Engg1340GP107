@@ -17,11 +17,6 @@ void Cas::takeDamage(double damage)
   hp -= damage;
 }
 
-double Cas::getHealth()
-{
-  return hp;
-}
-
 void Cas::increaseHealth(double recovery)
 {
   hp += recovery;

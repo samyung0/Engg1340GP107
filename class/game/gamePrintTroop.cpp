@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <vector>
 #include <unordered_map>
+#include <cmath>
 
 #include "../../io/io.h"
 #include "game.h"
@@ -23,10 +24,10 @@ void Game::printTroop(int x, int y)
       freeCamp / Tank1::trainingCamp,
       freeCamp / Tank2::trainingCamp,
       freeCamp / TankOshimai::trainingCamp,
-      freeCamp / Cas::trainingCamp,
-      freeCamp / Fighter::trainingCamp,
-      freeCamp / Bomber::trainingCamp,
-      freeCamp / Kamikaze::trainingCamp};
+      std::min(freeCamp / Cas::trainingCamp, this->resource->airport - this->resource->airportUsed),
+      std::min(freeCamp / Fighter::trainingCamp, this->resource->airport - this->resource->airportUsed),
+      std::min(freeCamp / Bomber::trainingCamp, this->resource->airport - this->resource->airportUsed),
+      std::min(freeCamp / Kamikaze::trainingCamp, this->resource->airport - this->resource->airportUsed)};
   std::vector<int> maxRemove = {
       this->troop->infantry[0],
       this->troop->calvary[0],
@@ -144,13 +145,15 @@ void Game::printTroop(int x, int y)
             << std::endl
             << std::endl;
   std::cout << color("Resources:", "green") << "\n"
-            << "Food: " << this->troop->totalFoodRequired << "/" << this->resource->food
-            << "   Equipment: " << this->resource->equipment << "/" << this->troop->totalEquipmentRequired
+            << "Food: " << this->troop->totalFoodRequired << "/" <<  this->resource->food
+            << "   Equipment: " << this->troop->totalEquipmentRequired << "/" << this->resource->equipment
             << "   Manpower: " << (this->resource->manpower - this->resource->manpowerInUse) << "/" << this->resource->manpower
             << "   Land: " << (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand) << "/" << this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand
             << "   Troop: " << this->troop->totalTroops
             << "   Armies: " << this->army->total.size() << "/10"
             << "   Battle Plans: " << this->battlePlan->total.size() << "/10"
+            << "   Camps: " << this->resource->campUsed << "/"<<this->resource->camp
+            << "   Airports: " << this->resource->airportUsed << "/"<<this->resource->airport
             << std::endl
             << std::endl;
 

@@ -16,12 +16,6 @@ void TankOshimai::takeDamage(double damage)
 {
   hp -= damage;
 }
-
-double TankOshimai::getHealth()
-{
-  return hp;
-}
-
 void TankOshimai::increaseHealth(double recovery)
 {
   hp += recovery;

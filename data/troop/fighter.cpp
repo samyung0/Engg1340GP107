@@ -17,11 +17,6 @@ void Fighter::takeDamage(double damage)
   hp -= damage;
 }
 
-double Fighter::getHealth()
-{
-  return hp;
-}
-
 void Fighter::increaseHealth(double recovery)
 {
   hp += recovery;

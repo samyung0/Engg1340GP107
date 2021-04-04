@@ -17,11 +17,6 @@ void ArmoredCar::takeDamage(double damage)
   hp -= damage;
 }
 
-double ArmoredCar::getHealth()
-{
-  return hp;
-}
-
 void ArmoredCar::increaseHealth(double recovery)
 {
   hp += recovery;

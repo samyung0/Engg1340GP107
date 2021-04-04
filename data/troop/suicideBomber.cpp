@@ -11,8 +11,3 @@ void SuicideBomber::giveDamage(double foodS, double equipmentS, double disruptio
   damage.softAttack += softAttackC;
   damage.hardAttack += hardAttackC;
 }
-
-double SuicideBomber::getHealth()
-{
-  return hp;
-}

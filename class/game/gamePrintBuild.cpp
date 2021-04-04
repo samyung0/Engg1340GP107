@@ -79,13 +79,12 @@ void Game::printBuild(int x, int y)
   }
 
   std::vector<int> maxUpgrade = {
-      (this->building->farmL[1] > this->building->farmL[0] ? std::min((int)(freeLand / (this->building->farmL[1]- this->building->farmL[0])), this->building->farm[0]) : this->building->farm[0]),
-      (this->building->farmL[2] > this->building->farmL[1] ? std::min((int)(freeLand / (this->building->farmL[2]- this->building->farmL[1])), this->building->farm[1]) : this->building->farm[1]),
-     (this->building->civilianFactoryL[1] > this->building->civilianFactoryL[0] ? std::min((int)(freeLand / (this->building->civilianFactoryL[1]- this->building->civilianFactoryL[0])), this->building->civilianFactory[0]) : this->building->civilianFactory[0]),
-     (this->building->civilianFactoryL[2] > this->building->civilianFactoryL[1] ? std::min((int)(freeLand / (this->building->civilianFactoryL[2]- this->building->civilianFactoryL[1])), this->building->civilianFactory[1]) : this->building->civilianFactory[1]),
-     (this->building->militaryFactoryL[1] > this->building->militaryFactoryL[0] ? std::min((int)(freeLand / (this->building->militaryFactoryL[1]- this->building->militaryFactoryL[0])), this->building->militaryFactory[0]) : this->building->militaryFactory[0]),
-     (this->building->militaryFactoryL[2] > this->building->militaryFactoryL[1] ? std::min((int)(freeLand / (this->building->militaryFactoryL[2]- this->building->militaryFactoryL[1])), this->building->militaryFactory[1]) : this->building->militaryFactory[1])
-  };
+      (this->building->farmL[1] > this->building->farmL[0] ? std::min((int)(freeLand / (this->building->farmL[1] - this->building->farmL[0])), this->building->farm[0]) : this->building->farm[0]),
+      (this->building->farmL[2] > this->building->farmL[1] ? std::min((int)(freeLand / (this->building->farmL[2] - this->building->farmL[1])), this->building->farm[1]) : this->building->farm[1]),
+      (this->building->civilianFactoryL[1] > this->building->civilianFactoryL[0] ? std::min((int)(freeLand / (this->building->civilianFactoryL[1] - this->building->civilianFactoryL[0])), this->building->civilianFactory[0]) : this->building->civilianFactory[0]),
+      (this->building->civilianFactoryL[2] > this->building->civilianFactoryL[1] ? std::min((int)(freeLand / (this->building->civilianFactoryL[2] - this->building->civilianFactoryL[1])), this->building->civilianFactory[1]) : this->building->civilianFactory[1]),
+      (this->building->militaryFactoryL[1] > this->building->militaryFactoryL[0] ? std::min((int)(freeLand / (this->building->militaryFactoryL[1] - this->building->militaryFactoryL[0])), this->building->militaryFactory[0]) : this->building->militaryFactory[0]),
+      (this->building->militaryFactoryL[2] > this->building->militaryFactoryL[1] ? std::min((int)(freeLand / (this->building->militaryFactoryL[2] - this->building->militaryFactoryL[1])), this->building->militaryFactory[1]) : this->building->militaryFactory[1])};
   for (int i = 0; i < maxUpgrade.size(); i++)
     if (maxUpgrade[i] > freeManpower)
       maxUpgrade[i] = freeManpower;
@@ -136,14 +135,12 @@ void Game::printBuild(int x, int y)
   else
     action[5][3] = color(action[5][3], "red");
 
-
   std::vector<int> maxRemove = {
-    std::min(this->resource->manpower - this->resource->manpowerInUse, this->building->civilianFactory[0]),
-    std::min(this->resource->manpower - this->resource->manpowerInUse, this->building->civilianFactory[1]),
-    std::min(this->resource->manpower - this->resource->manpowerInUse, this->building->civilianFactory[2]),
-    std::min(this->resource->camp - this->resource->campUsed, this->building->trainingCamp[0]),
-    std::min(this->resource->airport - this->resource->airportUsed, this->building->airport[0])
-  };
+      std::min(this->resource->manpower - this->resource->manpowerInUse, this->building->civilianFactory[0]),
+      std::min(this->resource->manpower - this->resource->manpowerInUse, this->building->civilianFactory[1]),
+      std::min(this->resource->manpower - this->resource->manpowerInUse, this->building->civilianFactory[2]),
+      std::min(this->resource->camp - this->resource->campUsed, this->building->trainingCamp[0]),
+      std::min(this->resource->airport - this->resource->airportUsed, this->building->airport[0])};
 
   for (int i = 0; i < 3; i++)
   {
@@ -229,12 +226,14 @@ void Game::printBuild(int x, int y)
             << std::endl;
   std::cout << color("Resources:", "green") << "\n"
             << "Food: " << this->troop->totalFoodRequired << "/" <<  this->resource->food
-            << "   Equipment: " << this->resource->equipment << "/" << this->troop->totalEquipmentRequired
+            << "   Equipment: " << this->troop->totalEquipmentRequired << "/" << this->resource->equipment
             << "   Manpower: " << (this->resource->manpower - this->resource->manpowerInUse) << "/" << this->resource->manpower
             << "   Land: " << (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand) << "/" << this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand
             << "   Troop: " << this->troop->totalTroops
             << "   Armies: " << this->army->total.size() << "/10"
             << "   Battle Plans: " << this->battlePlan->total.size() << "/10"
+            << "   Camps: " << this->resource->campUsed << "/"<<this->resource->camp
+            << "   Airports: " << this->resource->airportUsed << "/"<<this->resource->airport
             << std::endl
             << std::endl;
   std::cout << std::setw(50 + 11) << color("Build: ", "green")
@@ -310,7 +309,8 @@ void Game::printBuild(int x, int y)
                }()))
             << std::endl
             << std::endl;
-  std::cout << actionPrefix[11][0] << action[11][0] << " (Or spacebar)" << std::endl << std::endl ;
+  std::cout << actionPrefix[11][0] << action[11][0] << " (Or spacebar)" << std::endl
+            << std::endl;
   // unlock after all results are printed because of the same reference thing
   this->lg3.unlock();
 }

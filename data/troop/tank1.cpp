@@ -17,11 +17,6 @@ void Tank1::takeDamage(double damage)
   hp -= damage;
 }
 
-double Tank1::getHealth()
-{
-  return hp;
-}
-
 void Tank1::increaseHealth(double recovery)
 {
   hp += recovery;
