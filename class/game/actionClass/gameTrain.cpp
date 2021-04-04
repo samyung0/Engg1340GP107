@@ -18,7 +18,7 @@ void Game::trainBase(std::string type, std::function<void(data::Resource &, data
   this->troop->progressAsync[id] = std::async(std::launch::async, [this, id, time, callBack, type, camp]() {
     this->troop->progress[id] = new Progress(time, this->setting["speed"]);
     this->lg3.unlock();
-    this->troop->progress[id]->start(this->lg3);
+    this->troop->progress[id]->start(this->lg3, this->lg3high);
     this->lg3.lock();
     callBack(*this->resource, *this->troop);
     delete this->troop->progress[id];

@@ -19,7 +19,7 @@ public:
   int remain;
   int interval;
   Progress(int, int);
-  void start(std::mutex&);
+  void start(std::mutex&, std::mutex&);
 };
 
 namespace data

@@ -25,8 +25,11 @@ void Game::buildBase(std::string type, int time, std::function<void(data::Resour
   this->building->progressAsync[id] = std::async(std::launch::async, [this, id, time, callBack, type]() {
     this->building->progress[id] = new Progress(time, this->setting["speed"]);
     this->lg3.unlock();
-    this->building->progress[id]->start(this->lg3);
+    this->building->progress[id]->start(this->lg3, this->lg3high);
+
+    // high priority lock (should update before printing)
     this->lg3.lock();
+
     callBack(*this->resource);
     delete this->building->progress[id];
     this->building->progress.erase(id);
@@ -61,7 +64,7 @@ void Game::buildBase(std::string type, int time, std::function<void()> callBack,
   this->building->progressAsync[id] = std::async(std::launch::async, [this, id, time, callBack, type]() {
     this->building->progress[id] = new Progress(time, this->setting["speed"]);
     this->lg3.unlock();
-    this->building->progress[id]->start(this->lg3);
+    this->building->progress[id]->start(this->lg3, this->lg3high);
     this->lg3.lock();
     callBack();
     delete this->building->progress[id];

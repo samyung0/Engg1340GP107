@@ -162,7 +162,7 @@ private:
     {
       this->printStatus(x, y);
       std::unique_lock<std::mutex> lock(this->lgcv1b);
-      terminatePrintCV.wait_for(lock, std::chrono::milliseconds(this->setting["speed"]));
+      terminatePrintCV.wait_for(lock, std::chrono::milliseconds(1000));
     }
   }
   void loopPrintBuild(int x, int y)
@@ -187,7 +187,7 @@ private:
     {
       this->printBuild(x, y);
       std::unique_lock<std::mutex> lock(this->lgcv2b);
-      terminateBuildCV.wait_for(lock, std::chrono::milliseconds(this->setting["speed"]));
+      terminateBuildCV.wait_for(lock, std::chrono::milliseconds(1000));
     }
   }
   void loopPrintResearch(int x, int y)
@@ -212,7 +212,7 @@ private:
     {
       this->printResearch(x, y);
       std::unique_lock<std::mutex> lock(this->lgcv3b);
-      terminateResearchCV.wait_for(lock, std::chrono::milliseconds(this->setting["speed"]));
+      terminateResearchCV.wait_for(lock, std::chrono::milliseconds(1000));
     }
   }
   void loopPrintTroop(int x, int y)
@@ -237,7 +237,7 @@ private:
     {
       this->printTroop(x, y);
       std::unique_lock<std::mutex> lock(this->lgcv4b);
-      terminateTroopCV.wait_for(lock, std::chrono::milliseconds(this->setting["speed"]));
+      terminateTroopCV.wait_for(lock, std::chrono::milliseconds(1000));
     }
   }
 
@@ -484,6 +484,9 @@ private:
   std::mutex lg2;
   // for any mutation of data
   std::mutex lg3;
+  // set low priority to printing functions (and sest high priority for progress)
+  std::mutex lg3low;
+  std::mutex lg3high;
   // user action lock (prevent spamming)
   std::mutex lguser;
 
