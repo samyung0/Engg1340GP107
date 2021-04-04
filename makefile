@@ -62,10 +62,10 @@ objectFiles/gameBuildSubf.o: class/game/actionClass/gameBuildSub.cpp class/game/
 objectFiles/gameRemoveBuildSubf.o: class/game/actionClass/gameRemoveBuildSub.cpp class/game/game.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/gamePrintResearchf.o: class/game/gamePrintResearch.cpp class/game/game.h
+objectFiles/gamePrintResearchf.o: class/game/gamePrintResearch.cpp class/game/game.h io/io.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/gameResearchf.o: class/game/actionClass/gameResearch.cpp class/game/game.h
+objectFiles/gameResearchf.o: class/game/actionClass/gameResearch.cpp class/game/game.h class/game/gameStruct.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 objectFiles/gameResearchSubf.o: class/game/actionClass/gameResearchSub.cpp class/game/game.h
@@ -74,49 +74,49 @@ objectFiles/gameResearchSubf.o: class/game/actionClass/gameResearchSub.cpp class
 objectFiles/gameUpgradeSubf.o: class/game/actionClass/gameUpgradeSub.cpp class/game/game.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/infantryc.o: data/troop/infantry.cpp data/troop/troop.h
+objectFiles/infantryc.o: data/troop/infantry.cpp data/troop/troop.h class/damage/damage.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/calvaryc.o: data/troop/calvary.cpp data/troop/troop.h
+objectFiles/calvaryc.o: data/troop/calvary.cpp data/troop/troop.h class/damage/damage.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/suicideBomberc.o: data/troop/suicideBomber.cpp data/troop/troop.h
+objectFiles/suicideBomberc.o: data/troop/suicideBomber.cpp data/troop/troop.h class/damage/damage.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/artilleryc.o: data/troop/artillery.cpp data/troop/troop.h
+objectFiles/artilleryc.o: data/troop/artillery.cpp data/troop/troop.h class/damage/damage.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 objectFiles/logisticc.o: data/troop/logistic.cpp data/troop/troop.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/armoredCarc.o: data/troop/armoredCar.cpp data/troop/troop.h
+objectFiles/armoredCarc.o: data/troop/armoredCar.cpp data/troop/troop.h class/damage/damage.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/tank1c.o: data/troop/tank1.cpp data/troop/troop.h
+objectFiles/tank1c.o: data/troop/tank1.cpp data/troop/troop.h class/damage/damage.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/tank2c.o: data/troop/tank2.cpp data/troop/troop.h
+objectFiles/tank2c.o: data/troop/tank2.cpp data/troop/troop.h class/damage/damage.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/tankOshimaic.o: data/troop/tankOshimai.cpp data/troop/troop.h
+objectFiles/tankOshimaic.o: data/troop/tankOshimai.cpp data/troop/troop.h 
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/casc.o: data/troop/cas.cpp data/troop/troop.h
+objectFiles/casc.o: data/troop/cas.cpp data/troop/troop.h class/damage/damage.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/fighterc.o: data/troop/fighter.cpp data/troop/troop.h
+objectFiles/fighterc.o: data/troop/fighter.cpp data/troop/troop.h class/damage/damage.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/bomberc.o: data/troop/bomber.cpp data/troop/troop.h
+objectFiles/bomberc.o: data/troop/bomber.cpp data/troop/troop.h class/damage/damage.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/kamikazec.o: data/troop/kamikaze.cpp data/troop/troop.h
+objectFiles/kamikazec.o: data/troop/kamikaze.cpp data/troop/troop.h class/damage/damage.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 objectFiles/troopc.o: data/troop/troop.cpp data/troop/troop.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/gamePrintTroopc.o: class/game/gamePrintTroop.cpp class/game/game.h
+objectFiles/gamePrintTroopc.o: class/game/gamePrintTroop.cpp class/game/game.h io/io.h data/troop/troop.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 objectFiles/gameTrainf.o: class/game/actionClass/gameTrain.cpp class/game/game.h class/game/gameStruct.h data/troop/troop.h
