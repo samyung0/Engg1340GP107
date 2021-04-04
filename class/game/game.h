@@ -22,6 +22,7 @@ public:
   Game(const std::unordered_map<std::string, int> &);
   void start();
 
+private:
   // similar to how menu phase works, we progress the phase number according to use actions
   std::vector<std::vector<std::vector<int>>> map{
 
@@ -58,19 +59,19 @@ public:
        {-83},
        {0}},
       {// train troops (1, 5, max), remove troops (1, all)
-       {-84,-85,-86,-87,-88,-89},
-       {-90,-91,-92,-93,-94,-95},
-       {-96,-97,-98,-99,-100,-101},
-       {-102,-103,-104,-105,-106,-107},
-       {-108,-109,-110,-111,-112,-113},
-       {-114,-115,-116,-117,-118,-119},
-       {-120,-121,-122,-123,-124,-125},
-       {-126,-127,-128,-129,-130,-131},
-       {-132,-133,-134,-135,-136,-137},
-       {-138,-139,-140,-141,-142,-143},
-       {-144,-145,-146,-147,-148,-149},
-       {-150,-151,-152,-153,-154,-155},
-       {-156,-157,-158,-159,-160,-161},
+       {-84, -85, -86, -87, -88, -89},
+       {-90, -91, -92, -93, -94, -95},
+       {-96, -97, -98, -99, -100, -101},
+       {-102, -103, -104, -105, -106, -107},
+       {-108, -109, -110, -111, -112, -113},
+       {-114, -115, -116, -117, -118, -119},
+       {-120, -121, -122, -123, -124, -125},
+       {-126, -127, -128, -129, -130, -131},
+       {-132, -133, -134, -135, -136, -137},
+       {-138, -139, -140, -141, -142, -143},
+       {-144, -145, -146, -147, -148, -149},
+       {-150, -151, -152, -153, -154, -155},
+       {-156, -157, -158, -159, -160, -161},
        {0}}};
   int gamePhase = 0;
   std::vector<int> prevGamePhase = {};
@@ -124,7 +125,6 @@ public:
       &Game::trainBomber, &Game::trainBomber5, &Game::trainBomber10, &Game::trainBombermax, &Game::removeBomber, &Game::removeBombermax,
       &Game::trainKamikaze, &Game::trainKamikaze5, &Game::trainKamikaze10, &Game::trainKamikazemax, &Game::removeKamikaze, &Game::removeKamikazemax};
 
-private:
   // separate timer thread to increment time only
   std::thread *timerThread;
   std::future<void> loopPrintStatusThread;
@@ -427,6 +427,10 @@ private:
 
   // Note timer only progress day variable, nothing else
   // training troop/ building have their own async loops
+  // reason is because the user can start a progress at anytime so it owuld be impossible to use a single loop for all progresses
+
+  // NOTE: KNOWN VISUAL BUG, sometimes when starting multiple progresses at the same time, some would show n days while some show n+1 days
+  // reason: data racing
   void timer(int time)
   {
     while (!this->terminate)
@@ -437,7 +441,7 @@ private:
       this->day++;
       this->lg.unlock();
     }
-  };
+  }
   bool terminate = false;
   bool terminatePrint = false;
   bool terminateBuild = false;
@@ -449,6 +453,7 @@ private:
   std::condition_variable terminateTroopCV;
 
   int day = 1;
+  std::vector<Progress *> progress;
 
   // key: speed
   std::unordered_map<std::string, int> setting;
