@@ -1,3 +1,4 @@
+#include <cmath>
 #include "troop.h"
 #include "../../class/damage/damage.h"
 void Calvary::giveDamage(double foodS, double equipmentS, double disruption, double attackDebuff, double airSupremacy, Damage &damage)
@@ -15,9 +16,11 @@ void Calvary::giveDamage(double foodS, double equipmentS, double disruption, dou
 void Calvary::takeDamage(double damage)
 {
   hp -= damage;
+  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / Calvary::baseHp) + std::log(0.2) + 1.5), 1 - (hp / Calvary::baseHp));
 }
 
 void Calvary::increaseHealth(double recovery)
 {
   hp += recovery;
+  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / Calvary::baseHp) + std::log(0.2) + 1.5), 1 - (hp / Calvary::baseHp));
 }

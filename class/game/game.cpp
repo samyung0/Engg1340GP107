@@ -11,8 +11,6 @@
 #include "../../io/io.h"
 #include "../../data/troop/troop.h"
 
-ArmyUnit::ArmyUnit(std::string name_) : name(name_) {}
-
 // decrement remain by 1 every interval until 0
 Progress::Progress(int time, int interval_)
     : remain(time), interval(interval_)

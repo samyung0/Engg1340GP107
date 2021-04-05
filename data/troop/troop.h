@@ -2,6 +2,7 @@
 #define TROOP_H
 
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include "../../class/damage/damage.h"
 
@@ -43,6 +44,9 @@ public:
   bool isReferenced = false;
   std::vector<bool> reference;
 
+  // health related strength, more signficant than subsequential strength
+  double pivotalStrength = 1.0;
+
   // reference (all data)
   // const static int trainingCamp;
   // const static int trainingTime;
@@ -54,7 +58,7 @@ public:
   // const static int airAttack;
   // const static int armor;
   // const static int conspicuousness;
-  const static int baseHp;
+  // const static int baseHp;
   // const static int baseHp
   // double equipment;
   // double food;

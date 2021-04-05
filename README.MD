@@ -362,7 +362,7 @@ ___Commands:___
 
     Subsequential strength = (supplied food/ food required + supplied equipment/ equipment required)/ 2 * 100% (if no food/ equipment is required, then the caluclation will not take the average, but rather 1 fraction or 100%) (equivalent for all troops within the same army)
 
-    Pivotal strength [![render.png](https://i.postimg.cc/g0xGGMPN/render.png)](https://postimg.cc/d7cbBj3y) (100% at full health, minimum ~30%, s-shaped)
+    Pivotal strength [![render.png](https://i.postimg.cc/g0xGGMPN/render.png)](https://postimg.cc/d7cbBj3y) (100% at full health, minimum ~30%, s-shaped, hp here = current health/ base health)
 
     Strength of troop = Pivotal stength * 0.6 + Subsequential strength * 0.4
 

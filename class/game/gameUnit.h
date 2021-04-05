@@ -37,6 +37,33 @@ public:
   bool removed = false;
   bool lost = false;
 
+  int totalBaseFoodRequired = 0;
+  int totalBaseEquipmentRequired = 0;
+
+  int foodReductionPerLand = 0;
+  int foodReductionPerAir = 0;
+
+  int equipmentReductionPerLand = 0;
+  int equipmentReductionPerAir = 0;
+
+  int speedBoostPerLand = 0;
+
+  int logisticCount = 0;
+
+  // total required = totalbase - totalreduced
+  // total supplied = totalbase * total food production / total food required (capped at totalbase)
+  double totalFoodRequired = 0;
+  double totalEquipmentRequired = 0;
+
+  // supplied/ required
+  double foodRatio = 1;
+  double equipmentRatio = 1;
+
+  // stored as decimal, displayed as percentage
+  // all troops should have same subsequential strength
+  double subsequentialStrength = 1.0;
+
+
   ArmyUnit(std::string);
 
   // is called when its either removed by user or lost in battle
