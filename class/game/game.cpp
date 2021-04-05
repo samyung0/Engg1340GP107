@@ -48,6 +48,7 @@ void Game::start()
   battlePlan = new data::BattlePlan();
   research = new data::Research();
   battle = new data::Battle();
+  enemies = new data::Enemies();
   this->timerThread = new std::thread(&Game::timer, this, this->setting["speed"]);
 
   char input;

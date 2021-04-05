@@ -19,7 +19,7 @@ Wu Ziliang Louis 3035787061
   
 ## <a name="a1"></a>Goal
 
-Your objective is to capture all countries in the map __within a time limit__. A country will capitulate once 50% of its land are captured.
+Your objective is to capture all countries in the map __within a time limit__. A country will capitulate once 70% of its land are captured.
 
 ___1 second in real life equals 1 day in the game. Each level will have a different time limit.___
 
@@ -56,7 +56,7 @@ ___To view your country's status/ resources:___
 
 ## <a name="map"></a>Map design and coordinate system
 
-For __other countries__, you will see the different regions of the other countries represented in coordinates, from A1, A2, to Z10, with A representing the border of the country and B, C,... being the land deeper into the country. __You must first attack the country layer by layer (form A to B to C, etc).__ You can choose which land to attack by specifying the coordinate of the land. Same rule applies to battle planning, using the coordinates to specify the attacking order.
+For __other countries__, you will see the different regions of the other countries represented in coordinates, from A1, A2, to Z10, with A representing the border of the country and B, C,... being the land deeper into the country. __You must attack the country layer by layer (form A to B to C, etc).__ You can choose which land to attack by specifying the coordinate of the land. Same rule applies to battle planning, using the coordinates to specify the attacking order.
 
 For __your own country__, you will not see a coordinate system, but everything combined instead since you will not get attacked.
 

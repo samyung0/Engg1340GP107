@@ -1,0 +1,136 @@
+start a new folder in the root directory (any name, idk random or sth)
+strat a header file and a .cpp file(s)
+put them in the makefile
+
+Each variable to be generated has a lower bound of x and upper bound of y (inclusive) (to be inputted via parameters)
+(so u need to write functions using this x and y)
+(also x and y maybe the same number)
+
+- generate corresponding level of difficulty according to the difficulty selected (call it d) (total 5 difficulty modes)
+  Approximate range for each difficulty:
+  1 (easy): 70%-100% of the bound (so if x is 0 and y is 20, then the range that should be generated is 14-20 )
+                                  (if x is 10 and y is 20, then the range that should be generated is 17-20 )
+  2: 65% - 80%
+  3: 55% - 70%
+  4: 40% - 55%
+  5 (most difficult): 20% to 30%
+
+
+so you should have a big function that accpets x,y,d,data::Resource& (the resource struct must be calling by reference, the & symbol) as parameters
+also include gameStruct.h by ../class/game/gameStruct.h (u need to check the path of your file)
+
+the resource struct looks like this:
+
+namespace data{
+struct Resource
+  {
+    double food = 0;
+    double equipment = 0;
+    int manpower = 0;
+    int manpowerInUse = 0;
+    double baseLand = 0;
+    double usedLand = 0;
+    double capturedLand = 0;
+    int camp = 100;
+    int campUsed = 0;
+    int airport = 0;
+    int airportUsed = 0;
+
+    double baseLandMul = 1;
+    double baseLandTroopMul = 1;
+    double baseAirTroopMul = 1;
+    double baseTankMul = 1;
+    double baseAirToopMul2 = 1;
+    double baseTrainingTimeMul = 1;
+
+    double baseRecoveryDiff = 0;
+  };
+}
+
+When you have generated the values, you can directly modify the values within the struct
+(e.g. the parameter name of the sturct is A, then A.sth = value;)
+
+When you are testing the function, you can make a new resource struct coz u dont have the original struct to pass into the function
+
+variables to be generated:
+
+YOUR country:
+
+    double food = 0; 
+    double equipment = 0;
+    int manpower = 0;
+    double baseLand = 0;
+    int camp = 0;
+    int airport = 0;
+
+
+
+then the enemies things
+
+1. map
+
+Each enemy country has their own map, each block labeled A1 to A2 to B1 to Z100...
+Each map must have all the blocks connected horizontally or vertically.
+So no
+A1  A3       or   A1 A2              or A1
+  B2                   B3                    A2
+  C2                   C3                    B3
+
+When playing, we must attack each country from A to B to C and so on.
+Any block that is on the top (shown in the examples) can be block A, it may also start from B or C
+BUT, A must be followed by B, B must followed by C, and so on (except when there is no block after that)
+A cannot appear after B, B cannot appear after C, etc
+
+attacking rule: a block can only be attacked when 1. the previous block is captured
+                                                  2. the left or right block is captured
+
+eg.1
+
+A1 A2 A3 A4 A5    A7
+   B2    B4 B5 B6 B7
+   C2 C3 C4 C5    C7
+D1 D2       D5
+
+eg.2
+A1 A2 A3    A5
+   B2    B4 B5
+   C2 C3 C4 C5 A6 A7
+D1 D2       D5
+E1 E2 E4 E4 E5 E6 E7
+F1 F2             F7
+G1                G7
+H1 H2             H7
+
+In eg.1, B2 can be attacked after A2 is captured, B5 can be attacked after A5 or B4 or B6 is captured
+In eg.2, C4 can be attacked after C4 or B5 or A6 is captured
+
+include the block.h from ../class/block/block.h
+include enemy.h from ../class/enemy/enemy.h
+include gameStruct
+
+include the struct data::Enemies * enemies    at the function parameter
+
+generate:
+number of countries (following the rules above when using random)
+
+for each of the countries: generate the following
+
+int mapSizeX, int mapSizeY (following the rule above when using random)
+name of the country (you can make a large list of names and pick one from it, but it must be unique among other countries)
+some amounts of blocks, <= X*Y (see below)
+
+output:
+
+the structure of the map should look like this:
+vector<vector<Block*>> nameOfTheVariable
+
+Create each block by doing new Block(nameOfBlock, vector<string> attackable) (name is the A1/A2/B1 thing, attackable being what land should be captured before this block cna be attacked)
+
+The block object should be created using new because it is stored as pointers inside the enemy class
+
+put the block in the giant vector, and put NULL if that block is empty (so the entire vector in the end should all be filled with a value)
+
+using new, create an Enemy object with the  and push it to the enemies vector in the parameter:
+enemies.push_back(new Enemy(nameOfCountry, giantMapBlockVectorThing));
+
+so if you have 5 countries, then you should have 5 different maps and pushing 5 times to the enemies struct

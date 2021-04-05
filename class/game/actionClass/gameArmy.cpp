@@ -6,7 +6,7 @@
 #include "../game.h"
 #include "../../../io/io.h"
 
-void Game::gameArmy(int x, int y)
+void Game::gameArmy(int &currentPhase, int prevPhase)
 {
   this->lg3low.lock();
   this->lg3high.lock();

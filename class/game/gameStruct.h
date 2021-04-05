@@ -12,6 +12,7 @@
 
 #include "gameUnit.h"
 #include "../../data/troop/troop.h"
+#include "../enemy/enemy.h"
 
 class Progress
 {
@@ -349,6 +350,10 @@ namespace data
     };
     std::unordered_map<std::string, Progress *> progress;
     std::unordered_map<std::string, std::future<void>> progressAsync;
+  };
+
+  struct Enemies{
+      std::vector<Enemy*> totalEnemies;
   };
 
 }

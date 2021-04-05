@@ -465,6 +465,7 @@ private:
   data::BattlePlan *battlePlan;
   data::Research *research;
   data::Battle *battle;
+  data::Enemies *enemies;
 
   // for day
   std::mutex lg;
