@@ -134,3 +134,9 @@ using new, create an Enemy object with the  and push it to the enemies vector in
 enemies.push_back(new Enemy(nameOfCountry, giantMapBlockVectorThing));
 
 so if you have 5 countries, then you should have 5 different maps and pushing 5 times to the enemies struct
+
+
+MISSING TODO:
+- generate troops and armies at each block
+- save and load progress
+- windows version of game
