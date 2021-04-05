@@ -27,7 +27,7 @@ private:
   std::vector<std::vector<std::vector<int>>> map{
 
       // building, researching, troops training, army editing, battle planning, battling
-      {{1, 2, 3, 4, 5, 6},
+      {{1, 2, 3, -162, -163, -164},
 
        // set speed, pause (action), save as (action), restart (action), quit (action)
        {7, -1, -2, -3, -4}},
@@ -245,7 +245,7 @@ private:
   void printBuild(int x, int y);
   void printResearch(int x, int y);
   void printTroop(int x, int y);
-  void printArmy(int x, int y);
+  void gameArmy(int &currentPhase, int prevPhase);
   void printBattlePlan(int x, int y);
   void printBattle(int x, int y);
   void printSetSpeed(int x, int y);

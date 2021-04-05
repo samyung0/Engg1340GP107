@@ -4,7 +4,7 @@
 // format text to give colors
 // input text and target color as strings
 // output formatted text as string
-std::string color(const std::string& text, const std::string& color)
+std::string color(const std::string text, const std::string color)
 {
   if (color == "red")
     return "\033[1;31m" + text + "\033[0m";
@@ -22,7 +22,7 @@ std::string color(const std::string& text, const std::string& color)
     return "\033[1;37m" + text + "\033[0m";
 }
 
-std::string underline(const std::string& text, const std::string& color)
+std::string underline(const std::string text, const std::string color)
 {
   if (color == "red")
     return "\033[4;31m" + text + "\033[0m";

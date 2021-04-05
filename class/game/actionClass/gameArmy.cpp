@@ -3,10 +3,10 @@
 #include <iostream>
 #include <vector>
 
-#include "game.h"
-#include "../../io/io.h"
+#include "../game.h"
+#include "../../../io/io.h"
 
-void Game::printArmy(int x, int y)
+void Game::gameArmy(int x, int y)
 {
   this->lg3low.lock();
   this->lg3high.lock();
@@ -56,7 +56,13 @@ void Game::printArmy(int x, int y)
     if (!this->army->total[i.first]->removed && !this->army->total[i.first]->lost)
     {
       prefix.push_back({"   ", "   "});
+
+      std::string edit = (this->army->total[i.first]->inBattle ?  color("Edit", "red") : underline("Edit", "green"));
+      std::string remove = (this->army->total[i.first]->inBattle ?  color("Remove", "red") : underline("Remove", "green"));
+
       action.push_back({"Edit", "Remove"});
+
+      if(this->army->total[i.first]->inBattle) action.back().push_back(underline("Retreat", "green"));
 
       content.push_back({});
       coutCompensation.push_back({});
