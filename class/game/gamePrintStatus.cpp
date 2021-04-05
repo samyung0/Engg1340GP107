@@ -7,6 +7,12 @@
 #include "game.h"
 void Game::printStatus(int x, int y)
 {
+  
+  this->lg3low.lock();
+  this->lg3high.lock();
+  this->lg3.lock();
+
+  this->lg3high.unlock();
   std::vector<std::vector<std::string>> actionPrefix = {
     {"   ", "   ", "   ", "   ", "   ", "   "},
     {"   ", "   ", "   ", "   ", "   "}
@@ -26,7 +32,8 @@ void Game::printStatus(int x, int y)
             << std::endl;
 
   this->lg.unlock();
-  this->lg3.lock();
+
+  
   std::cout << color("Resources:", "green") << "\n"
             << "Food: " << this->troop->totalFoodRequired << "/" <<  this->resource->food
             << "   Equipment: " << this->troop->totalEquipmentRequired << "/" << this->resource->equipment
@@ -105,4 +112,5 @@ void Game::printStatus(int x, int y)
             << std::setw(40) << "" << actionPrefix[1][0] + underline("Speed      ", "green") + actionPrefix[1][1] + underline("Pause      ", "green") + actionPrefix[1][2] + underline("Save As    ", "green") + actionPrefix[1][3] + underline("Restart    ", "green") + actionPrefix[1][4] + underline("Quit       ", "green")
             << std::endl;
   this->lg3.unlock();
+  this->lg3low.unlock();
 }

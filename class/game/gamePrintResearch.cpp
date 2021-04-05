@@ -7,7 +7,11 @@
 
 void Game::printResearch(int x, int y)
 {
-    this->lg3.lock();
+    this->lg3low.lock();
+  this->lg3high.lock();
+  this->lg3.lock();
+
+  this->lg3high.unlock();
     std::vector<std::string> prefix = {"   ", "   ", "   ", "   ", "   ", "   ", "   ", "   ", "   ", "   "};
     std::vector<std::string> name = {
         "Farm", "Division of Labour", "Production Line", "Land Doctrine", "Air Doctrine", "Urbanization", "Weapon", "Training", "Recovery"};
@@ -190,4 +194,5 @@ void Game::printResearch(int x, int y)
               << prefix[9] << underline("Return", "green") << " (Or spacebar)" << std::endl
               << std::endl;
     this->lg3.unlock();
+    this->lg3low.unlock();
 }

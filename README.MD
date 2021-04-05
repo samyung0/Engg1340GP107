@@ -353,11 +353,18 @@ ___Commands:___
 
     __Formulas for all the items:__
 
-    Supplied food = food required * (total food produced/ total food required (capped at 1, meaning sufficient food for all troops)) __In special cases when you surround 1 enemy region by occupying the 4 adjacent regions, you _cut off_ their supply routes and they receive 0 food no matter of their food production__ (see [Other details and tips](#a5) for more info)
+    Supplied food = base food required * (total food produced/ total base food required (capped at 1, meaning sufficient food for all troops)) __In special cases when you surround 1 enemy region by occupying the 4 adjacent regions, you _cut off_ their supply routes and they receive 0 food no matter of their food production__ (see [Other details and tips](#a5) for more info)
 
-    Supplied equipment is the same as the supplied food.
+    Supplied equipment calculation is the same as the supplied food.
 
-    Strength of troop = (supplied food/ food required + supplied equipment/ equipment required)/ 2 * 100% (if no food/ equipment is required, then the caluclation will not take the average, but rather 1 fraction or 100%)
+    Food required = base food required - food reduction (0 reduction if not in army)
+    Equipment required = base equipment required - requipment reduction (0 reduction if not in army)
+
+    Subsequential strength = (supplied food/ food required + supplied equipment/ equipment required)/ 2 * 100% (if no food/ equipment is required, then the caluclation will not take the average, but rather 1 fraction or 100%) (equivalent for all troops within the same army)
+
+    Pivotal strength [![render.png](https://i.postimg.cc/g0xGGMPN/render.png)](https://postimg.cc/d7cbBj3y) (100% at full health, minimum ~30%, s-shaped)
+
+    Strength of troop = Pivotal stength * 0.6 + Subsequential strength * 0.4
 
     (From the calculation, _all troops_ will suffer from low strength should any of the food or equipment supplied is insufficient.)
 

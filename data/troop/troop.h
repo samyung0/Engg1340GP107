@@ -10,7 +10,7 @@
 // avoid object slicing by storing troop type as pointers (vector looks like vector<Troop*> ... push_back(new derived()) )
 // getting equipment/ food/ hp (only present in derived class but not base class) by getters and setters (dynamic casting is costly)
 // no need for virtual destructors because no dynamic memory is used within the derived class (can directly call the base destructor)
-// using raw pointers and handling delete myself
+// using raw pointers and handling delete myself (TODO: change to shared pointers)
 
 // get: health, equipment, food
 // set: equipment, food (health using takeDamage for minus and increaseHealth for plus)
@@ -39,6 +39,10 @@ public:
   // state for identifying it as free/ in battle/ in plan/ in army
   std::unordered_map<std::string, bool> state = {{"free", true}, {"battle", false}, {"battlePlan", false}, {"army", false}};
 
+  // if is getting pointed to by a pointer (only false when the vector array are all falses) (TODO: change to shared pointers)
+  bool isReferenced = false;
+  std::vector<bool> reference;
+
   // reference (all data)
   // const static int trainingCamp;
   // const static int trainingTime;
@@ -50,6 +54,8 @@ public:
   // const static int airAttack;
   // const static int armor;
   // const static int conspicuousness;
+  const static int baseHp;
+  // const static int baseHp
   // double equipment;
   // double food;
   // double hp;
@@ -83,6 +89,7 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
@@ -116,6 +123,7 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
@@ -150,12 +158,13 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
   double equipment = 2;
   double food = 1;
-  double hp;
+  double hp = 0;
 };
 class Artillery : public TroopUnit
 {
@@ -182,6 +191,7 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
@@ -216,6 +226,7 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
@@ -248,6 +259,7 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
@@ -280,6 +292,7 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
@@ -312,12 +325,13 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
   double equipment = 25;
   double food = 8;
-  double hp = 30;
+  double hp = 300;
 };
 class TankOshimai : public TroopUnit
 {
@@ -344,6 +358,7 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
@@ -376,6 +391,7 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
@@ -408,6 +424,7 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
@@ -440,6 +457,7 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
@@ -474,11 +492,12 @@ public:
   const static int airAttack;
   const static int armor;
   const static int conspicuousness;
+  const static int baseHp;
 
   // mutable
 private:
   double equipment = 10;
   double food = 1;
-  double hp;
+  double hp = 0;
 };
 #endif

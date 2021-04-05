@@ -11,7 +11,11 @@
 
 void Game::printTroop(int x, int y)
 {
+  this->lg3low.lock();
+  this->lg3high.lock();
   this->lg3.lock();
+
+  this->lg3high.unlock();
 
   int freeCamp = this->resource->camp - this->resource->campUsed;
   std::vector<int> maxTrain = {
@@ -221,4 +225,5 @@ void Game::printTroop(int x, int y)
             << "Kamikaze:" + std::string(15 - 8, ' ') << std::setw(4) << this->troop->kamikaze[0] << "/" << std::setw(4) << this->troop->kamikaze[1] << "/" << std::setw(4) << this->troop->kamikaze[2] << "/" << std::setw(4) << this->troop->kamikaze[3] << "   (" << std::setw(5) << (this->troop->kamikaze[0] + this->troop->kamikaze[1] + this->troop->kamikaze[2] + this->troop->kamikaze[3]) << " total)"
             << std::endl;
   this->lg3.unlock();
+  this->lg3low.unlock();
 }

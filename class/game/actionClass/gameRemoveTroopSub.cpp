@@ -24,7 +24,7 @@ void Game::removeInfantry(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "infantry")
+      if (this->troop->allTroop[i]->type == "infantry" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -59,7 +59,7 @@ void Game::removeCalvary(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "calvary")
+      if (this->troop->allTroop[i]->type == "calvary" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -94,7 +94,7 @@ void Game::removeSuicideBomber(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "suicideBomber")
+      if (this->troop->allTroop[i]->type == "suicideBomber" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -129,7 +129,7 @@ void Game::removeLogistic(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "logistic")
+      if (this->troop->allTroop[i]->type == "logistic" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -164,7 +164,7 @@ void Game::removeArtillery(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "artillery")
+      if (this->troop->allTroop[i]->type == "artillery" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -199,7 +199,7 @@ void Game::removeArmoredCar(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "armoredCar")
+      if (this->troop->allTroop[i]->type == "armoredCar" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -234,7 +234,7 @@ void Game::removeTank1(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "tank1")
+      if (this->troop->allTroop[i]->type == "tank1" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -269,7 +269,7 @@ void Game::removeTank2(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "tank2")
+      if (this->troop->allTroop[i]->type == "tank2" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -304,7 +304,7 @@ void Game::removeTankOshimai(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "tankOshimai")
+      if (this->troop->allTroop[i]->type == "tankOshimai" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -340,7 +340,7 @@ void Game::removeCas(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "cas")
+      if (this->troop->allTroop[i]->type == "cas" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -376,7 +376,7 @@ void Game::removeFighter(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "fighter")
+      if (this->troop->allTroop[i]->type == "fighter" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -412,7 +412,7 @@ void Game::removeBomber(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "bomber")
+      if (this->troop->allTroop[i]->type == "bomber" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -448,7 +448,7 @@ void Game::removeKamikaze(int &gamePhase, int prevGamePhase)
     int index = -1;
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "kamikaze")
+      if (this->troop->allTroop[i]->type == "kamikaze" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
@@ -481,7 +481,7 @@ void Game::removeInfantrymax(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "infantry")
+      if (this->troop->allTroop[i]->type == "infantry" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -493,7 +493,7 @@ void Game::removeInfantrymax(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "infantry")
+      if (this->troop->allTroop[i]->type == "infantry" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();
@@ -522,7 +522,7 @@ void Game::removeCalvarymax(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "calvary")
+      if (this->troop->allTroop[i]->type == "calvary" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -534,7 +534,7 @@ void Game::removeCalvarymax(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "calvary")
+      if (this->troop->allTroop[i]->type == "calvary" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();
@@ -563,7 +563,7 @@ void Game::removeSuicideBombermax(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "suicideBomber")
+      if (this->troop->allTroop[i]->type == "suicideBomber" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -575,7 +575,7 @@ void Game::removeSuicideBombermax(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "suicideBomber")
+      if (this->troop->allTroop[i]->type == "suicideBomber" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();
@@ -604,7 +604,7 @@ void Game::removeLogisticmax(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "logistic")
+      if (this->troop->allTroop[i]->type == "logistic" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -616,7 +616,7 @@ void Game::removeLogisticmax(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "logistic")
+      if (this->troop->allTroop[i]->type == "logistic" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();
@@ -645,7 +645,7 @@ void Game::removeArtillerymax(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "artillery")
+      if (this->troop->allTroop[i]->type == "artillery" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -657,7 +657,7 @@ void Game::removeArtillerymax(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "artillery")
+      if (this->troop->allTroop[i]->type == "artillery" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();
@@ -686,7 +686,7 @@ void Game::removeArmoredCarmax(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "armoredCar")
+      if (this->troop->allTroop[i]->type == "armoredCar" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -698,7 +698,7 @@ void Game::removeArmoredCarmax(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "armoredCar")
+      if (this->troop->allTroop[i]->type == "armoredCar" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();
@@ -727,7 +727,7 @@ void Game::removeTank1max(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "tank1")
+      if (this->troop->allTroop[i]->type == "tank1" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -740,7 +740,7 @@ void Game::removeTank1max(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "tank1")
+      if (this->troop->allTroop[i]->type == "tank1" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();
@@ -769,7 +769,7 @@ void Game::removeTank2max(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "tank2")
+      if (this->troop->allTroop[i]->type == "tank2" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -781,7 +781,7 @@ void Game::removeTank2max(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "tank2")
+      if (this->troop->allTroop[i]->type == "tank2" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();
@@ -810,7 +810,7 @@ void Game::removeTankOshimaimax(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "tankOshimai")
+      if (this->troop->allTroop[i]->type == "tankOshimai" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -822,7 +822,7 @@ void Game::removeTankOshimaimax(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "tankOshimai")
+      if (this->troop->allTroop[i]->type == "tankOshimai" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();
@@ -851,7 +851,7 @@ void Game::removeCasmax(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "cas")
+      if (this->troop->allTroop[i]->type == "cas" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -863,7 +863,7 @@ void Game::removeCasmax(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "cas")
+      if (this->troop->allTroop[i]->type == "cas" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();
@@ -892,7 +892,7 @@ void Game::removeFightermax(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "fighter")
+      if (this->troop->allTroop[i]->type == "fighter" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -904,7 +904,7 @@ void Game::removeFightermax(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "fighter")
+      if (this->troop->allTroop[i]->type == "fighter" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();
@@ -933,7 +933,7 @@ void Game::removeBombermax(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "bomber")
+      if (this->troop->allTroop[i]->type == "bomber" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -945,7 +945,7 @@ void Game::removeBombermax(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "bomber")
+      if (this->troop->allTroop[i]->type == "bomber" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();
@@ -974,7 +974,7 @@ void Game::removeKamikazemax(int &gamePhase, int prevGamePhase)
 
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
-      if (this->troop->allTroop[i]->type == "kamikaze")
+      if (this->troop->allTroop[i]->type == "kamikaze" && !this->troop->allTroop[i]->isReferenced)
       {
         indexStore.push_back(i);
       }
@@ -986,7 +986,7 @@ void Game::removeKamikazemax(int &gamePhase, int prevGamePhase)
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
     {
-      if (this->troop->allTroop[i]->type == "kamikaze")
+      if (this->troop->allTroop[i]->type == "kamikaze" && !this->troop->allTroop[i]->isReferenced)
       {
         this->troop->totalEquipmentRequired -= this->troop->allTroop[i]->getEquipment();
         this->troop->totalFoodRequired -= this->troop->allTroop[i]->getFood();

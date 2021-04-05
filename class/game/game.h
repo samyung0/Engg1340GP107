@@ -245,7 +245,7 @@ private:
   void printBuild(int x, int y);
   void printResearch(int x, int y);
   void printTroop(int x, int y);
-  void printArmyEdit(int x, int y);
+  void printArmy(int x, int y);
   void printBattlePlan(int x, int y);
   void printBattle(int x, int y);
   void printSetSpeed(int x, int y);
