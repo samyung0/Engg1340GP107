@@ -14,7 +14,7 @@ void Game::researchBase(std::string desc, std::function<void(data::Resource &, d
     this->research->progress[id] = new Progress(time, this->setting["speed"]);
     this->lg3.unlock();
 
-    this->research->progress[id]->start(this->lg3, this->lg3high);
+    this->research->progress[id]->start(this->lg3);
 
     this->lg3.lock();
     callBack(*this->resource, *this->building, *this->troop, *this->army, *this->battlePlan, *this-> battle);

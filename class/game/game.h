@@ -251,7 +251,7 @@ private:
   void printSetSpeed(int x, int y);
 
   void buildBase(std::string, int, std::function<void(data::Resource &)> &, std::string, double, int);
-  void buildBase(std::string, int, std::function<void()>, std::string, double);
+  void buildBase(std::string, int, std::function<void()>, std::string, double, int);
   // each of these parent build function:
   // check if enough resources to build, calls buildbase, and start the printing build loop
   void buildfarm1(int &currentPhase, int prevPhase);
@@ -340,7 +340,7 @@ private:
   void upgrademilitaryFactory2max(int &currentPhase, int prevPhase);
 
   // train troops
-  void trainBase(std::string, std::function<void(data::Resource &, data::Troop &)>, int, int, int);
+  void trainBase(std::string, std::function<void(data::Resource &, data::Troop &)>, int, int, int, int);
   void trainInfantry(int &, int);
   void trainCalvary(int &, int);
   void trainSuicideBomber(int &, int);
@@ -485,9 +485,6 @@ private:
   std::mutex lg2;
   // for any mutation of data
   std::mutex lg3;
-  // set low priority to printing functions (and sest high priority for progress)
-  std::mutex lg3low;
-  std::mutex lg3high;
   // user action lock (prevent spamming)
   std::mutex lguser;
 

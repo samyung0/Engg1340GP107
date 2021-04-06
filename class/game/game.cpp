@@ -16,18 +16,14 @@ Progress::Progress(int time, int interval_)
     : remain(time), interval(interval_)
 {
 }
-void Progress::start(std::mutex &lg3, std::mutex &lg3high)
+void Progress::start(std::mutex &lg3)
 {
   while (this->remain > 0)
   {
-    // wake up earlier to lock as high priority before the print function locks
     std::this_thread::sleep_for(std::chrono::milliseconds(interval));
-    
-    // std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
     lg3.lock();
     this->remain--;
-    
     lg3.unlock();
   }
 }
