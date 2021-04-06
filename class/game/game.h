@@ -162,7 +162,7 @@ private:
     {
       this->printStatus(x, y);
       std::unique_lock<std::mutex> lock(this->lgcv1b);
-      terminatePrintCV.wait_for(lock, std::chrono::milliseconds(1000));
+      terminatePrintCV.wait_for(lock, std::chrono::milliseconds(1000/10));
     }
   }
   void loopPrintBuild(int x, int y)
@@ -187,7 +187,7 @@ private:
     {
       this->printBuild(x, y);
       std::unique_lock<std::mutex> lock(this->lgcv2b);
-      terminateBuildCV.wait_for(lock, std::chrono::milliseconds(1000));
+      terminateBuildCV.wait_for(lock, std::chrono::milliseconds(1000/10));
     }
   }
   void loopPrintResearch(int x, int y)
@@ -212,7 +212,7 @@ private:
     {
       this->printResearch(x, y);
       std::unique_lock<std::mutex> lock(this->lgcv3b);
-      terminateResearchCV.wait_for(lock, std::chrono::milliseconds(1000));
+      terminateResearchCV.wait_for(lock, std::chrono::milliseconds(1000/10));
     }
   }
   void loopPrintTroop(int x, int y)
@@ -237,7 +237,7 @@ private:
     {
       this->printTroop(x, y);
       std::unique_lock<std::mutex> lock(this->lgcv4b);
-      terminateTroopCV.wait_for(lock, std::chrono::milliseconds(1000));
+      terminateTroopCV.wait_for(lock, std::chrono::milliseconds(1000/10));
     }
   }
 

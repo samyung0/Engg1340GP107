@@ -136,7 +136,9 @@ enemies.push_back(new Enemy(nameOfCountry, giantMapBlockVectorThing));
 so if you have 5 countries, then you should have 5 different maps and pushing 5 times to the enemies struct
 
 
-MISSING TODO:
+Future TODO:
 - generate troops and armies at each block
 - save and load progress
 - windows version of game
+- add speed to settings
+- add fps to settings

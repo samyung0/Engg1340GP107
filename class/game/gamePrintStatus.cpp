@@ -2,6 +2,7 @@
 #include <string>
 #include <iomanip>
 #include <cstdlib>
+#include <sstream>
 
 #include "../../io/io.h"
 #include "game.h"
@@ -21,9 +22,11 @@ void Game::printStatus(int x, int y)
   // lock lg for day
   this->lg.lock();
 
+  std::stringstream speed;
+  speed << std::fixed << std::setprecision(1) << this->setting["speed"] / 1000.0;
 
   std::cout << "\033[2J\033[1;1H";
-  std::cout << color("Day: ", "magenta") << this->day << " (" << std::to_string(this->setting["speed"] / 1000) << "s)"
+  std::cout << color("Day: ", "magenta") << this->day << " (" << speed.str() << "s)"
             << std::endl
             << std::endl;
 
