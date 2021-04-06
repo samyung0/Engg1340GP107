@@ -250,7 +250,7 @@ private:
   void printBattle(int x, int y);
   void printSetSpeed(int x, int y);
 
-  void buildBase(std::string, int, std::function<void(data::Resource &)> &, std::string, double);
+  void buildBase(std::string, int, std::function<void(data::Resource &)> &, std::string, double, int);
   void buildBase(std::string, int, std::function<void()>, std::string, double);
   // each of these parent build function:
   // check if enough resources to build, calls buildbase, and start the printing build loop

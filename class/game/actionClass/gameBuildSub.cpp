@@ -16,7 +16,7 @@ void Game::buildfarm1(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0]);
+  this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0],1);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -36,8 +36,7 @@ void Game::buildfarm5(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  for (int i = 0; i < 5; i++)
-    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0]);
+    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0],5);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -57,8 +56,8 @@ void Game::buildfarm10(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  for (int i = 0; i < 10; i++)
-    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0]);
+
+    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0],10);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -79,8 +78,7 @@ void Game::buildfarmmax(int &currentPhase, int prevPhase)
     this->lg2.unlock();
     return;
   }
-  for (int i = 0; i < max; i++)
-    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0]);
+    this->buildBase("farm", this->building->farmT[0], this->building->effect["farm"][0], "farm", this->building->farmL[0],max);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -100,7 +98,7 @@ void Game::buildcivilianFactory1(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  this->buildBase("civilianFactory", this->building->civilianFactoryT[0], this->building->effect["civilianFactory"][0], "civ", this->building->civilianFactoryL[0]);
+  this->buildBase("civilianFactory", this->building->civilianFactoryT[0], this->building->effect["civilianFactory"][0], "civ", this->building->civilianFactoryL[0],1);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -120,8 +118,7 @@ void Game::buildcivilianFactory5(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  for (int i = 0; i < 5; i++)
-    this->buildBase("civilianFactory", this->building->civilianFactoryT[0], this->building->effect["civilianFactory"][0], "civ", this->building->civilianFactoryL[0]);
+    this->buildBase("civilianFactory", this->building->civilianFactoryT[0], this->building->effect["civilianFactory"][0], "civ", this->building->civilianFactoryL[0],5);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -141,8 +138,8 @@ void Game::buildcivilianFactory10(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  for (int i = 0; i < 10; i++)
-    this->buildBase("civilianFactory", this->building->civilianFactoryT[0], this->building->effect["civilianFactory"][0], "civ", this->building->civilianFactoryL[0]);
+
+    this->buildBase("civilianFactory", this->building->civilianFactoryT[0], this->building->effect["civilianFactory"][0], "civ", this->building->civilianFactoryL[0],10);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -163,8 +160,7 @@ void Game::buildcivilianFactorymax(int &currentPhase, int prevPhase)
     this->lg2.unlock();
     return;
   }
-  for (int i = 0; i < max; i++)
-    this->buildBase("civilianFactory", this->building->civilianFactoryT[0], this->building->effect["civilianFactory"][0], "civ", this->building->civilianFactoryL[0]);
+    this->buildBase("civilianFactory", this->building->civilianFactoryT[0], this->building->effect["civilianFactory"][0], "civ", this->building->civilianFactoryL[0],max);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -184,7 +180,7 @@ void Game::buildmilitaryFactory1(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  this->buildBase("militaryFactory", this->building->militaryFactoryT[0], this->building->effect["militaryFactory"][0], "mil", this->building->militaryFactoryL[0]);
+  this->buildBase("militaryFactory", this->building->militaryFactoryT[0], this->building->effect["militaryFactory"][0], "mil", this->building->militaryFactoryL[0],1);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -204,8 +200,7 @@ void Game::buildmilitaryFactory5(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  for (int i = 0; i < 5; i++)
-    this->buildBase("militaryFactory", this->building->militaryFactoryT[0], this->building->effect["militaryFactory"][0], "mil", this->building->militaryFactoryL[0]);
+    this->buildBase("militaryFactory", this->building->militaryFactoryT[0], this->building->effect["militaryFactory"][0], "mil", this->building->militaryFactoryL[0],5);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -225,8 +220,8 @@ void Game::buildmilitaryFactory10(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  for (int i = 0; i < 10; i++)
-    this->buildBase("militaryFactory", this->building->militaryFactoryT[0], this->building->effect["militaryFactory"][0], "mil", this->building->militaryFactoryL[0]);
+
+    this->buildBase("militaryFactory", this->building->militaryFactoryT[0], this->building->effect["militaryFactory"][0], "mil", this->building->militaryFactoryL[0],10);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -247,8 +242,7 @@ void Game::buildmilitaryFactorymax(int &currentPhase, int prevPhase)
     this->lg2.unlock();
     return;
   }
-  for (int i = 0; i < max; i++)
-    this->buildBase("militaryFactory", this->building->militaryFactoryT[0], this->building->effect["militaryFactory"][0], "mil", this->building->militaryFactoryL[0]);
+    this->buildBase("militaryFactory", this->building->militaryFactoryT[0], this->building->effect["militaryFactory"][0], "mil", this->building->militaryFactoryL[0],max);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -269,7 +263,7 @@ void Game::buildtrainingCamp1(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  this->buildBase("trainingCamp", this->building->trainingCampT[0], this->building->effect["trainingCamp"][0], "camp", this->building->trainingCampL[0]);
+  this->buildBase("trainingCamp", this->building->trainingCampT[0], this->building->effect["trainingCamp"][0], "camp", this->building->trainingCampL[0],1);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -289,8 +283,7 @@ void Game::buildtrainingCamp5(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  for (int i = 0; i < 5; i++)
-    this->buildBase("trainingCamp", this->building->trainingCampT[0], this->building->effect["trainingCamp"][0], "camp", this->building->trainingCampL[0]);
+    this->buildBase("trainingCamp", this->building->trainingCampT[0], this->building->effect["trainingCamp"][0], "camp", this->building->trainingCampL[0],5);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -310,8 +303,8 @@ void Game::buildtrainingCamp10(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  for (int i = 0; i < 10; i++)
-    this->buildBase("trainingCamp", this->building->trainingCampT[0], this->building->effect["trainingCamp"][0], "camp", this->building->trainingCampL[0]);
+
+    this->buildBase("trainingCamp", this->building->trainingCampT[0], this->building->effect["trainingCamp"][0], "camp", this->building->trainingCampL[0],10);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -332,8 +325,7 @@ void Game::buildtrainingCampmax(int &currentPhase, int prevPhase)
     this->lg2.unlock();
     return;
   }
-  for (int i = 0; i < max; i++)
-    this->buildBase("trainingCamp", this->building->trainingCampT[0], this->building->effect["trainingCamp"][0], "camp", this->building->trainingCampL[0]);
+    this->buildBase("trainingCamp", this->building->trainingCampT[0], this->building->effect["trainingCamp"][0], "camp", this->building->trainingCampL[0],max);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -354,7 +346,7 @@ void Game::buildairport1(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  this->buildBase("airport", this->building->airportT[0], this->building->effect["airport"][0], "airport", this->building->airportL[0]);
+  this->buildBase("airport", this->building->airportT[0], this->building->effect["airport"][0], "airport", this->building->airportL[0],1);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -374,8 +366,7 @@ void Game::buildairport5(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  for (int i = 0; i < 5; i++)
-    this->buildBase("airport", this->building->airportT[0], this->building->effect["airport"][0], "airport", this->building->airportL[0]);
+    this->buildBase("airport", this->building->airportT[0], this->building->effect["airport"][0], "airport", this->building->airportL[0],5);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -395,8 +386,8 @@ void Game::buildairport10(int &currentPhase, int prevPhase)
     return;
   }
   this->lg3.unlock();
-  for (int i = 0; i < 10; i++)
-    this->buildBase("airport", this->building->airportT[0], this->building->effect["airport"][0], "airport", this->building->airportL[0]);
+
+    this->buildBase("airport", this->building->airportT[0], this->building->effect["airport"][0], "airport", this->building->airportL[0],10);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -417,8 +408,7 @@ void Game::buildairportmax(int &currentPhase, int prevPhase)
     this->lg2.unlock();
     return;
   }
-  for (int i = 0; i < max; i++)
-    this->buildBase("airport", this->building->airportT[0], this->building->effect["airport"][0], "airport", this->building->airportL[0]);
+    this->buildBase("airport", this->building->airportT[0], this->building->effect["airport"][0], "airport", this->building->airportL[0],max);
   this->lg2.lock();
   this->stopLoopPrintBuild();
   this->loopPrintBuild(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);

@@ -9,11 +9,7 @@
 void Game::printBuild(int x, int y)
 {
 
-  this->lg3low.lock();
-  this->lg3high.lock();
   this->lg3.lock();
-
-  this->lg3high.unlock();
 
   std::vector<std::vector<std::string>> actionPrefix = {
 
@@ -315,5 +311,4 @@ void Game::printBuild(int x, int y)
             << std::endl;
 
   this->lg3.unlock();
-  this->lg3low.unlock();
 }

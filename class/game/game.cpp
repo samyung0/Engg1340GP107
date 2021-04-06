@@ -23,13 +23,9 @@ void Progress::start(std::mutex &lg3, std::mutex &lg3high)
     // wake up earlier to lock as high priority before the print function locks
     std::this_thread::sleep_for(std::chrono::milliseconds(interval));
     
-    // high priority lock
-    lg3high.lock();
-
     // std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
     lg3.lock();
-    lg3high.unlock();
     this->remain--;
     
     lg3.unlock();
