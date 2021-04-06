@@ -60,7 +60,7 @@ public:
   double equipmentRatio = 1;
 
   // stored as decimal, displayed as percentage
-  // all troops should have same subsequential strength
+  // all troops within army should have same subsequential strength
   double subsequentialStrength = 1.0;
 
 

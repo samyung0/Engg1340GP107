@@ -17,12 +17,12 @@
 #include "class/game/game.h"
 #include "class/menuWrapper/menuWrapper.h"
 
-#define TOTAL_LEVELS 9
-#define TOTAL_DIFFICULTY 2
+int TOTAL_LEVELS = 9;
+int TOTAL_DIFFICULTY = 2;
+int SCREENX = 160;
+int SCREENY = 38;
+int FPS = 10;
 
-// TODO
-// add speed settings (action/setting/setting, menu/setting)
-// check for unsaved games when exit
 
 int init(MenuWrapper &gameStats, std::string &error);
 
@@ -54,7 +54,7 @@ int main()
   std::vector<void (*)(int &menuPhase, int prevMenuPhase, MenuWrapper &)> action = {NULL, &statf, &level1f, &level2f, &level3f, &level4f, &level5f, &level6f, &level7f, &level8f, &level9f, NULL, NULL, NULL, NULL, NULL, NULL, &setting1af, &setting1bf};
 
   // game settings
-  MenuWrapper gameStats(TOTAL_LEVELS, TOTAL_DIFFICULTY);
+  MenuWrapper gameStats(TOTAL_LEVELS, TOTAL_DIFFICULTY, SCREENX, SCREENY, FPS);
 
   // init: read in settings to setting map, read in level progress to progress
   // return 0 if no error, 1 if error in opening files
@@ -136,7 +136,7 @@ int main()
 
         if (menuPhase == 999)
         {
-          allGames.push_back(new Game(gameStats.setting));
+          allGames.push_back(new Game(gameStats.setting, gameStats.width, gameStats.height, gameStats.fps));
 
           // start game
           std::thread actionThread(&Game::start, std::ref(allGames.back()));

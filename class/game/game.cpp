@@ -29,7 +29,7 @@ void Progress::start(std::mutex &lg3)
 }
 
 Game::~Game() {}
-Game::Game(const std::unordered_map<std::string, int> &setting_) : setting(setting_) {}
+Game::Game(std::unordered_map<std::string, int> setting_, const int screenX_, const int screenY_, const int fps_) : setting(setting_), screenWidth(screenX_), screenHeight(screenY_), fps(fps_) {}
 
 void Game::start()
 {
@@ -125,17 +125,4 @@ void Game::start()
   this->terminate = true;
   timerThread->join();
 
-  // sole::uuid1()
-
-  // building.progressAsync.push_back(std::async(std::launch::async, [&](){
-  //   int index = building.progress.size();
-  //   building.progress.push_back(new Progress(building.farmT[0], 1000));
-  //   building.effect["farm"][0]();
-
-  //   // lock to avoid racing of progressAsync and progress
-  //   lg.lock();
-  //   building.progress.erase(building.progress.begin()+index-1);
-  //   building.progressAsync.erase(building.progress.begin()+index-1);
-  //   lg.unlock();
-  // }));
 }

@@ -140,5 +140,6 @@ Future TODO:
 - generate troops and armies at each block
 - save and load progress
 - windows version of game
-- add speed to settings
-- add fps to settings
+- add game speed to settings
+- check and save games
+- add scrolling speed to settings

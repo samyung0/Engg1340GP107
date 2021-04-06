@@ -19,7 +19,7 @@ class Game
 {
 public:
   ~Game();
-  Game(const std::unordered_map<std::string, int> &);
+  Game(std::unordered_map<std::string, int>, const int, const int, const int);
   void start();
 
 private:
@@ -123,7 +123,8 @@ private:
       &Game::trainCas, &Game::trainCas5, &Game::trainCas10, &Game::trainCasmax, &Game::removeCas, &Game::removeCasmax,
       &Game::trainFighter, &Game::trainFighter5, &Game::trainFighter10, &Game::trainFightermax, &Game::removeFighter, &Game::removeFightermax,
       &Game::trainBomber, &Game::trainBomber5, &Game::trainBomber10, &Game::trainBombermax, &Game::removeBomber, &Game::removeBombermax,
-      &Game::trainKamikaze, &Game::trainKamikaze5, &Game::trainKamikaze10, &Game::trainKamikazemax, &Game::removeKamikaze, &Game::removeKamikazemax};
+      &Game::trainKamikaze, &Game::trainKamikaze5, &Game::trainKamikaze10, &Game::trainKamikazemax, &Game::removeKamikaze, &Game::removeKamikazemax,
+      &Game::gameArmy};
 
   // separate timer thread to increment time only
   std::thread *timerThread;
@@ -133,16 +134,22 @@ private:
   std::future<void> loopPrintTroopThread;
 
   // default to printing the base status every second
-  // approach: call async to allocate non-blocking thread to tempLoopPrintStatus
-  //           -> tempLoopPrintStatus repeatedly waits 1 second for a conditional variable to notify instead of doing thread sleep (cannot wake thread when slept)
+  // approach: call async to allocate non-blocking thread to lambda
   //           -> async thread is terminated per user action (to update the x and y index value)
   //           -> terminated by first setting terminatePrint to false (stops while loop), then notifying the conditional variable (breaks wait_for)
   void loopPrintStatus(int x, int y)
   {
-
-    // tempLoopPrintStatus is required so that I do not need to pass in a lambda capturing *this*
-    // the class function called within the lambda (printStatus) does not have a reference to *this* even if it is captured inside lambda
-    this->loopPrintStatusThread = std::async(std::launch::async, &Game::tempLoopPrintStatus, this, x, y);
+    this->loopPrintStatusThread = std::async(
+        std::launch::async, [&](int x, int y) {
+          this->terminatePrint = false;
+          while (!terminatePrint)
+          {
+            this->printStatus(x, y);
+            std::unique_lock<std::mutex> lock(this->lgcv1b);
+            terminatePrintCV.wait_for(lock, std::chrono::milliseconds(1000 / this->fps));
+          }
+        },
+        x, y);
   };
   void stopLoopPrintStatus()
   {
@@ -155,19 +162,19 @@ private:
       this->loopPrintStatusThread.get();
     }
   }
-  void tempLoopPrintStatus(int x, int y)
-  {
-    this->terminatePrint = false;
-    while (!terminatePrint)
-    {
-      this->printStatus(x, y);
-      std::unique_lock<std::mutex> lock(this->lgcv1b);
-      terminatePrintCV.wait_for(lock, std::chrono::milliseconds(1000/10));
-    }
-  }
   void loopPrintBuild(int x, int y)
   {
-    this->loopPrintBuildThread = std::async(std::launch::async, &Game::tempLoopPrintBuild, this, x, y);
+    this->loopPrintBuildThread = std::async(
+        std::launch::async, [&](int x, int y) {
+          this->terminateBuild = false;
+          while (!terminateBuild)
+          {
+            this->printBuild(x, y);
+            std::unique_lock<std::mutex> lock(this->lgcv2b);
+            terminateBuildCV.wait_for(lock, std::chrono::milliseconds(1000 / this->fps));
+          }
+        },
+        x, y);
   };
   void stopLoopPrintBuild()
   {
@@ -180,19 +187,19 @@ private:
       this->loopPrintBuildThread.get();
     }
   }
-  void tempLoopPrintBuild(int x, int y)
-  {
-    this->terminateBuild = false;
-    while (!terminateBuild)
-    {
-      this->printBuild(x, y);
-      std::unique_lock<std::mutex> lock(this->lgcv2b);
-      terminateBuildCV.wait_for(lock, std::chrono::milliseconds(1000/10));
-    }
-  }
   void loopPrintResearch(int x, int y)
   {
-    this->loopPrintResearchThread = std::async(std::launch::async, &Game::tempLoopPrintResearch, this, x, y);
+    this->loopPrintResearchThread = std::async(
+        std::launch::async, [&](int x, int y) {
+          this->terminateResearch = false;
+          while (!terminateResearch)
+          {
+            this->printResearch(x, y);
+            std::unique_lock<std::mutex> lock(this->lgcv3b);
+            terminateResearchCV.wait_for(lock, std::chrono::milliseconds(1000 / this->fps));
+          }
+        },
+        x, y);
   };
   void stopLoopPrintResearch()
   {
@@ -205,19 +212,19 @@ private:
       this->loopPrintResearchThread.get();
     }
   }
-  void tempLoopPrintResearch(int x, int y)
-  {
-    this->terminateResearch = false;
-    while (!terminateResearch)
-    {
-      this->printResearch(x, y);
-      std::unique_lock<std::mutex> lock(this->lgcv3b);
-      terminateResearchCV.wait_for(lock, std::chrono::milliseconds(1000/10));
-    }
-  }
   void loopPrintTroop(int x, int y)
   {
-    this->loopPrintTroopThread = std::async(std::launch::async, &Game::tempLoopPrintTroop, this, x, y);
+    this->loopPrintTroopThread = std::async(
+        std::launch::async, [&](int x, int y) {
+          this->terminateTroop = false;
+          while (!terminateTroop)
+          {
+            this->printTroop(x, y);
+            std::unique_lock<std::mutex> lock(this->lgcv4b);
+            terminateTroopCV.wait_for(lock, std::chrono::milliseconds(1000 / this->fps));
+          }
+        },
+        x, y);
   };
   void stopLoopPrintTroop()
   {
@@ -228,16 +235,6 @@ private:
       this->lgcv4a.unlock();
       terminateTroopCV.notify_all();
       this->loopPrintTroopThread.get();
-    }
-  }
-  void tempLoopPrintTroop(int x, int y)
-  {
-    this->terminateTroop = false;
-    while (!terminateTroop)
-    {
-      this->printTroop(x, y);
-      std::unique_lock<std::mutex> lock(this->lgcv4b);
-      terminateTroopCV.wait_for(lock, std::chrono::milliseconds(1000/10));
     }
   }
 
@@ -455,8 +452,11 @@ private:
   int day = 1;
   std::vector<Progress *> progress;
 
-  // key: speed
+  // key: speed, fps
   std::unordered_map<std::string, int> setting;
+  int screenWidth;
+  int screenHeight;
+  int fps;
 
   data::Resource *resource;
   data::Building *building;

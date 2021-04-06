@@ -1,5 +1,6 @@
 #include <termios.h>
 #include <iostream>
+#include <unistd.h>
 
 struct termios prev, current;
 
