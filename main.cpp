@@ -28,6 +28,9 @@ int init(MenuWrapper &gameStats, std::string &error);
 
 int main()
 {
+  // reset terminal
+  std::cout << "\033c";
+
   // map to index of functions for displaying menus
   std::vector<std::vector<std::vector<int>>> map{
       // play, settings, show version -> action 1, quit program -> action 999 (special case)

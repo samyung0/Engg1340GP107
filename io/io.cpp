@@ -5,7 +5,7 @@
 struct termios prev, current;
 
 // modify terminal so we can capture user's input even without entering
-void init()
+void init(bool echo = false)
 {
   tcgetattr(0, &prev);
   current = prev;
@@ -14,7 +14,7 @@ void init()
   current.c_lflag &= ~ICANON;
 
   // no echo
-  current.c_lflag &= ~ECHO;
+  if(!echo) current.c_lflag &= ~ECHO;
   tcsetattr(0, TCSANOW, &current);
 }
 
@@ -27,6 +27,15 @@ char getch()
 {
   char ch;
   init();
+  ch = std::getchar();
+  reset();
+  return ch;
+}
+
+char getche()
+{
+  char ch;
+  init(true);
   ch = std::getchar();
   reset();
   return ch;
