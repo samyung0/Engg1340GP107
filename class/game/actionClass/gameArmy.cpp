@@ -109,7 +109,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
         });
       }
     }
-    std::vector<std::vector<int>> action;
+    std::vector<std::vector<int>> action = {{1}};
 
     std::vector<std::string> armyName;
     std::vector<std::string> content = {};
@@ -191,7 +191,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
         }
       }
     }
-    action.push_back({0});
+    action.push_back({1});
 
     // std::cout << "\033[2J\033[1;1H";
     std::cout << "\033[" << 1 << ";" << 1 << "H";
