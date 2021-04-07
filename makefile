@@ -131,7 +131,7 @@ objectFiles/gameRemoveSubf.o: class/game/actionClass/gameRemoveTroopSub.cpp clas
 objectFiles/armyUnit.o: class/game/gameUnit/armyUnit.cpp class/game/gameUnit.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/gameArmy.o: class/game/actionClass/gameArmy.cpp class/game/game.h io/io.h
+objectFiles/gameArmy.o: class/game/actionClass/gameArmy.cpp class/game/game.h io/io.h class/game/gameUnit.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 clean:
