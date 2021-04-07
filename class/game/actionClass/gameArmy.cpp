@@ -32,6 +32,10 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   this->army->total["Hisshou2"] = new ArmyUnit("Hisshou2");
   this->army->total["Hisshou2"]->inBattle = true;
   this->army->total["Hisshou3"] = new ArmyUnit("Hisshou3");
+  this->army->total["Hisshou32"] = new ArmyUnit("Hisshou32");
+  this->army->total["Hisshou31"] = new ArmyUnit("Hisshou31");
+  this->army->total["Hisshou33"] = new ArmyUnit("Hisshou33");
+  this->army->total["Hisshou34"] = new ArmyUnit("Hisshou34");
   this->lg3.unlock();
 
   int displayRange[2] = {this->screenHeight - 9, this->screenWidth};
@@ -107,30 +111,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
 
   int moved[2] = {0, 0};
 
-  std::vector<std::vector<std::string>> prefixPhase2Troop = {
-      {"   ", "   "},
-      {"   "},
-      {"   "},
-      {"   "},
-      {"   "},
-      {"   "},
-      {"   "},
-      {"   "},
-      {"   "},
-      {"   "},
-      {"   "},
-      {"   "},
-      {"   "},
-      {"   "}};
-
-  std::vector<std::vector<std::string>> prefixPhase2Pick = {
-      {"   ", "   ", "   ", "   "},
-      {"   ", "   ", "   ", "   "},
-      {"   ", "   ", "   ", "   "},
-      {"   ", "   ", "   ", "   "},
-      {"   "}};
-
-      std::vector<std::vector<std::function<void()>>> actionPhase2Pick = {
+  std::vector<std::vector<std::function<void()>>> actionPhase2Pick = {
       {[&]() {posTroop(armyPhaseSelect,posToTroop[0]);pickMode=false; }, [&]() {removeTroop(armyPhaseSelect);pickMode=false; }},
       {[&]() {posTroop(armyPhaseSelect,posToTroop[1]);pickMode=false; }},
       {[&]() {posTroop(armyPhaseSelect,posToTroop[2]);pickMode=false; }},
@@ -158,8 +139,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
           pickTroop[1] = 0;
           pickMode=false;
           armySelected = "";
-          armyPhase = 0; }}
-          };
+          armyPhase = 0; }}};
 
   loopArmyPhase0 = [&]() { phase0 = std::async(std::launch::async, [&]() {
                              terminatePhase0 = false;
@@ -209,7 +189,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
       moved[0] = 0;
       armyPhase = 1;
     }}};
-    
+
     for (auto &i : this->army->total)
     {
       actionPhase0.push_back({});
@@ -240,7 +220,6 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
       armyPhase = -999;
     }});
 
-
     std::vector<std::vector<int>> placement = {{1}};
 
     std::vector<std::string> armyName;
@@ -248,7 +227,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
 
     for (auto &i : this->army->total)
     {
-      if (!i.second->removed && !i.second->lost)
+      if (!i.second->removed)
       {
         placement.push_back({});
         content.push_back("");
@@ -435,22 +414,85 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
     this->lg3.lock();
     assert(this->army->total.count(armySelected) != 0);
 
+    std::vector<std::vector<std::string>> prefixPhase2Troop = {
+        {"   ", "   "},
+        {"   "},
+        {"   "},
+        {"   "},
+        {"   "},
+        {"   "},
+        {"   "},
+        {"   "},
+        {"   "},
+        {"   "},
+        {"   "},
+        {"   "},
+        {"   "},
+        {"   "}};
+
+    std::vector<std::vector<std::string>> prefixPhase2Pick = {
+        {"   ", "   ", "   ", "   "},
+        {"   ", "   ", "   ", "   "},
+        {"   ", "   ", "   ", "   "},
+        {"   ", "   ", "   ", "   "},
+        {"   "}};
+
     std::stringstream food;
     food << std::fixed << std::setprecision(1) << this->army->total[armySelected]->totalFoodRequired;
     std::stringstream equipment;
     equipment << std::fixed << std::setprecision(1) << this->army->total[armySelected]->totalEquipmentRequired;
 
-
     std::cout << "\033[2J\033[1;1H";
-    std::cout << color("Editing Army ("+armySelected + ")", "magenta") << std::endl
+    std::cout << color("Editing Army (" + armySelected + ")", "magenta") << std::endl
               << std::endl;
 
     std::cout << color("Overview:", "green") << std::endl
-              <<"Battle Plan: " + (this->army->total[armySelected]->battlePlanAssigned ? this->army->total[armySelected]->battlePlanName : "none")
+              << "Battle Plan: " + (this->army->total[armySelected]->battlePlanAssigned ? this->army->total[armySelected]->battlePlanName : "none")
               << "   Battling Region: " + (this->army->total[armySelected]->inBattle ? this->army->total[armySelected]->battleRegion.first + ", " + this->army->total[armySelected]->battleRegion.second : "none")
               << "   Total food: " + food.str()
               << "   Total equipment: " + equipment.str() << std::endl
               << std::endl;
+
+    std::cout << std::setw(23 + 11) << color("   Column D", "green")
+              << std::setw(23 + 11) << color("   Column C", "green")
+              << std::setw(23 + 11) << color("   Column B", "green")
+              << std::setw(23 + 11) << color("   Column A", "green")
+              << std::string(15, ' ') + color("   Troop Type", "green") << std::endl;
+
+    if (pickMode)
+    {
+      pickTroop[0] = (pickTroop[0] + prefixPhase2Troop.size()) % prefixPhase2Troop.size();
+      pickTroop[1] = (pickTroop[1] + prefixPhase2Troop[pickTroop[0]].size()) % prefixPhase2Troop[pickTroop[0]].size();
+      prefixPhase2Troop[pickTroop[0]][pickTroop[1]].replace(1, 1, ">");
+    }
+    else
+    {
+      armyPhaseSelect[0] = (armyPhaseSelect[0] + prefixPhase2Pick.size()) % prefixPhase2Pick.size();
+      armyPhaseSelect[1] = (armyPhaseSelect[1] + prefixPhase2Pick[armyPhaseSelect[0]].size()) % prefixPhase2Pick[armyPhaseSelect[0]].size();
+
+      prefixPhase2Pick[armyPhaseSelect[0]][armyPhaseSelect[1]].replace(1, 1, ">");
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+      for (int j = 3; j >= 0; j--)
+      {
+        if (this->army->total[armySelected]->formation[i][j] == NULL)
+          std::cout << std::setw(23) << prefixPhase2Pick[i][3 - j] + "None";
+        else
+          std::cout << std::setw(23) << prefixPhase2Pick[i][3 - j] + typeToDisplay[this->army->total[armySelected]->formation[i][j]->type] + " (" + std::to_string((int)this->army->total[armySelected]->formation[i][j]->getHealth()) + "/" + std::to_string(typeToHp[this->army->total[armySelected]->formation[i][j]->type]) + ")";
+      }
+      std::cout << std::string(15, ' ') << std::setw(18) << prefixPhase2Troop[i][0] + posToTroop[i] << " (" + std::to_string(this->troop->helper[posToTroop[i]](0)) + ")";
+      if (i == 0)
+        std::cout << prefixPhase2Troop[0][1] << underline("Remove", "green");
+      std::cout << std::endl;
+    }
+    std::cout << std::string(23 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[4][0] + posToTroop[4] << " (" + std::to_string(this->troop->helper[posToTroop[4]](0)) + ")" << std::endl;
+    std::cout << std::setw(23 * 4 + 11 + 15) << prefixPhase2Pick[4][0] + underline("Back", "green") + " (Or spacebar)" << std::setw(18) << prefixPhase2Troop[5][0] + posToTroop[5] << " (" + std::to_string(this->troop->helper[posToTroop[5]](0)) + ")" << std::endl;
+    for (int i = 5; i < 13; i++)
+      std::cout << std::string(23 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[i][0] + posToTroop[i] << " (" + std::to_string(this->troop->helper[posToTroop[i]](0)) + ")" << std::endl;
+    std::cout << std::endl;
+    std::cout << std::string(23 * 4 + 15, ' ') << prefixPhase2Troop[13][0] << underline("Back", "green") << std::endl;
     this->lg3.unlock();
   };
 
@@ -507,10 +549,15 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
       armyPhase = -999;
     else if (input == '\n')
     {
-      if(armyPhase == 0)actionPhase0[armyPhaseSelect[0]][armyPhaseSelect[1]]();
-      else if(armyPhase == 2){
-        if(pickMode) actionPhase2Troop[pickTroop[0]][pickTroop[1]]();
-        else actionPhase2Pick[armyPhaseSelect[0]][armyPhaseSelect[1]]();
+      if (armyPhase == 0)
+        actionPhase0[armyPhaseSelect[0]][armyPhaseSelect[1]]();
+      else if (armyPhase == 2)
+      {
+        std::cout << armyPhaseSelect[0] << ' ' << armyPhaseSelect[1] << std::endl;
+        if (pickMode)
+          actionPhase2Troop[pickTroop[0]][pickTroop[1]]();
+        else
+          actionPhase2Pick[armyPhaseSelect[0]][armyPhaseSelect[1]]();
       }
     }
     else

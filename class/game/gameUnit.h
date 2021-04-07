@@ -36,10 +36,10 @@ public:
       {NULL, NULL, NULL, NULL},
       {NULL, NULL, NULL, NULL}};
 
-  // note when the army is gone is ways such as removed by user or is lost during battle, it will not be deleted from the array
+  // note when the army is gone is ways such as removed by user, it will not be deleted from the array
+  // nor will it be removed when all troops inside it die
   // it will stay there so the array length does not shrink, so the randomly generated name will not collide (generated from the length)
   bool removed = false;
-  bool lost = false;
 
   int totalBaseFoodRequired = 0;
   int totalBaseEquipmentRequired = 0;

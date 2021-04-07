@@ -20,7 +20,7 @@ public:
   int remain;
   int interval;
   Progress(int, int);
-  void start(std::mutex&);
+  void start(std::mutex &);
 };
 
 namespace data
@@ -146,7 +146,7 @@ namespace data
             a.food -= 8;
           },
           [&](Resource &a) {
-            a.food -=20;
+            a.food -= 20;
           },
           [&](Resource &a) {
             a.food -= 28;
@@ -182,16 +182,18 @@ namespace data
     };
 
     // type, id, desc
-    std::vector<std::tuple<std::string, std::string, std::string>> progressTrack = {
-    };
+    std::vector<std::tuple<std::string, std::string, std::string>> progressTrack = {};
     std::unordered_map<std::string, Progress *> progress;
     std::unordered_map<std::string, std::future<void>> progressAsync;
   };
   struct Troop
   {
-    std::vector<TroopUnit*> allTroop;
+    std::vector<TroopUnit *> allTroop;
 
     // indices: free, in Army, in Battle plan, in Battle
+
+    // update: I dont know why i didnt use a map but too late to change,
+    // so I made a helper function that returns the value when queried
     std::vector<int> infantry = {0, 0, 0, 0};
     std::vector<int> calvary = {0, 0, 0, 0};
     std::vector<int> suicideBomber = {0, 0, 0, 0};
@@ -206,9 +208,23 @@ namespace data
     std::vector<int> bomber = {0, 0, 0, 0};
     std::vector<int> kamikaze = {0, 0, 0, 0};
 
-     // type, id
-    std::vector<std::tuple<std::string, std::string>> progressTrack = {
-    };
+    std::unordered_map<std::string, std::function<int(int)>> helper = {
+        {"infantry", [&](int index) -> int { return infantry[index]; }},
+        {"calvary", [&](int index) -> int { return calvary[index]; }},
+        {"suicideBomber", [&](int index) -> int { return suicideBomber[index]; }},
+        {"artillery", [&](int index) -> int { return artillery[index]; }},
+        {"logistic", [&](int index) -> int { return logistic[index]; }},
+        {"armoredCar", [&](int index) -> int { return armoredCar[index]; }},
+        {"tank1", [&](int index) -> int { return tank1[index]; }},
+        {"tank2", [&](int index) -> int { return tank2[index]; }},
+        {"tankOshimai", [&](int index) -> int { return tankOshimai[index]; }},
+        {"cas", [&](int index) -> int { return cas[index]; }},
+        {"fighter", [&](int index) -> int { return fighter[index]; }},
+        {"bomber", [&](int index) -> int { return bomber[index]; }},
+        {"kamikaze", [&](int index) -> int { return kamikaze[index]; }}};
+
+    // type, id
+    std::vector<std::tuple<std::string, std::string>> progressTrack = {};
     std::unordered_map<std::string, Progress *> progress;
     std::unordered_map<std::string, std::future<void>> progressAsync;
 
@@ -221,13 +237,13 @@ namespace data
   {
     // using map instead of unordered_map so armies' name will be printed according to lexicographical order
     // max 10 armies
-    std::map<std::string, ArmyUnit*> total;
+    std::map<std::string, ArmyUnit *> total;
   };
 
   struct BattlePlan
   {
     // max 10 battle plans
-    std::vector<BattlePlanUnit*> total;
+    std::vector<BattlePlanUnit *> total;
   };
 
   struct Battle
@@ -346,14 +362,14 @@ namespace data
     };
 
     // desc, id
-    std::tuple<std::string, std::string> progressTrack = {
-    };
+    std::tuple<std::string, std::string> progressTrack = {};
     std::unordered_map<std::string, Progress *> progress;
     std::unordered_map<std::string, std::future<void>> progressAsync;
   };
 
-  struct Enemies{
-      std::vector<Enemy*> totalEnemies;
+  struct Enemies
+  {
+    std::vector<Enemy *> totalEnemies;
   };
 
 }

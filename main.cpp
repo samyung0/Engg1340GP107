@@ -21,7 +21,7 @@ int TOTAL_LEVELS = 9;
 int TOTAL_DIFFICULTY = 2;
 int SCREENX = 160;
 int SCREENY = 38;
-int FPS = 10;
+int FPS = 5;
 
 
 int init(MenuWrapper &gameStats, std::string &error);
