@@ -10,4 +10,10 @@ void SuicideBomber::giveDamage(double foodS, double equipmentS, double disruptio
 
   damage.softAttack += softAttackC;
   damage.hardAttack += hardAttackC;
+
+  this->takeDamage(999);
+}
+
+void SuicideBomber::takeDamage(double damage){
+  hp -= damage;
 }

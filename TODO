@@ -138,6 +138,8 @@ so if you have 5 countries, then you should have 5 different maps and pushing 5 
 
 Future TODO:
 - generate troops and armies at each block
+- generate buildings at each block
+
 - save and load progress
 - windows version of game
 - add game speed to settings

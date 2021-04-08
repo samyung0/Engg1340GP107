@@ -9,9 +9,10 @@
 #include <future>
 #include <tuple>
 #include <mutex>
+#include <cassert>
+#include <algorithm>
 
 #include "../../data/troop/troop.h"
-#include "../enemy/enemy.h"
 
 class Progress
 {
@@ -223,19 +224,19 @@ namespace data
         {"kamikaze", [&](int index) -> int { return kamikaze[index]; }}};
 
     std::unordered_map<std::string, std::function<void(int, int)>> helper2 = {
-        {"infantry", [&](int index, int value){ infantry[index] += value; }},
-        {"calvary", [&](int index, int value){ calvary[index] += value; }},
-        {"suicideBomber", [&](int index, int value){ suicideBomber[index] += value; }},
-        {"artillery", [&](int index, int value){ artillery[index] += value; }},
-        {"logistic", [&](int index, int value){ logistic[index] += value; }},
-        {"armoredCar", [&](int index, int value){ armoredCar[index] += value; }},
-        {"tank1", [&](int index, int value){ tank1[index] += value; }},
-        {"tank2", [&](int index, int value){ tank2[index] += value; }},
-        {"tankOshimai", [&](int index, int value){ tankOshimai[index] += value; }},
-        {"cas", [&](int index, int value){ cas[index] += value; }},
-        {"fighter", [&](int index, int value){ fighter[index] += value; }},
-        {"bomber", [&](int index, int value){ bomber[index] += value; }},
-        {"kamikaze", [&](int index, int value){ kamikaze[index] += value; }}};
+        {"infantry", [&](int index, int value) { infantry[index] += value; }},
+        {"calvary", [&](int index, int value) { calvary[index] += value; }},
+        {"suicideBomber", [&](int index, int value) { suicideBomber[index] += value; }},
+        {"artillery", [&](int index, int value) { artillery[index] += value; }},
+        {"logistic", [&](int index, int value) { logistic[index] += value; }},
+        {"armoredCar", [&](int index, int value) { armoredCar[index] += value; }},
+        {"tank1", [&](int index, int value) { tank1[index] += value; }},
+        {"tank2", [&](int index, int value) { tank2[index] += value; }},
+        {"tankOshimai", [&](int index, int value) { tankOshimai[index] += value; }},
+        {"cas", [&](int index, int value) { cas[index] += value; }},
+        {"fighter", [&](int index, int value) { fighter[index] += value; }},
+        {"bomber", [&](int index, int value) { bomber[index] += value; }},
+        {"kamikaze", [&](int index, int value) { kamikaze[index] += value; }}};
 
     // type, id
     std::vector<std::tuple<std::string, std::string>> progressTrack = {};
@@ -252,7 +253,7 @@ class ArmyUnit
 {
 public:
   ArmyUnit(std::string);
-  ArmyUnit(std::string, std::vector<std::tuple<int ,int , TroopUnit *>>);
+  ArmyUnit(std::string, std::vector<std::tuple<int, int, TroopUnit *>>);
 
   // name should be unique among other armies (used as key in army struct map)
   std::string name;
@@ -297,12 +298,12 @@ public:
   double totalEquipmentRequired = 0;
 
   // supplied/ required
-  double foodRatio = 1;
-  double equipmentRatio = 1;
+  // double foodRatio = 1;
+  // double equipmentRatio = 1;
 
   // stored as decimal, displayed as percentage
   // all troops within army should have same subsequential strength
-  double subsequentialStrength = 1.0;
+  // double subsequentialStrength = 1.0;
 
   // is called when its either removed by user
   void disband();
@@ -313,45 +314,186 @@ public:
   // remove troops that have 0 health or below
   void cleanUp();
 
-  void addTroop(int y,int x, std::string, data::Troop* troop , data::Resource* resource);
-  void removeTroop(int y, int x, data::Troop* troop , data::Resource* resource);
+  void addTroop(int y, int x, std::string, data::Troop *troop, data::Resource *resource);
+  void removeTroop(int y, int x, data::Troop *troop, data::Resource *resource);
 };
 
-
-
 // used to pass into battleUnit as a wrapper of how many troops are present (applicable to both enemy side and your side)
-class battleTroopWrapper
+class BattleTroopWrapper
 {
 public:
   // army, singular troop
-  battleTroopWrapper(std::vector<std::string>, std::vector<std::pair<std::string, int>>);
+  BattleTroopWrapper(std::vector<ArmyUnit *> army, std::vector<TroopUnit *> troop) : totalArmy(army), totalTroop(troop){};
 
-  // army
-  battleTroopWrapper(std::vector<std::string>);
-
-  // singular troop
-  battleTroopWrapper(std::vector<std::pair<std::string, int>>);
+  std::vector<ArmyUnit *> totalArmy;
+  std::vector<TroopUnit *> totalTroop;
 };
 
 class BattleUnit
 {
 public:
   // country, region, your side troop, enemy side troop
-  BattleUnit(std::string, std::string, battleTroopWrapper, battleTroopWrapper);
+  BattleUnit(std::string country_, std::string region_, BattleTroopWrapper *mikata_, BattleTroopWrapper *foe_) : country(country_), region(region_), mikata(mikata_), foe(foe_){};
+
+  std::string country;
+  std::string region;
+
+  BattleTroopWrapper *mikata;
+  BattleTroopWrapper *foe;
+
+  // stats
+  int duration = 0;
+  double damageDealt = 0;
+  std::unordered_map<std::string, int> killCount = {
+      {"infantry", 0},
+      {"calvary", 0},
+      {"artillery", 0},
+      {"logistic", 0},
+      {"armoredCar", 0},
+      {"tank1", 0},
+      {"tank2", 0},
+      {"tankOshimai", 0},
+      {"cas", 0},
+      {"fighter", 0},
+      {"Bomber", 0},
+  };
 };
 
-class BattlePlanUnit
+class Block
 {
 public:
-  std::vector<std::string> armyAssigned = {};
-  std::vector<std::string> activated = {};
+  Block(data::Troop *troop_, data::Resource *resource_, std::string country_, std::string name_, std::vector<std::string> attackable_, std::vector<std::string> encircled_, std::unordered_map<std::string, int> acquirable_) : name(name_), attackable(attackable_), encircled(encircled_), acquirable(acquirable_), troop(troop_), resource(resource_), country(country_) {}
+  data::Troop *troop;
+  data::Resource *resource;
 
-  std::string target = NULL;
-  // region coordinate to be attacked in order
-  std::vector<std::string> order = {};
+  std::string country;
+  std::string name;
+
+  bool captured = false;
+  bool battling = false;
+
+  std::vector<std::string> attackable;
+  std::vector<std::string> encircled;
+
+  std::unordered_map<std::string, int> acquirable;
+
+  std::vector<BattleUnit *> battle;
+
+  std::vector<ArmyUnit *> totalFoeArmy;
+  std::vector<TroopUnit *> totalFoeTroop;
+
+  void reinforce(TroopUnit *reinforcement)
+  {
+    assert(reinforcement != NULL);
+
+    if(!this->battling){
+      this->battle.push_back(new BattleUnit(this->country, this->name, new BattleTroopWrapper({},{}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
+      this->battling = true;
+    }
+
+    troop->helper2[reinforcement->type](0, -1);
+    troop->helper2[reinforcement->type](3, 1);
+
+    reinforcement->state["battle"] = true;
+    reinforcement->reference.push_back(true);
+    reinforcement->isReferenced = true;
+
+    battle.back()->mikata->totalTroop.push_back(reinforcement);
+  }
+  void reinforce(ArmyUnit *reinforcement)
+  {
+    assert(reinforcement != NULL);
+
+    if(!this->battling){
+      this->battle.push_back(new BattleUnit(this->country, this->name, new BattleTroopWrapper({},{}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
+      this->battling = true;
+    }
+
+    reinforcement->inBattle = true;
+    reinforcement->battleRegion = std::make_pair(this->country, this->name);
+    for (auto i : reinforcement->formation)
+      for (auto j : i)
+      {
+        troop->helper2[j->type](3, 1);
+        j->state["battle"] = true;
+      }
+
+    battle.back()->mikata->totalArmy.push_back(reinforcement);
+  }
+  void retreat(TroopUnit *retreating)
+  {
+    auto ptr = std::find(battle.back()->mikata->totalTroop.begin(), battle.back()->mikata->totalTroop.end(), retreating);
+    assert(ptr != battle.back()->mikata->totalTroop.end());
+
+    troop->helper2[retreating->type](3, -1);
+    retreating->state["battle"] = false;
+    assert(!retreating->state["army"]);
+    assert(!retreating->state["battlePlan"]);
+    retreating->state["free"] = true;
+    troop->helper2[retreating->type](0, 1);
+
+    battle.back()->mikata->totalTroop.erase(ptr);
+    retreating->reference.pop_back();
+    retreating->isReferenced = retreating->reference.size() != 0;
+
+    if (battle.back()->mikata->totalTroop.size() == 0 && battle.back()->mikata->totalArmy.size() == 0)
+      this->endBattle();
+  }
+  void retreat(ArmyUnit *retreating)
+  {
+    auto ptr = std::find(battle.back()->mikata->totalArmy.begin(), battle.back()->mikata->totalArmy.end(), retreating);
+    assert(ptr != battle.back()->mikata->totalArmy.end());
+
+    retreating->inBattle = false;
+    retreating->battleRegion = {};
+    for (auto i : retreating->formation)
+      for (auto j : i)
+      {
+        troop->helper2[j->type](3, -1);
+        j->state["battle"] = false;
+      }
+
+    battle.back()->mikata->totalArmy.erase(ptr);
+
+    if (battle.back()->mikata->totalTroop.size() == 0 && battle.back()->mikata->totalArmy.size() == 0)
+      this->endBattle();
+  }
+  void retreatAll()
+  {
+    for (auto i : battle.back()->mikata->totalTroop)
+      this->retreat(i);
+    for (auto i : battle.back()->mikata->totalArmy)
+      this->retreat(i);
+  }
+
+  void captured(){
+
+  }
+
+private:
+  void endBattle()
+  {
+    delete battle.back()->mikata;
+    delete battle.back()->foe;
+    battling = false;
+  }
 };
 
-namespace data{
+class Enemy
+{
+public:
+  Enemy(std::string name_, std::vector<std::vector<Block *>> map_) : name(name_), map(map_) {}
+  std::string name;
+
+  int totalLand = 0;
+  int capturedLand = 0;
+  bool capitulated = false;
+
+  std::vector<std::vector<Block *>> map;
+};
+
+namespace data
+{
 
   struct Army
   {
@@ -493,4 +635,15 @@ namespace data{
   };
 
 }
+
+class BattlePlanUnit
+{
+public:
+  std::string country;
+
+  // region coordinate to be attacked in order (int x, int y in pair)
+  std::map<data::Army *, std::vector<std::pair<int, int>>> sennryaku;
+
+  std::map<data::Army *, bool> activated;
+};
 #endif

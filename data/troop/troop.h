@@ -141,8 +141,9 @@ public:
   SuicideBomber(std::string id) : TroopUnit(id, "suicideBomber") {}
   void giveDamage(double, double, double, double, double, Damage &);
 
+  void takeDamage(double);
+  
   // not used
-  void takeDamage(double){};
   void increaseHealth(double){};
 
   void setFood(double val) { food = val; }
@@ -475,8 +476,8 @@ public:
   Kamikaze(std::string id) : TroopUnit(id, "kamikaze") {}
   void giveDamage(double, double, double, double, double, Damage &);
 
+  void takeDamage(double);
   // not used
-  void takeDamage(double){};
   void increaseHealth(double){};
 
   void setFood(double val) { food = val; }

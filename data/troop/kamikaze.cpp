@@ -10,4 +10,10 @@ void Kamikaze::giveDamage(double foodS, double equipmentS, double disruption, do
 
   damage.softAttack += softAttackC;
   damage.hardAttack += hardAttackC;
+
+  this->takeDamage(999);
+}
+
+void Kamikaze::takeDamage(double damage){
+  hp -= damage;
 }

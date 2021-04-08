@@ -33,7 +33,7 @@ void ArmyUnit::addTroop(int x, int y, std::string type, data::Troop *troop, data
 
   troop->allTroop[index]->state["free"] = false;
   troop->allTroop[index]->state["army"] = true;
-  troop->helper2[type](0,-1);
+  troop->helper2[type](0, -1);
   troop->helper2[type](1, 1);
 
   this->formation[x][y] = troop->allTroop[index];
@@ -52,10 +52,10 @@ void ArmyUnit::addTroop(int x, int y, std::string type, data::Troop *troop, data
   this->totalFoodRequired = this->totalBaseFoodRequired - this->foodReductionPer * this->troopCount;
   this->totalEquipmentRequired = this->totalBaseEquipmentRequired - this->equipmentReductionPer * this->troopCount;
 
-  this->foodRatio = std::min(1.0, (std::min(1.0, resource->food / troop->totalFoodRequired) * this->totalBaseFoodRequired) / (this->totalFoodRequired == 0 ? 1 : this->totalFoodRequired));
-  this->equipmentRatio = std::min(1.0, (std::min(1.0, resource->equipment / troop->totalEquipmentRequired) * this->totalBaseEquipmentRequired) / (this->totalEquipmentRequired == 0 ? 1 : this->totalEquipmentRequired));
+  // this->foodRatio = std::min(1.0, (std::min(1.0, resource->food / troop->totalFoodRequired) * this->totalBaseFoodRequired) / (this->totalFoodRequired == 0 ? 1 : this->totalFoodRequired));
+  // this->equipmentRatio = std::min(1.0, (std::min(1.0, resource->equipment / troop->totalEquipmentRequired) * this->totalBaseEquipmentRequired) / (this->totalEquipmentRequired == 0 ? 1 : this->totalEquipmentRequired));
 
-  this->subsequentialStrength = (this->foodRatio + this->equipmentRatio)/2;
+  // this->subsequentialStrength = (this->foodRatio + this->equipmentRatio)/2;
 
   troop->allTroop[index]->reference.push_back(true);
   troop->allTroop[index]->isReferenced = true;
@@ -63,15 +63,16 @@ void ArmyUnit::addTroop(int x, int y, std::string type, data::Troop *troop, data
 
 void ArmyUnit::removeTroop(int x, int y, data::Troop *troop, data::Resource *resource)
 {
-  if(this->formation[x][y] == NULL) return;
+  if (this->formation[x][y] == NULL)
+    return;
 
   std::string type = this->formation[x][y]->type;
 
   this->formation[x][y]->state["army"] = false;
-  if(!this->formation[x][y]->state["battlePlan"]){
-    this->formation[x][y]->state["free"] = true;
-    troop->helper2[type](0,1);
-  }
+  this->formation[x][y]->state["battlePlan"] = false;
+  assert(!this->formation[x][y]->state["battle"]);
+  this->formation[x][y]->state["free"] = true;
+  troop->helper2[type](0, 1);
   troop->helper2[type](1, -1);
 
   this->troopCount--;
@@ -88,14 +89,12 @@ void ArmyUnit::removeTroop(int x, int y, data::Troop *troop, data::Resource *res
   this->totalFoodRequired = this->totalBaseFoodRequired - this->foodReductionPer * this->troopCount;
   this->totalEquipmentRequired = this->totalBaseEquipmentRequired - this->equipmentReductionPer * this->troopCount;
 
-  this->foodRatio = std::min(1.0, (std::min(1.0, resource->food / troop->totalFoodRequired) * this->totalBaseFoodRequired) / (this->totalFoodRequired == 0 ? 1 : this->totalFoodRequired));
-  this->equipmentRatio = std::min(1.0, (std::min(1.0, resource->equipment / troop->totalEquipmentRequired) * this->totalBaseEquipmentRequired) / (this->totalEquipmentRequired == 0 ? 1 : this->totalEquipmentRequired));
+  // this->foodRatio = std::min(1.0, (std::min(1.0, resource->food / troop->totalFoodRequired) * this->totalBaseFoodRequired) / (this->totalFoodRequired == 0 ? 1 : this->totalFoodRequired));
+  // this->equipmentRatio = std::min(1.0, (std::min(1.0, resource->equipment / troop->totalEquipmentRequired) * this->totalBaseEquipmentRequired) / (this->totalEquipmentRequired == 0 ? 1 : this->totalEquipmentRequired));
 
-  this->subsequentialStrength = (this->foodRatio + this->equipmentRatio)/2;
+  // this->subsequentialStrength = (this->foodRatio + this->equipmentRatio)/2;
 
-  
-  
   this->formation[x][y]->reference.pop_back();
-  this->formation[x][y]->isReferenced = this->formation[x][y]->reference.size() == 0;
+  this->formation[x][y]->isReferenced = this->formation[x][y]->reference.size() != 0;
   this->formation[x][y] = NULL;
 }
