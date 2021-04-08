@@ -19,15 +19,19 @@ class Game
 {
 public:
   ~Game();
-  Game(std::unordered_map<std::string, int>, const int, const int, const int);
+  Game(std::unordered_map<std::string, int>, const int, const int, const int, const std::string);
   void start();
+  void fetch();
+  void fetchRandom(int difficulty);
 
 private:
+  std::string path;
+
   // similar to how menu phase works, we progress the phase number according to use actions
   std::vector<std::vector<std::vector<int>>> map{
 
-      // building, researching, troops training, army editing, battle planning, battling
-      {{1, 2, 3, -162, -163, -164},
+      // building, researching, troops training, army editing, battling
+      {{1, 2, 3, -162, -163},
 
        // set speed, pause (action), save as (action), restart (action), quit (action)
        {7, -1, -2, -3, -4}},
@@ -81,10 +85,9 @@ private:
   // input: x and y value
   std::vector<void (Game::*)(int, int)> print = {
       &Game::loopPrintStatus, &Game::loopPrintBuild, &Game::loopPrintResearch, &Game::loopPrintTroop};
-  // , &Game::printResearch, &Game::printTroopTrain, &Game::printArmyEdit, &Game::printBattlePlan, &Game::printBattle};
 
   // function to be executed according to gamePhase (modifying)
-  // length: 162 (index 0: NULL)
+  // length: 164 (index 0: NULL)
   std::vector<void (Game::*)(int &, int)> action = {
       NULL, NULL, NULL, NULL, NULL,
       &Game::buildfarm1, &Game::buildfarm5, &Game::buildfarm10, &Game::buildfarmmax, &Game::upgradefarm1, &Game::upgradefarm5, &Game::upgradefarm10, &Game::upgradefarmmax,
@@ -126,7 +129,6 @@ private:
       &Game::trainKamikaze, &Game::trainKamikaze5, &Game::trainKamikaze10, &Game::trainKamikazemax, &Game::removeKamikaze, &Game::removeKamikazemax,
       &Game::gameArmy};
 
-  // separate timer thread to increment time only
   std::thread *timerThread;
   std::future<void> loopPrintStatusThread;
   std::future<void> loopPrintBuildThread;
@@ -297,7 +299,7 @@ private:
   void removeairport1(int &currentPhase, int prevPhase);
   void removeairportmax(int &currentPhase, int prevPhase);
 
-  void researchBase(std::string, std::function<void(data::Resource &, data::Building &, data::Troop &, data::Army &, data::BattlePlan &, data::Battle &)> &, int);
+  void researchBase(std::string, std::function<void(data::Resource &, data::Building &, data::Troop &, data::Army &)> &, int);
   // researches the particular area
   void researchFarm(int &currentPhase, int prevPhase);
   void researchDivisionOfLabor(int &currentPhase, int prevPhase);
@@ -422,12 +424,10 @@ private:
   void restart();
   void quit();
 
-  // Note timer only progress day variable, nothing else
+  // Note timer only progress day variable and battle progresses
   // training troop/ building have their own async loops
   // reason is because the user can start a progress at anytime so it owuld be impossible to use a single loop for all progresses
 
-  // NOTE: KNOWN VISUAL BUG, sometimes when starting multiple progresses at the same time, some would show n days while some show n+1 days
-  // reason: data racing
   void timer(int time)
   {
     while (!this->terminate)
@@ -452,7 +452,7 @@ private:
   int day = 1;
   std::vector<Progress *> progress;
 
-  // key: speed, fps
+  // key: speed
   std::unordered_map<std::string, int> setting;
   int screenWidth;
   int screenHeight;
@@ -462,7 +462,6 @@ private:
   data::Building *building;
   data::Troop *troop;
   data::Army *army;
-  data::BattlePlan *battlePlan;
   data::Research *research;
   data::Battle *battle;
   data::Enemies *enemies;

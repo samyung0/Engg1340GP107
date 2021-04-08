@@ -19,7 +19,6 @@ void print_menuSelect(int y, int x, MenuWrapper &gameStats)
 
   // clear screen
   std::cout << "\033[2J\033[1;1H";
-std::cout<<" ------ \n| >> A1|\n|    !!|\n ------ " << std::endl;
   std::cout << "Welcome to Hearts of Gold." << std::endl
             << std::endl;
   for (int i = 0; i < 4; i++)

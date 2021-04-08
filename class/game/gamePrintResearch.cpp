@@ -15,7 +15,7 @@ void Game::printResearch(int x, int y)
     std::vector<std::vector<std::string>> data = {
         {" (40 days) Unlock Level 2 farm", " (40 days) Unlock Level 3 farm"},
         {" (20 days) Unlock Level 2 civilian factory", " (30 days) Unlock Level 3 civilian factory"},
-        {" (15 days) Unlock Level 2 military factory", " (30 days) Unlock Level 3 military factory"},
+        {" (15 days) Unlock Level 2 military factory", " (120 days) Unlock Level 3 military factory"},
         {" (40 days) +20% damage dealt by each unit of land troop", " (40 days) +30% (total) damage dealt by each unit of land troop"},
         {" (70 days) +40% damage dealt by each unit of plane", " (100 days) +60% (total) damage dealt by each unit of plane"},
         {" (50 days) +10% land available for building", " (70 days) +30% (total) land available for building"},
@@ -168,7 +168,6 @@ void Game::printResearch(int x, int y)
             << "   Land: " << (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand) << "/" << this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand
             << "   Troop: " << this->troop->totalTroops
             << "   Armies: " << this->army->total.size() << "/10"
-            << "   Battle Plans: " << this->battlePlan->total.size() << "/10"
             << "   Camps: " << this->resource->campUsed << "/"<<this->resource->camp
             << "   Airports: " << this->resource->airportUsed << "/"<<this->resource->airport
               << std::endl

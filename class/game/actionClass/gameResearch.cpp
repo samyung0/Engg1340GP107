@@ -5,7 +5,7 @@
 #include "../gameStruct.h"
 
 // visit Game::buildBase for documentation
-void Game::researchBase(std::string desc, std::function<void(data::Resource &, data::Building &, data::Troop &, data::Army &, data::BattlePlan &, data::Battle &)> & callBack, int time){
+void Game::researchBase(std::string desc, std::function<void(data::Resource &, data::Building &, data::Troop &, data::Army &)> & callBack, int time){
   this->lg3.lock();
   
   std::string id = this->uuid();
@@ -17,7 +17,7 @@ void Game::researchBase(std::string desc, std::function<void(data::Resource &, d
     this->research->progress[id]->start(this->lg3);
 
     this->lg3.lock();
-    callBack(*this->resource, *this->building, *this->troop, *this->army, *this->battlePlan, *this-> battle);
+    callBack(*this->resource, *this->building, *this->troop, *this->army);
 
     delete this->research->progress[id];
     this->research->progress.erase(id);

@@ -67,19 +67,7 @@ void levelBasef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats, std::
       }
       else
       {
-        std::string path = "levelStat/" + index + (levelf::activeIndex[1] == 0 ? "a" : "b") + ".txt";
-        std::ifstream levelStream(path, std::ios::in);
-
-        std::string data;
-        while (std::getline(levelStream, data))
-        {
-          /////////////
-          /////////TODO: read in level data
-          /////////////
-        }
-
-        levelStream.close();
-
+        gameStats.levelpath = "data/levels/" + index + (levelf::activeIndex[1] ? "b" : "a") + ".dat";
         // phase 999 calls game to start in main
         menuPhase = 999;
         return;

@@ -77,6 +77,8 @@ int main()
   int menuPhase = 0;
   int menuPhaseSelect[2] = {0, 0};
 
+  std::string path; 
+
   (*select[menuPhase])(menuPhaseSelect[0], menuPhaseSelect[1], gameStats);
   while (1)
   {
@@ -139,10 +141,10 @@ int main()
 
         if (menuPhase == 999)
         {
-          allGames.push_back(new Game(gameStats.setting, gameStats.width, gameStats.height, gameStats.fps));
+          allGames.push_back(new Game(gameStats.setting, gameStats.width, gameStats.height, gameStats.fps, gameStats.levelpath));
 
           // start game
-          std::thread actionThread(&Game::start, std::ref(allGames.back()));
+          std::thread actionThread(&Game::fetch, std::ref(allGames.back()));
           actionThread.join();
 
           // DOES NOT DELETE GAME when still unsaved

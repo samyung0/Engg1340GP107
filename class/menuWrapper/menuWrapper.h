@@ -12,5 +12,6 @@ struct MenuWrapper
   int width = 0;
   int height = 0;
   int fps;
+  std::string levelpath;
 };
 #endif

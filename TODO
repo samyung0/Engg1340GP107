@@ -138,12 +138,14 @@ so if you have 5 countries, then you should have 5 different maps and pushing 5 
 
 Future TODO:
 - generate troops and armies at each block
-- generate buildings at each block
+- generate buildings and capturable land at each block
+- generate terrain for each block
 
 - save and load progress
 - windows version of game
 - add game speed to settings
 - check and save games
-- add scrolling speed to settings
 - removeArmy() in gameArmy, after doing battleplan, need to also remove battleplan
 - retreatArmy() in gameArmy
+- check unsaved games
+- update progress text files when completing a level

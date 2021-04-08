@@ -623,3 +623,7 @@ int main()
     cout << "main thread id ended: " << this_thread::get_id() << endl;
 }
 ```
+
+### .DAT structure
+
+.dat files are used to store game status in form of texts. The data can be modified by users and follow the following syntaxes:

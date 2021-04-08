@@ -97,8 +97,8 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   std::function<void()> stopLoopArmyPhase2;
   std::function<void()> armyPhase2;
 
-  std::function<void(std::string)> removeArmy;
-  std::function<void(std::string)> retreatArmy;
+  std::function<void(ArmyUnit*)> removeArmy;
+  std::function<void(ArmyUnit*)> retreatArmy;
   std::function<void(int *, std::string)> posTroop;
   std::function<void(int *)> removeTroop;
 
@@ -193,7 +193,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
       actionPhase0.push_back({});
       if (i.second->inBattle)
         actionPhase0.back().push_back([i, &retreatArmy]() {
-          retreatArmy(i.first);
+          retreatArmy(i.second);
         });
       else
       {
@@ -210,7 +210,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
           armyPhaseSelect[1] = 0;
           moved[0] = 0;
           moved[0] = 0;
-          removeArmy(i.first);
+          removeArmy(i.second);
         });
       }
     }
@@ -225,8 +225,6 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
 
     for (auto &i : this->army->total)
     {
-      if (!i.second->removed)
-      {
         placement.push_back({});
         content.push_back("");
         content.back() += i.second->name + std::string(10 - i.second->name.length(), ' ') + ": ";
@@ -268,7 +266,6 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
           placement.back().push_back(12 + 25 * 4 + 1);
           placement.back().push_back(12 + 25 * 4 + 8);
         }
-      }
     }
     placement.push_back({1});
 
@@ -283,7 +280,6 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
               << "   Land: " << (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand) << "/" << this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand
               << "   Troop: " << this->troop->totalTroops
               << "   Armies: " << this->army->total.size() << "/10"
-              << "   Battle Plans: " << this->battlePlan->total.size() << "/10"
               << "   Camps: " << this->resource->campUsed << "/" << this->resource->camp
               << "   Airports: " << this->resource->airportUsed << "/" << this->resource->airport
               << std::endl
@@ -447,8 +443,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
               << std::endl;
 
     std::cout << color("Overview:", "green") << std::endl
-              << "Battle Plan: " + (this->army->total[armySelected]->battlePlanAssigned ? this->army->total[armySelected]->battlePlanName : "none")
-              << "   Battling Region: " + (this->army->total[armySelected]->inBattle ? this->army->total[armySelected]->battleRegion.first + ", " + this->army->total[armySelected]->battleRegion.second : "none")
+              << "Battling Region: " + (this->army->total[armySelected]->inBattle ? this->army->total[armySelected]->battleRegion.first + ", " + this->army->total[armySelected]->battleRegion.second : "none")
               << "   Total food: " + food.str()
               << "   Total equipment: " + equipment.str() << std::endl
               << std::endl;
@@ -526,6 +521,45 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   removeTroop = [&](int *pos) {
     this->lg3.lock();
     this->army->total[armySelected]->removeTroop(pos[0], 3 - pos[1], this->troop, this->resource);
+    this->lg3.unlock();
+  };
+
+  removeArmy = [&](ArmyUnit * army){
+    for(int i=0;i<4;i++)
+      for(int j=0;j<4;j++)
+        army->removeTroop(i,j,this->troop, this->resource);
+    std::string name = army->name;
+    delete army;
+    this->army->total.erase(name);
+  };
+
+  retreatArmy = [&](ArmyUnit * army){
+    int index = -1;
+    int index2[2]= {-1,-1};
+
+    this->lg3.lock();
+
+    for(int i=0;i< this->enemies->totalEnemies.size();i++)
+      if(this->enemies->totalEnemies[i]->name == army->battleRegion.first){
+        index = i;
+        break;
+      }
+
+    assert(index != -1);
+
+    for(int i=0;i<this->enemies->totalEnemies[index]->map.size();i++){
+      for(int j=0;j<this->enemies->totalEnemies[index]->map[i].size();j++){
+        if(this->enemies->totalEnemies[index]->map[i][j]->name == army->battleRegion.second){
+          index2[0] = i;
+          index2[1] = j;
+        }
+      }
+    }
+
+    assert(index2[0] != -1);
+
+    this->enemies->totalEnemies[index]->map[index2[0]][index2[1]]->retreat(army);
+
     this->lg3.unlock();
   };
 

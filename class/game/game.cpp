@@ -29,18 +29,27 @@ void Progress::start(std::mutex &lg3)
 }
 
 Game::~Game() {}
-Game::Game(std::unordered_map<std::string, int> setting_, const int screenX_, const int screenY_, const int fps_) : setting(setting_), screenWidth(screenX_), screenHeight(screenY_), fps(fps_) {}
-
-void Game::start()
-{
+Game::Game(std::unordered_map<std::string, int> setting_, const int screenX_, const int screenY_, const int fps_, const std::string path_) : setting(setting_), screenWidth(screenX_), screenHeight(screenY_), fps(fps_), path(path_) {
   resource = new data::Resource();
   building = new data::Building();
   troop = new data::Troop();
   army = new data::Army();
-  battlePlan = new data::BattlePlan();
   research = new data::Research();
   battle = new data::Battle();
   enemies = new data::Enemies();
+}
+
+void Game::fetch(){
+  
+  // this->buildBase("farm", 0, building->effect["farm"][0], "", building->farmL[0]*2,2);
+  
+  // while(1);
+
+  this->start();
+}
+
+void Game::start()
+{
   this->timerThread = new std::thread(&Game::timer, this, this->setting["speed"]);
 
   char input;
@@ -53,6 +62,8 @@ void Game::start()
 
     // same method used in menuPhase
     input = getch();
+
+    
     if (input == '\033')
     {
       getch();

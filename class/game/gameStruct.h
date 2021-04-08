@@ -28,10 +28,10 @@ namespace data
 
   struct Resource
   {
-    // to be updated in game fetchData
+    // to be updated in game fetch
     double food = 0;
     double equipment = 0;
-    int manpower = 10;
+    int manpower = 5;
     int manpowerInUse = 0;
     double baseLand = 100;
     double usedLand = 0;
@@ -48,13 +48,14 @@ namespace data
     double baseAirToopMul2 = 1;
     double baseTrainingTimeMul = 1;
 
+    double baseRecovery = 4;
     double baseRecoveryDiff = 0;
   };
 
   struct Building
   {
     // index 0 means no upgrade, 1 and 2 for upgraded
-    std::vector<int> farm = {1, 1, 0};
+    std::vector<int> farm = {0, 0, 0};
     std::vector<int> civilianFactory = {0, 0, 0};
     std::vector<int> militaryFactory = {0, 0, 0};
     std::vector<int> trainingCamp = {0};
@@ -247,6 +248,7 @@ namespace data
     int totalFoodRequired = 0;
     int totalEquipmentRequired = 0;
   };
+  
 }
 
 class ArmyUnit
@@ -263,8 +265,6 @@ public:
   // country name, region coordinate
   std::pair<std::string, std::string> battleRegion = {};
 
-  bool battlePlanAssigned = false;
-  std::string battlePlanName;
 
   double calsualtyCount = 0;
   // calculated by dividing lost troops/ total troops x 100
@@ -276,11 +276,6 @@ public:
       {NULL, NULL, NULL, NULL},
       {NULL, NULL, NULL, NULL},
       {NULL, NULL, NULL, NULL}};
-
-  // note when the army is gone is ways such as removed by user, it will not be deleted from the array
-  // nor will it be removed when all troops inside it die
-  // it will stay there so the array length does not shrink, so the randomly generated name will not collide (generated from the length)
-  bool removed = false;
 
   int totalBaseFoodRequired = 0;
   int totalBaseEquipmentRequired = 0;
@@ -304,9 +299,6 @@ public:
   // stored as decimal, displayed as percentage
   // all troops within army should have same subsequential strength
   // double subsequentialStrength = 1.0;
-
-  // is called when its either removed by user
-  void disband();
 
   // calc and deal damage to all troops within the army during battle
   void calcDamage(Damage &);
@@ -359,15 +351,27 @@ public:
   };
 };
 
+namespace data{
+  struct Battle
+  {
+    std::vector<BattleUnit *> total;
+    bool inBattle = false;
+    std::string countryBattling = "";
+  };
+}
+
 class Block
 {
 public:
-  Block(data::Troop *troop_, data::Resource *resource_, std::string country_, std::string name_, std::vector<std::string> attackable_, std::vector<std::string> encircled_, std::unordered_map<std::string, int> acquirable_) : name(name_), attackable(attackable_), encircled(encircled_), acquirable(acquirable_), troop(troop_), resource(resource_), country(country_) {}
+  Block(data::Troop *troop_, data::Resource *resource_, data::Battle *battler_, std::string country_, std::string name_, std::vector<std::string> attackable_, std::vector<std::string> encircled_, std::unordered_map<std::string, int> acquirable_, int total_, std::string terrain_) : name(name_), attackable(attackable_), encircled(encircled_), acquirable(acquirable_), troop(troop_), resource(resource_), country(country_), total(total_), terrain(terrain_), battler(battler_) {}
   data::Troop *troop;
   data::Resource *resource;
+  data::Battle *battler;
 
   std::string country;
   std::string name;
+
+  std::string terrain;
 
   bool captured = false;
   bool battling = false;
@@ -382,13 +386,18 @@ public:
   std::vector<ArmyUnit *> totalFoeArmy;
   std::vector<TroopUnit *> totalFoeTroop;
 
+  int total = 0;
+
   void reinforce(TroopUnit *reinforcement)
   {
     assert(reinforcement != NULL);
 
-    if(!this->battling){
-      this->battle.push_back(new BattleUnit(this->country, this->name, new BattleTroopWrapper({},{}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
+    if (!this->battling)
+    {
+      this->battle.push_back(new BattleUnit(this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
       this->battling = true;
+      battler->inBattle = true;
+      battler->countryBattling = country;
     }
 
     troop->helper2[reinforcement->type](0, -1);
@@ -404,9 +413,12 @@ public:
   {
     assert(reinforcement != NULL);
 
-    if(!this->battling){
-      this->battle.push_back(new BattleUnit(this->country, this->name, new BattleTroopWrapper({},{}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
+    if (!this->battling)
+    {
+      this->battle.push_back(new BattleUnit(this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
       this->battling = true;
+      battler->inBattle = true;
+      battler->countryBattling = country;
     }
 
     reinforcement->inBattle = true;
@@ -466,8 +478,8 @@ public:
       this->retreat(i);
   }
 
-  void capturedF(){
-
+  void capturedF()
+  {
   }
 
 private:
@@ -475,7 +487,10 @@ private:
   {
     delete battle.back()->mikata;
     delete battle.back()->foe;
-    battling = false;
+    this->battling = false;
+
+    battler->inBattle = false;
+    battler->countryBattling = "";
   }
 };
 
@@ -501,35 +516,6 @@ namespace data
     // max 10 armies
     std::map<std::string, ArmyUnit *> total;
   };
-}
-
-class BattlePlanUnit
-{
-public:
-  std::string country;
-
-  // region coordinate to be attacked in order (int x, int y in pair)
-  std::map<data::Army *, std::vector<std::pair<int, int>>> sennryaku;
-
-  std::map<data::Army *, bool> activated;
-};
-
-namespace data
-{
-  
-  struct BattlePlan
-  {
-    // max 10 battle plans
-    std::vector<BattlePlanUnit *> total;
-  };
-
-  struct Battle
-  {
-    std::vector<BattleUnit> total;
-    bool inBattle = false;
-    std::string countryBattling = "";
-    std::vector<std::string> regionBattling;
-  };
 
   struct Research
   {
@@ -546,7 +532,7 @@ namespace data
 
     std::vector<int> farmT = {40, 40};
     std::vector<int> divisionOfLaborT = {20, 30};
-    std::vector<int> productionLineT = {15, 30};
+    std::vector<int> productionLineT = {15, 120};
     std::vector<int> landDoctrineT = {40, 40};
     std::vector<int> airDoctrineT = {70, 100};
     std::vector<int> urbanizationT = {50, 70};
@@ -555,85 +541,85 @@ namespace data
     std::vector<int> recoveryT = {30, 50};
 
     // key: research name, value: vector of functions which process the changes brought by the research (input all other struts, capturing by ref)
-    std::unordered_map<std::string, std::vector<std::function<void(Resource &, Building &, Troop &, Army &, BattlePlan &, Battle &)>>> effect = {
+    std::unordered_map<std::string, std::vector<std::function<void(Resource &, Building &, Troop &, Army &)>>> effect = {
         {"farm",
-         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d) {
             b.farmU[1] = true;
             farm[1] = true;
           },
-          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d) {
             b.farmU[2] = true;
             farm[2] = true;
           }}},
         {"divisionOfLabor",
-         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d) {
             b.civilianFactoryU[1] = true;
             divisionOfLabor[1] = true;
           },
-          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d) {
             b.civilianFactoryU[2] = true;
             divisionOfLabor[2] = true;
           }}},
         {"productionLine",
-         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d) {
             b.militaryFactoryU[1] = true;
             productionLine[1] = true;
           },
-          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d) {
             b.militaryFactoryU[2] = true;
             productionLine[2] = true;
           }}},
         {"landDoctrine",
-         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseLandTroopMul = 1.2;
             landDoctrine[1] = true;
           },
-          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseLandTroopMul = 1.3;
             landDoctrine[2] = true;
           }}},
         {"airDoctrine",
-         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseAirTroopMul = 1.4;
             airDoctrine[1] = true;
           },
-          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseAirTroopMul = 1.6;
             airDoctrine[2] = true;
           }}},
         {"urbanization",
-         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseLandMul = 1.1;
             urbanization[1] = true;
           },
-          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseAirTroopMul = 1.3;
             urbanization[2] = true;
           }}},
         {"weapon",
-         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseTankMul = 1.05;
             weapon[1] = true;
           },
-          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseTankMul = 1.1;
             a.baseAirToopMul2 = 1.1;
             weapon[2] = true;
           }}},
         {"training",
-         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseTrainingTimeMul = 0.9;
             training[1] = true;
           },
-          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseTrainingTimeMul = 0.8;
             training[2] = true;
           }}},
         {"recovery",
-         {[&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+         {[&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseRecoveryDiff = 6;
           },
-          [&](Resource &a, Building &b, Troop &c, Army &d, BattlePlan &e, Battle &f) {
+          [&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseRecoveryDiff = 8;
           }}},
     };
