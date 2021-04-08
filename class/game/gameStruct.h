@@ -466,7 +466,7 @@ public:
       this->retreat(i);
   }
 
-  void captured(){
+  void capturedF(){
 
   }
 
@@ -501,7 +501,22 @@ namespace data
     // max 10 armies
     std::map<std::string, ArmyUnit *> total;
   };
+}
 
+class BattlePlanUnit
+{
+public:
+  std::string country;
+
+  // region coordinate to be attacked in order (int x, int y in pair)
+  std::map<data::Army *, std::vector<std::pair<int, int>>> sennryaku;
+
+  std::map<data::Army *, bool> activated;
+};
+
+namespace data
+{
+  
   struct BattlePlan
   {
     // max 10 battle plans
@@ -635,15 +650,4 @@ namespace data
   };
 
 }
-
-class BattlePlanUnit
-{
-public:
-  std::string country;
-
-  // region coordinate to be attacked in order (int x, int y in pair)
-  std::map<data::Army *, std::vector<std::pair<int, int>>> sennryaku;
-
-  std::map<data::Army *, bool> activated;
-};
 #endif
