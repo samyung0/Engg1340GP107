@@ -10,7 +10,6 @@
 #include <tuple>
 #include <mutex>
 
-#include "gameUnit.h"
 #include "../../data/troop/troop.h"
 #include "../enemy/enemy.h"
 
@@ -223,6 +222,21 @@ namespace data
         {"bomber", [&](int index) -> int { return bomber[index]; }},
         {"kamikaze", [&](int index) -> int { return kamikaze[index]; }}};
 
+    std::unordered_map<std::string, std::function<void(int, int)>> helper2 = {
+        {"infantry", [&](int index, int value){ infantry[index] += value; }},
+        {"calvary", [&](int index, int value){ calvary[index] += value; }},
+        {"suicideBomber", [&](int index, int value){ suicideBomber[index] += value; }},
+        {"artillery", [&](int index, int value){ artillery[index] += value; }},
+        {"logistic", [&](int index, int value){ logistic[index] += value; }},
+        {"armoredCar", [&](int index, int value){ armoredCar[index] += value; }},
+        {"tank1", [&](int index, int value){ tank1[index] += value; }},
+        {"tank2", [&](int index, int value){ tank2[index] += value; }},
+        {"tankOshimai", [&](int index, int value){ tankOshimai[index] += value; }},
+        {"cas", [&](int index, int value){ cas[index] += value; }},
+        {"fighter", [&](int index, int value){ fighter[index] += value; }},
+        {"bomber", [&](int index, int value){ bomber[index] += value; }},
+        {"kamikaze", [&](int index, int value){ kamikaze[index] += value; }}};
+
     // type, id
     std::vector<std::tuple<std::string, std::string>> progressTrack = {};
     std::unordered_map<std::string, Progress *> progress;
@@ -232,6 +246,112 @@ namespace data
     int totalFoodRequired = 0;
     int totalEquipmentRequired = 0;
   };
+}
+
+class ArmyUnit
+{
+public:
+  ArmyUnit(std::string);
+  ArmyUnit(std::string, std::vector<std::tuple<int ,int , TroopUnit *>>);
+
+  // name should be unique among other armies (used as key in army struct map)
+  std::string name;
+  int troopCount = 0;
+
+  bool inBattle = false;
+  // country name, region coordinate
+  std::pair<std::string, std::string> battleRegion = {};
+
+  bool battlePlanAssigned = false;
+  std::string battlePlanName;
+
+  double calsualtyCount = 0;
+  // calculated by dividing lost troops/ total troops x 100
+  double casualtyPercentage = 0;
+
+  // pointer to troops
+  std::vector<std::vector<TroopUnit *>> formation = {
+      {NULL, NULL, NULL, NULL},
+      {NULL, NULL, NULL, NULL},
+      {NULL, NULL, NULL, NULL},
+      {NULL, NULL, NULL, NULL}};
+
+  // note when the army is gone is ways such as removed by user, it will not be deleted from the array
+  // nor will it be removed when all troops inside it die
+  // it will stay there so the array length does not shrink, so the randomly generated name will not collide (generated from the length)
+  bool removed = false;
+
+  int totalBaseFoodRequired = 0;
+  int totalBaseEquipmentRequired = 0;
+
+  int foodReductionPer = 0;
+  int equipmentReductionPer = 0;
+
+  int speedBoostPerLand = 0;
+
+  int logisticCount = 0;
+
+  // total required = totalbase - totalreduced
+  // total supplied = totalbase * total food production / total food required (capped at totalbase)
+  double totalFoodRequired = 0;
+  double totalEquipmentRequired = 0;
+
+  // supplied/ required
+  double foodRatio = 1;
+  double equipmentRatio = 1;
+
+  // stored as decimal, displayed as percentage
+  // all troops within army should have same subsequential strength
+  double subsequentialStrength = 1.0;
+
+  // is called when its either removed by user
+  void disband();
+
+  // calc and deal damage to all troops within the army during battle
+  void calcDamage(Damage &);
+
+  // remove troops that have 0 health or below
+  void cleanUp();
+
+  void addTroop(int y,int x, std::string, data::Troop* troop , data::Resource* resource);
+  void removeTroop(int y, int x, data::Troop* troop , data::Resource* resource);
+};
+
+
+
+// used to pass into battleUnit as a wrapper of how many troops are present (applicable to both enemy side and your side)
+class battleTroopWrapper
+{
+public:
+  // army, singular troop
+  battleTroopWrapper(std::vector<std::string>, std::vector<std::pair<std::string, int>>);
+
+  // army
+  battleTroopWrapper(std::vector<std::string>);
+
+  // singular troop
+  battleTroopWrapper(std::vector<std::pair<std::string, int>>);
+};
+
+class BattleUnit
+{
+public:
+  // country, region, your side troop, enemy side troop
+  BattleUnit(std::string, std::string, battleTroopWrapper, battleTroopWrapper);
+};
+
+class BattlePlanUnit
+{
+public:
+  std::vector<std::string> armyAssigned = {};
+  std::vector<std::string> activated = {};
+
+  std::string target = NULL;
+  // region coordinate to be attacked in order
+  std::vector<std::string> order = {};
+};
+
+namespace data{
 
   struct Army
   {

@@ -14,7 +14,7 @@ main.exe: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/me
 objectFiles/main.o: main.cpp class/game/game.h menu/menu.h io/io.h action/stat/stat.h action/setting/setting.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/gamec.o: class/game/game.cpp class/game/game.h class/game/gameStruct.h class/game/gameUnit.h lib/uuid/uuid.hpp
+objectFiles/gamec.o: class/game/game.cpp class/game/game.h class/game/gameStruct.h lib/uuid/uuid.hpp
 	g++ ${CPPFLAGS} -c $< -o $@
 
 objectFiles/io.o: io/io.cpp io/io.h
@@ -128,10 +128,10 @@ objectFiles/gameTrainSubf.o: class/game/actionClass/gameTrainSub.cpp class/game/
 objectFiles/gameRemoveSubf.o: class/game/actionClass/gameRemoveTroopSub.cpp class/game/game.h data/troop/troop.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/armyUnit.o: class/game/gameUnit/armyUnit.cpp class/game/gameUnit.h
+objectFiles/armyUnit.o: class/game/gameUnit/armyUnit.cpp class/game/gameStruct.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
-objectFiles/gameArmy.o: class/game/actionClass/gameArmy.cpp class/game/game.h io/io.h class/game/gameUnit.h
+objectFiles/gameArmy.o: class/game/actionClass/gameArmy.cpp class/game/game.h io/io.h class/game/gameStruct.h data/troop/troop.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 clean:

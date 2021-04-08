@@ -28,7 +28,7 @@ void Game::trainInfantry(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.infantry[0]++;
       },
-      Infantry::trainingCamp, 0, Infantry::trainingTime, 1);
+      Infantry::trainingCamp, 0, Infantry::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -57,7 +57,7 @@ void Game::trainCalvary(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.calvary[0]++;
       },
-      Calvary::trainingCamp, 0, Calvary::trainingTime, 1);
+      Calvary::trainingCamp, 0, Calvary::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -86,7 +86,7 @@ void Game::trainSuicideBomber(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.suicideBomber[0]++;
       },
-      SuicideBomber::trainingCamp, 0, SuicideBomber::trainingTime, 1);
+      SuicideBomber::trainingCamp, 0, SuicideBomber::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -115,7 +115,7 @@ void Game::trainLogistic(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.logistic[0]++;
       },
-      Logistic::trainingCamp, 0, Logistic::trainingTime, 1);
+      Logistic::trainingCamp, 0, Logistic::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -144,7 +144,7 @@ void Game::trainArtillery(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.artillery[0]++;
       },
-      Artillery::trainingCamp, 0, Artillery::trainingTime, 1);
+      Artillery::trainingCamp, 0, Artillery::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -173,7 +173,7 @@ void Game::trainArmoredCar(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.armoredCar[0]++;
       },
-      ArmoredCar::trainingCamp, 0, ArmoredCar::trainingTime, 1);
+      ArmoredCar::trainingCamp, 0, ArmoredCar::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -202,7 +202,7 @@ void Game::trainTank1(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.tank1[0]++;
       },
-      Tank1::trainingCamp, 0, Tank1::trainingTime, 1);
+      Tank1::trainingCamp, 0, Tank1::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -231,7 +231,7 @@ void Game::trainTank2(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.tank2[0]++;
       },
-      Tank2::trainingCamp, 0, Tank2::trainingTime, 1);
+      Tank2::trainingCamp, 0, Tank2::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -260,7 +260,7 @@ void Game::trainTankOshimai(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.tankOshimai[0]++;
       },
-      TankOshimai::trainingCamp, 0, TankOshimai::trainingTime, 1);
+      TankOshimai::trainingCamp, 0, TankOshimai::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -289,7 +289,7 @@ void Game::trainCas(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.cas[0]++;
       },
-      Cas::trainingCamp, 1, Cas::trainingTime, 1);
+      Cas::trainingCamp, 1, Cas::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -318,7 +318,7 @@ void Game::trainFighter(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.fighter[0]++;
       },
-      Fighter::trainingCamp, 1, Fighter::trainingTime, 1);
+      Fighter::trainingCamp, 1, Fighter::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -347,7 +347,7 @@ void Game::trainBomber(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.bomber[0]++;
       },
-      Bomber::trainingCamp, 1, Bomber::trainingTime, 1);
+      Bomber::trainingCamp, 1, Bomber::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -376,7 +376,7 @@ void Game::trainKamikaze(int &gamePhase, int prevGamePhase)
         troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
         troop.kamikaze[0]++;
       },
-      Kamikaze::trainingCamp, 1, Kamikaze::trainingTime, 1);
+      Kamikaze::trainingCamp, 1, Kamikaze::trainingTime * this->resource->baseTrainingTimeMul, 1);
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);

@@ -16,27 +16,23 @@
 
 #include "../game.h"
 #include "../../../io/io.h"
-#include "../gameUnit.h"
-
+#include "../gameStruct.h"
 #include "../../../data/troop/troop.h"
-#include <tuple>
 
 // the structure is similar to that of game
 // reason why it is not done in game is because the number of armies are dynamic and it would be messy to deal with it in game
+
+// flow:
+// armyphase 0: prints all armies with the ability to scroll
+// phase 1: create new army
+// phase 2: edit army
+
+// scrolling feature is implemented by repainting the terminal
+// I have a fixed size vector that contains the same amount of chars to be printed everytime (may change after user action, but the terminal will be cleared after any user action and army will not disappear on its own)
+// every frame I will output the char vector and print cover the old one
 void Game::gameArmy(int &currentPhase, int prevPhase)
 {
   this->lguser.unlock();
-
-  this->lg3.lock();
-  this->army->total["Hisshou"] = new ArmyUnit("Hisshou", {std::make_tuple(0, 0, new Infantry(this->uuid())), std::make_tuple(1, 0, new TankOshimai(this->uuid()))});
-  this->army->total["Hisshou2"] = new ArmyUnit("Hisshou2");
-  this->army->total["Hisshou2"]->inBattle = true;
-  this->army->total["Hisshou3"] = new ArmyUnit("Hisshou3");
-  this->army->total["Hisshou32"] = new ArmyUnit("Hisshou32");
-  this->army->total["Hisshou31"] = new ArmyUnit("Hisshou31");
-  this->army->total["Hisshou33"] = new ArmyUnit("Hisshou33");
-  this->army->total["Hisshou34"] = new ArmyUnit("Hisshou34");
-  this->lg3.unlock();
 
   int displayRange[2] = {this->screenHeight - 9, this->screenWidth};
 
@@ -112,19 +108,19 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   int moved[2] = {0, 0};
 
   std::vector<std::vector<std::function<void()>>> actionPhase2Pick = {
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[0]);pickMode=false; }, [&]() {removeTroop(armyPhaseSelect);pickMode=false; }},
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[1]);pickMode=false; }},
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[2]);pickMode=false; }},
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[3]);pickMode=false; }},
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[4]);pickMode=false; }},
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[5]);pickMode=false; }},
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[6]);pickMode=false; }},
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[7]);pickMode=false; }},
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[8]);pickMode=false; }},
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[9]);pickMode=false; }},
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[10]);pickMode=false; }},
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[11]);pickMode=false; }},
-      {[&]() {posTroop(armyPhaseSelect,posToTroop[12]);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[0]);pickMode=false; }, [&]() {if(armyPhaseSelect[0] > 3) return;removeTroop(armyPhaseSelect);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[1]);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[2]);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[3]);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[4]);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[5]);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[6]);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[7]);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[8]);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[9]);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[10]);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[11]);pickMode=false; }},
+      {[&]() {if(armyPhaseSelect[0] > 3) return;posTroop(armyPhaseSelect,posToTroop[12]);pickMode=false; }},
       {[&]() {pickTroop[0] = 0;
           pickTroop[1] = 0;pickMode=false; }}};
 
@@ -183,6 +179,8 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   armyPhase0 = [&]() {
     this->lg3.lock();
     actionPhase0 = {{[&]() {
+      if (this->army->total.size() == 10)
+        return;
       armyPhaseSelect[0] = 0;
       armyPhaseSelect[1] = 0;
       moved[0] = 0;
@@ -242,19 +240,19 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
           for (int k = 3; k >= 0; k--)
           {
 
-            if (i.second->formation[k][j] == NULL)
+            if (i.second->formation[j][k] == NULL)
             {
-              content.back() += "None" + std::string(20 - 4, ' ');
+              content.back() += "None" + std::string(25 - 4, ' ');
             }
             else
             {
-              content.back() += typeToDisplay[i.second->formation[k][j]->type] + "(";
+              content.back() += typeToDisplay[i.second->formation[j][k]->type] + "(";
 
               // casting down from double to int
-              int hp = i.second->formation[k][j]->getHealth();
-              int baseHp = typeToHp[i.second->formation[k][j]->type];
+              int hp = i.second->formation[j][k]->getHealth();
+              int baseHp = typeToHp[i.second->formation[j][k]->type];
               content.back() += std::to_string(hp) + "/" + std::to_string(baseHp) + ")";
-              content.back() += std::string(12 + (4 - k) * 20 - content.back().length(), ' ');
+              content.back() += std::string((j == 0 ? 12 : 0) + (4 - k) * 25 - content.back().length(), ' ');
             }
           }
         }
@@ -262,13 +260,13 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
         if (i.second->inBattle)
         {
           content[content.size() - 5] += "   Retreat";
-          placement.back().push_back(93);
+          placement.back().push_back(12 + 25 * 4 + 1);
         }
         else
         {
           content[content.size() - 5] += "   Edit   Remove";
-          placement.back().push_back(93);
-          placement.back().push_back(100);
+          placement.back().push_back(12 + 25 * 4 + 1);
+          placement.back().push_back(12 + 25 * 4 + 8);
         }
       }
     }
@@ -292,7 +290,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
               << std::endl;
     std::cout << (armyPhaseSelect[0] == 0 ? " > " : "   ") + underline("New Army", "green") << std::endl;
 
-    int displayContent[2] = {(int)content.size(), 108};
+    int displayContent[2] = {(int)content.size(), 12 + 25 * 4 + 16};
     int movableRange[2] = {std::max(displayContent[0] - displayRange[0], 0), std::max(displayContent[1] - displayRange[1], 0)};
 
     moved[0] = std::min(std::max(0, moved[0]), movableRange[0]);
@@ -378,16 +376,18 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
         std::cout << "\033[1A\033[K";
         std::cout << std::endl
                   << std::endl;
-        std::cout << "Only letters and numbers are allowed!";
-        std::cout << "\033[2;" + std::to_string(input.size() + 1) + "f";
+        std::cout << "\033[K"
+                  << "Only letters and numbers are allowed!";
+        std::cout << "\033[2;1f";
       }
-      else if (this->army->total.count(input) != 0)
+      else if (this->army->total.count(temp) != 0)
       {
         std::cout << "\033[1A\033[K";
         std::cout << std::endl
                   << std::endl;
-        std::cout << "Army name already exists!";
-        std::cout << "\033[2;" + std::to_string(input.size() + 1) + "f";
+        std::cout << "\033[K"
+                  << "Army name already exists!";
+        std::cout << "\033[2;1f";
       }
       else
       {
@@ -453,10 +453,10 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
               << "   Total equipment: " + equipment.str() << std::endl
               << std::endl;
 
-    std::cout << std::setw(23 + 11) << color("   Column D", "green")
-              << std::setw(23 + 11) << color("   Column C", "green")
-              << std::setw(23 + 11) << color("   Column B", "green")
-              << std::setw(23 + 11) << color("   Column A", "green")
+    std::cout << std::setw(25 + 11) << color("   Column D", "green")
+              << std::setw(25 + 11) << color("   Column C", "green")
+              << std::setw(25 + 11) << color("   Column B", "green")
+              << std::setw(25 + 11) << color("   Column A", "green")
               << std::string(15, ' ') + color("   Troop Type", "green") << std::endl;
 
     if (pickMode)
@@ -478,21 +478,54 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
       for (int j = 3; j >= 0; j--)
       {
         if (this->army->total[armySelected]->formation[i][j] == NULL)
-          std::cout << std::setw(23) << prefixPhase2Pick[i][3 - j] + "None";
+          std::cout << std::setw(25) << prefixPhase2Pick[i][3 - j] + "None";
         else
-          std::cout << std::setw(23) << prefixPhase2Pick[i][3 - j] + typeToDisplay[this->army->total[armySelected]->formation[i][j]->type] + " (" + std::to_string((int)this->army->total[armySelected]->formation[i][j]->getHealth()) + "/" + std::to_string(typeToHp[this->army->total[armySelected]->formation[i][j]->type]) + ")";
+          std::cout << std::setw(25) << prefixPhase2Pick[i][3 - j] + typeToDisplay[this->army->total[armySelected]->formation[i][j]->type] + " (" + std::to_string((int)this->army->total[armySelected]->formation[i][j]->getHealth()) + "/" + std::to_string(typeToHp[this->army->total[armySelected]->formation[i][j]->type]) + ")";
       }
-      std::cout << std::string(15, ' ') << std::setw(18) << prefixPhase2Troop[i][0] + posToTroop[i] << " (" + std::to_string(this->troop->helper[posToTroop[i]](0)) + ")";
+      std::cout << std::string(15, ' ') << std::setw(18) << prefixPhase2Troop[i][0] + posToTroop[i] << " (" + std::to_string(this->troop->helper[posToTroop[i]](0)) + ")" + " (shortcut: " + std::to_string(i + 1) + ")";
       if (i == 0)
-        std::cout << prefixPhase2Troop[0][1] << underline("Remove", "green");
+        std::cout << prefixPhase2Troop[0][1] << underline("Remove", "green") << " (shortcut: 0)";
       std::cout << std::endl;
     }
-    std::cout << std::string(23 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[4][0] + posToTroop[4] << " (" + std::to_string(this->troop->helper[posToTroop[4]](0)) + ")" << std::endl;
-    std::cout << std::setw(23 * 4 + 11 + 15) << prefixPhase2Pick[4][0] + underline("Back", "green") + " (Or spacebar)" << std::setw(18) << prefixPhase2Troop[5][0] + posToTroop[5] << " (" + std::to_string(this->troop->helper[posToTroop[5]](0)) + ")" << std::endl;
-    for (int i = 5; i < 13; i++)
-      std::cout << std::string(23 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[i][0] + posToTroop[i] << " (" + std::to_string(this->troop->helper[posToTroop[i]](0)) + ")" << std::endl;
+    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[4][0] + posToTroop[4] << " (" + std::to_string(this->troop->helper[posToTroop[4]](0)) + ")"
+              << " (shortcut: 4)" << std::endl;
+    std::cout << std::setw(25 * 4 + 11 + 15) << prefixPhase2Pick[4][0] + underline("Back", "green") + " (Or spacebar)" << std::setw(18) << prefixPhase2Troop[5][0] + posToTroop[5] << " (" + std::to_string(this->troop->helper[posToTroop[5]](0)) + ")"
+              << " (shortcut: 5)" << std::endl;
+    for (int i = 6; i < 9; i++)
+      std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[i][0] + posToTroop[i] << " (" + std::to_string(this->troop->helper[posToTroop[i]](0)) + ")"
+                << " (shortcut: " + std::to_string(i + 1) + ")" << std::endl;
+    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[9][0] + posToTroop[9] << " (" + std::to_string(this->troop->helper[posToTroop[9]](0)) + ")"
+              << " (shortcut: q)" << std::endl;
+    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[10][0] + posToTroop[10] << " (" + std::to_string(this->troop->helper[posToTroop[10]](0)) + ")"
+              << " (shortcut: w)" << std::endl;
+    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[11][0] + posToTroop[11] << " (" + std::to_string(this->troop->helper[posToTroop[11]](0)) + ")"
+              << " (shortcut: e)" << std::endl;
+    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[12][0] + posToTroop[12] << " (" + std::to_string(this->troop->helper[posToTroop[12]](0)) + ")"
+              << " (shortcut: r)" << std::endl;
+
     std::cout << std::endl;
-    std::cout << std::string(23 * 4 + 15, ' ') << prefixPhase2Troop[13][0] << underline("Back", "green") << std::endl;
+    std::cout << std::string(23 * 4 + 15, ' ') << prefixPhase2Troop[13][0] << underline("Back to Army", "green") << std::endl;
+    this->lg3.unlock();
+  };
+
+  posTroop = [&](int *pos, std::string type) {
+    this->lg3.lock();
+    if (this->troop->helper[type](0) == 0)
+    {
+      this->lg3.unlock();
+      return;
+    }
+    if (type == "logistic" && this->army->total[armySelected]->logisticCount == 2)
+    {
+      this->lg3.unlock();
+      return;
+    }
+    this->army->total[armySelected]->addTroop(pos[0], 3 - pos[1], type, this->troop, this->resource);
+    this->lg3.unlock();
+  };
+  removeTroop = [&](int *pos) {
+    this->lg3.lock();
+    this->army->total[armySelected]->removeTroop(pos[0], 3 - pos[1], this->troop, this->resource);
     this->lg3.unlock();
   };
 
@@ -501,10 +534,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   (*armyPhaseF[armyPhase])();
   while (1)
   {
-    int prevArmyPhase = armyPhase;
-
     input = getch();
-
     if (input == '\033')
     {
       getch();
@@ -520,6 +550,12 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
           break;
         case 'B':
           pickTroop[0]++;
+          break;
+        case 'C':
+          pickTroop[1]++;
+          break;
+        case 'D':
+          pickTroop[1]--;
           break;
         }
       }
@@ -546,40 +582,97 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
       this->lg3.unlock();
     }
     else if (input == ' ')
-      armyPhase = -999;
+    {
+      if (armyPhase == 0)
+        armyPhase = -999;
+      else if (armyPhase == 2)
+        armyPhase = 0;
+    }
+
     else if (input == '\n')
     {
       if (armyPhase == 0)
         actionPhase0[armyPhaseSelect[0]][armyPhaseSelect[1]]();
       else if (armyPhase == 2)
       {
-        std::cout << armyPhaseSelect[0] << ' ' << armyPhaseSelect[1] << std::endl;
         if (pickMode)
-          actionPhase2Troop[pickTroop[0]][pickTroop[1]]();
+          actionPhase2Pick[pickTroop[0]][pickTroop[1]]();
         else
-          actionPhase2Pick[armyPhaseSelect[0]][armyPhaseSelect[1]]();
+          actionPhase2Troop[armyPhaseSelect[0]][armyPhaseSelect[1]]();
       }
     }
     else
     {
-      this->lg3.lock();
-      inputMode = 1;
-      switch (input)
+
+      if (armyPhase == 0)
       {
-      case 'w':
-        moved[0]--;
-        break;
-      case 's':
-        moved[0]++;
-        break;
-      case 'd':
-        moved[1]++;
-        break;
-      case 'a':
-        moved[1]--;
-        break;
-      };
-      this->lg3.unlock();
+        this->lg3.lock();
+        inputMode = 1;
+        switch (input)
+        {
+        case 'w':
+          moved[0]--;
+          break;
+        case 's':
+          moved[0]++;
+          break;
+        case 'd':
+          moved[1]++;
+          break;
+        case 'a':
+          moved[1]--;
+          break;
+        };
+        this->lg3.unlock();
+      }
+      else if (armyPhase == 2)
+      {
+        switch (input)
+        {
+        case '0':
+          actionPhase2Pick[0][1]();
+          break;
+        case '1':
+          actionPhase2Pick[0][0]();
+          break;
+        case '2':
+          actionPhase2Pick[1][0]();
+          break;
+        case '3':
+          actionPhase2Pick[2][0]();
+          break;
+        case '4':
+          actionPhase2Pick[3][0]();
+          break;
+        case '5':
+          actionPhase2Pick[4][0]();
+          break;
+        case '6':
+          actionPhase2Pick[5][0]();
+          break;
+        case '7':
+          actionPhase2Pick[6][0]();
+          break;
+        case '8':
+          actionPhase2Pick[7][0]();
+          break;
+        case '9':
+          actionPhase2Pick[8][0]();
+          break;
+        case 'q':
+          actionPhase2Pick[9][0]();
+          break;
+        case 'w':
+          actionPhase2Pick[10][0]();
+          break;
+        case 'e':
+          actionPhase2Pick[11][0]();
+          break;
+        case 'r':
+          actionPhase2Pick[12][0]();
+          break;
+        };
+      }
     }
 
     stopLoopArmyPhase0();
