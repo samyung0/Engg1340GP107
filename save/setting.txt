@@ -1,2 +1,1 @@
-speed=500
-fps=60
+speed=2000

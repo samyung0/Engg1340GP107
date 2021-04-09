@@ -1,4 +1,4 @@
-time:-=450
+time:-=10
 baseLand:-=20
 building:farm-0=3
 building:civilianFactory-0=5

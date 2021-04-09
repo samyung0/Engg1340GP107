@@ -27,6 +27,7 @@ public:
 private:
   std::string path;
   int timeLimit = 0;
+  bool gameOver = false;
 
   // similar to how menu phase works, we progress the phase number according to use actions
   std::vector<std::vector<std::vector<int>>> map{
@@ -425,22 +426,26 @@ private:
   void restart();
   void quit();
 
-  // Note timer only progress day variable and battle progresses
+  // Note timer only progress day variable and battle
   // training troop/ building have their own async loops
   // reason is because the user can start a progress at anytime so it owuld be impossible to use a single loop for all progresses
 
   void timer(int time)
   {
-    while (!this->terminate)
+    while (1)
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(time));
 
       this->lg.lock();
       this->day++;
+      if(this->day >= this->timeLimit) {
+        this->gameOver = true;
+        this->lg.unlock();
+        break;
+      }
       this->lg.unlock();
     }
   }
-  bool terminate = false;
   bool terminatePrint = false;
   bool terminateBuild = false;
   bool terminateResearch = false;
@@ -451,7 +456,6 @@ private:
   std::condition_variable terminateTroopCV;
 
   int day = 1;
-  std::vector<Progress *> progress;
 
   // key: speed
   std::unordered_map<std::string, int> setting;

@@ -294,9 +294,10 @@ void Game::start()
   this->timerThread = new std::thread(&Game::timer, this, this->setting["speed"]);
 
   char input;
-
   (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
-  while (1)
+  
+  // possible data race for gameover
+  while (!gameOver)
   {
     int prevGamePhase = this->gamePhase;
 
@@ -369,9 +370,10 @@ void Game::start()
       (this->*this->action[-this->gamePhase])(this->gamePhase, prevGamePhase);
       this->lguser.unlock();
     }
+    
   }
 
-  // terminate timer thread
-  this->terminate = true;
-  timerThread->join();
+  // timer thread terminates itself and the main while loop
+  std::cout<<"\033c"<<std::endl;
+  std::cout << "Game ends!" << std::endl;
 }
