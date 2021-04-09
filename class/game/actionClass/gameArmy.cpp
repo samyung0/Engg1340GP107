@@ -97,8 +97,8 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   std::function<void()> stopLoopArmyPhase2;
   std::function<void()> armyPhase2;
 
-  std::function<void(ArmyUnit*)> removeArmy;
-  std::function<void(ArmyUnit*)> retreatArmy;
+  std::function<void(ArmyUnit *)> removeArmy;
+  std::function<void(ArmyUnit *)> retreatArmy;
   std::function<void(int *, std::string)> posTroop;
   std::function<void(int *)> removeTroop;
 
@@ -139,11 +139,11 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
 
   loopArmyPhase0 = [&]() { phase0 = std::async(std::launch::async, [&]() {
                              terminatePhase0 = false;
-                             while (!terminatePhase0)
+                             while (!terminatePhase0 && !this->gameOver)
                              {
                                armyPhase0();
                                std::unique_lock<std::mutex> lock(phase0a);
-                               terminatePhase0Cond.wait_for(lock, std::chrono::milliseconds(1000 / 10));
+                               terminatePhase0Cond.wait_for(lock, std::chrono::milliseconds(1000 / this->fps));
                              }
                            }); };
   stopLoopArmyPhase0 = [&]() {
@@ -158,11 +158,11 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   };
   loopArmyPhase2 = [&]() { phase2 = std::async(std::launch::async, [&]() {
                              terminatePhase2 = false;
-                             while (!terminatePhase2)
+                             while (!terminatePhase2 && !this->gameOver)
                              {
                                armyPhase2();
                                std::unique_lock<std::mutex> lock(phase2a);
-                               terminatePhase2Cond.wait_for(lock, std::chrono::milliseconds(1000 / 10));
+                               terminatePhase2Cond.wait_for(lock, std::chrono::milliseconds(1000 / this->fps));
                              }
                            }); };
   stopLoopArmyPhase2 = [&]() {
@@ -225,47 +225,47 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
 
     for (auto &i : this->army->total)
     {
-        placement.push_back({});
-        content.push_back("");
-        content.back() += i.second->name + std::string(10 - i.second->name.length(), ' ') + ": ";
+      placement.push_back({});
+      content.push_back("");
+      content.back() += i.second->name + std::string(10 - i.second->name.length(), ' ') + ": ";
 
-        for (int j = 0; j < 4; j++)
+      for (int j = 0; j < 4; j++)
+      {
+        if (j != 0)
         {
-          if (j != 0)
+          content.push_back("");
+        }
+        for (int k = 3; k >= 0; k--)
+        {
+
+          if (i.second->formation[j][k] == NULL)
           {
-            content.push_back("");
+            content.back() += "None" + std::string(25 - 4, ' ');
           }
-          for (int k = 3; k >= 0; k--)
+          else
           {
+            content.back() += typeToDisplay[i.second->formation[j][k]->type] + "(";
 
-            if (i.second->formation[j][k] == NULL)
-            {
-              content.back() += "None" + std::string(25 - 4, ' ');
-            }
-            else
-            {
-              content.back() += typeToDisplay[i.second->formation[j][k]->type] + "(";
-
-              // casting down from double to int
-              int hp = i.second->formation[j][k]->getHealth();
-              int baseHp = typeToHp[i.second->formation[j][k]->type];
-              content.back() += std::to_string(hp) + "/" + std::to_string(baseHp) + ")";
-              content.back() += std::string((j == 0 ? 12 : 0) + (4 - k) * 25 - content.back().length(), ' ');
-            }
+            // casting down from double to int
+            int hp = i.second->formation[j][k]->getHealth();
+            int baseHp = typeToHp[i.second->formation[j][k]->type];
+            content.back() += std::to_string(hp) + "/" + std::to_string(baseHp) + ")";
+            content.back() += std::string((j == 0 ? 12 : 0) + (4 - k) * 25 - content.back().length(), ' ');
           }
         }
-        content.push_back("");
-        if (i.second->inBattle)
-        {
-          content[content.size() - 5] += "   Retreat";
-          placement.back().push_back(12 + 25 * 4 + 1);
-        }
-        else
-        {
-          content[content.size() - 5] += "   Edit   Remove";
-          placement.back().push_back(12 + 25 * 4 + 1);
-          placement.back().push_back(12 + 25 * 4 + 8);
-        }
+      }
+      content.push_back("");
+      if (i.second->inBattle)
+      {
+        content[content.size() - 5] += "   Retreat";
+        placement.back().push_back(12 + 25 * 4 + 1);
+      }
+      else
+      {
+        content[content.size() - 5] += "   Edit   Remove";
+        placement.back().push_back(12 + 25 * 4 + 1);
+        placement.back().push_back(12 + 25 * 4 + 8);
+      }
     }
     placement.push_back({1});
 
@@ -524,32 +524,36 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
     this->lg3.unlock();
   };
 
-  removeArmy = [&](ArmyUnit * army){
-    for(int i=0;i<4;i++)
-      for(int j=0;j<4;j++)
-        army->removeTroop(i,j,this->troop, this->resource);
+  removeArmy = [&](ArmyUnit *army) {
+    for (int i = 0; i < 4; i++)
+      for (int j = 0; j < 4; j++)
+        army->removeTroop(i, j, this->troop, this->resource);
     std::string name = army->name;
     delete army;
     this->army->total.erase(name);
   };
 
-  retreatArmy = [&](ArmyUnit * army){
+  retreatArmy = [&](ArmyUnit *army) {
     int index = -1;
-    int index2[2]= {-1,-1};
+    int index2[2] = {-1, -1};
 
     this->lg3.lock();
 
-    for(int i=0;i< this->enemies->totalEnemies.size();i++)
-      if(this->enemies->totalEnemies[i]->name == army->battleRegion.first){
+    for (int i = 0; i < this->enemies->totalEnemies.size(); i++)
+      if (this->enemies->totalEnemies[i]->name == army->battleRegion.first)
+      {
         index = i;
         break;
       }
 
     assert(index != -1);
 
-    for(int i=0;i<this->enemies->totalEnemies[index]->map.size();i++){
-      for(int j=0;j<this->enemies->totalEnemies[index]->map[i].size();j++){
-        if(this->enemies->totalEnemies[index]->map[i][j]->name == army->battleRegion.second){
+    for (int i = 0; i < this->enemies->totalEnemies[index]->map.size(); i++)
+    {
+      for (int j = 0; j < this->enemies->totalEnemies[index]->map[i].size(); j++)
+      {
+        if (this->enemies->totalEnemies[index]->map[i][j]->name == army->battleRegion.second)
+        {
           index2[0] = i;
           index2[1] = j;
         }
@@ -569,6 +573,13 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   while (1)
   {
     input = getch();
+    if (this->gameOver)
+    {
+      stopLoopArmyPhase0();
+      stopLoopArmyPhase2();
+      break;
+    }
+
     if (input == '\033')
     {
       getch();

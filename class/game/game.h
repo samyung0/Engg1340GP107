@@ -28,6 +28,7 @@ private:
   std::string path;
   int timeLimit = 0;
   bool gameOver = false;
+  bool levelPassed = false;
 
   // similar to how menu phase works, we progress the phase number according to use actions
   std::vector<std::vector<std::vector<int>>> map{
@@ -129,7 +130,8 @@ private:
       &Game::trainFighter, &Game::trainFighter5, &Game::trainFighter10, &Game::trainFightermax, &Game::removeFighter, &Game::removeFightermax,
       &Game::trainBomber, &Game::trainBomber5, &Game::trainBomber10, &Game::trainBombermax, &Game::removeBomber, &Game::removeBombermax,
       &Game::trainKamikaze, &Game::trainKamikaze5, &Game::trainKamikaze10, &Game::trainKamikazemax, &Game::removeKamikaze, &Game::removeKamikazemax,
-      &Game::gameArmy};
+      &Game::gameArmy,
+      &Game::sensou};
 
   std::thread *timerThread;
   std::future<void> loopPrintStatusThread;
@@ -421,10 +423,14 @@ private:
   void removeBombermax(int &, int);
   void removeKamikazemax(int &, int);
 
+  void sensou(int &, int);
+
   void pause();
   void saveAs();
   void restart();
   void quit();
+
+  void endGame();
 
   // Note timer only progress day variable and battle
   // training troop/ building have their own async loops
@@ -440,6 +446,7 @@ private:
       this->day++;
       if(this->day >= this->timeLimit) {
         this->gameOver = true;
+        this->endGame();
         this->lg.unlock();
         break;
       }

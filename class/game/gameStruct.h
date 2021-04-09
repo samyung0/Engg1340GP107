@@ -274,7 +274,7 @@ public:
   std::pair<std::string, std::string> battleRegion = {};
 
   double calsualtyCount = 0;
-  // calculated by dividing lost troops/ total troops x 100
+  // calculated by dividing lost troops/ total troops
   double casualtyPercentage = 0;
 
   // pointer to troops
@@ -307,8 +307,9 @@ public:
   // all troops within army should have same subsequential strength
   // double subsequentialStrength = 1.0;
 
-  // calc and deal damage to all troops within the army during battle
-  void calcDamage(Damage &);
+  // take and deal damage to all troops within the army during battle
+  void takeDamage(Damage &);
+  void dealDamage(Damage &);
 
   // remove troops that have 0 health or below
   void cleanUp();
@@ -343,6 +344,11 @@ public:
   BattleTroopWrapper *mikata;
   BattleTroopWrapper *foe;
 
+  // may the better Hoi player win
+  void fight();
+  void clean();
+  void regen();
+
   // stats
   int duration = 0;
   double damageDealt = 0;
@@ -358,6 +364,21 @@ public:
       {"cas", 0},
       {"fighter", 0},
       {"Bomber", 0},
+  };
+  std::unordered_map<std::string, int> deathCount = {
+      {"infantry", 0},
+      {"calvary", 0},
+      {"suicideBomber", 0},
+      {"artillery", 0},
+      {"logistic", 0},
+      {"armoredCar", 0},
+      {"tank1", 0},
+      {"tank2", 0},
+      {"tankOshimai", 0},
+      {"cas", 0},
+      {"fighter", 0},
+      {"Bomber", 0},
+      {"kamikaze", 0},
   };
 };
 
@@ -396,6 +417,19 @@ public:
 
   std::vector<ArmyUnit *> totalFoeArmy;
   std::vector<TroopUnit *> totalFoeTroop;
+  std::unordered_map<std::string, int> foeCount = {
+    {"infantry", 0},
+    {"calvary", 0},
+    {"logistic", 0},
+    {"armoredCar", 0},
+    {"tank1", 0},
+    {"tank2", 0},
+    {"tankOshimai", 0},
+    {"cas", 0},
+    {"fighter", 0},
+    {"bomber", 0},
+    {"army", 0}
+  };
 
   int total = 0;
 
@@ -514,6 +548,8 @@ public:
   int totalLand = 0;
   int capturedLand = 0;
   bool capitulated = false;
+
+  int battlingRegions = 0;
 
   std::vector<std::vector<Block *>> map;
 };

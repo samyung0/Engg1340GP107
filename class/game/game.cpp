@@ -43,6 +43,17 @@ Game::Game(std::unordered_map<std::string, int> setting_, const int screenX_, co
   enemies = new data::Enemies();
 }
 
+void Game::endGame()
+{
+  this->stopLoopPrintStatus();
+  this->stopLoopPrintBuild();
+  this->stopLoopPrintResearch();
+  this->stopLoopPrintTroop();
+
+  std::cout << "\033c" << std::endl;
+  std::cout << "Game ended. Press any key to continue..." << std::endl;
+}
+
 // fetch level data from .dat files
 void Game::fetch()
 {
@@ -134,13 +145,13 @@ void Game::fetch()
             mapA.back().push_back(new Block(this->troop, this->resource, this->battle));
             mapA.back().back()->country = country;
 
-            std::vector<int> sep = {(int)map.find(",")};
+            std::vector<int> sep = {(int)map.find(",", i2)};
             for (int i = 0; i < 10; i++)
               sep.push_back((int)map.find(",", sep.back() + 1));
             for (int i = 0; i < 11; i++)
               assert(sep[i] != std::string::npos);
 
-            std::string name = map.substr(i3 + 1, sep[0] - i3 - 1);
+            std::string name = map.substr(i2 + 1, sep[0] - i2 - 1);
             mapA.back().back()->name = name;
 
             std::cout << "Block name done" << std::endl;
@@ -148,6 +159,7 @@ void Game::fetch()
             for (int i = 0; i < 11; i++)
             {
               int num = std::atoi(map.substr(sep[i] + 1, sep[i + 1] - sep[i] - 1).c_str());
+              mapA.back().back()->foeCount[indexToTroop[i]] += num;
               for (int j = 0; j < num; j++)
                 mapA.back().back()->totalFoeTroop.push_back(troopToInstance[indexToTroop[i]]());
             }
@@ -157,6 +169,7 @@ void Game::fetch()
             int armySep = map.find("$");
             while (armySep != std::string::npos)
             {
+              mapA.back().back()->foeCount["army"]++;
               std::string uid = this->uuid();
               mapA.back().back()->totalFoeArmy.push_back(new ArmyUnit(uid));
 
@@ -189,6 +202,9 @@ void Game::fetch()
             int rewardStart = map.find("|", sep.back());
             int rewardEnd = map.find("|", rewardStart + 1);
 
+            assert(rewardStart != std::string::npos);
+            assert(rewardEnd != std::string::npos);
+
             std::vector<int> rewardSep = {(int)map.find(",", rewardStart)};
             for (int i = 0; i < 4; i++)
               rewardSep.push_back(map.find(",", rewardSep.back()));
@@ -205,8 +221,8 @@ void Game::fetch()
             std::cout << "Block acquirable done" << std::endl;
 
             int captureStart = map.find("^", rewardEnd);
-            int captureEnd = map.find("^", captureStart+1);
-            
+            int captureEnd = map.find("^", captureStart + 1);
+
             if (captureStart + 1 != captureEnd)
             {
               std::string sub = map.substr(captureStart + 1, captureEnd - captureStart - 1);
@@ -252,7 +268,7 @@ void Game::fetch()
             }
 
             std::cout << "Block encirclement done" << std::endl;
-            
+
             int terrainStart = map.find("(", encircleEnd);
             int terrainEnd = map.find(")", terrainStart);
             mapA.back().back()->terrain = map.substr(terrainStart + 1, terrainEnd - terrainStart - 1);
@@ -271,13 +287,15 @@ void Game::fetch()
         std::cout << "Block done" << std::endl;
       }
     }
-    else if(operand == "time"){
-      this->timeLimit = std::atoi(input.substr(index3+1).c_str());
+    else if (operand == "time")
+    {
+      this->timeLimit = std::atoi(input.substr(index3 + 1).c_str());
 
       std::cout << "Set time done" << std::endl;
     }
-    else if(operand == "baseLand"){
-      this->resource->baseLand = std::atoi(input.substr(index3+1).c_str());
+    else if (operand == "baseLand")
+    {
+      this->resource->baseLand = std::atoi(input.substr(index3 + 1).c_str());
 
       std::cout << "Set land done" << std::endl;
     }
@@ -285,7 +303,7 @@ void Game::fetch()
 
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-  std::cout<<"\033c"<<std::endl;
+  std::cout << "\033c" << std::endl;
   this->start();
 }
 
@@ -295,14 +313,16 @@ void Game::start()
 
   char input;
   (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
-  
+
   // possible data race for gameover
-  while (!gameOver)
+  while (1)
   {
     int prevGamePhase = this->gamePhase;
 
     // same method used in menuPhase
     input = getch();
+    if (gameOver)
+      break;
 
     if (input == '\033')
     {
@@ -370,10 +390,7 @@ void Game::start()
       (this->*this->action[-this->gamePhase])(this->gamePhase, prevGamePhase);
       this->lguser.unlock();
     }
-    
   }
 
   // timer thread terminates itself and the main while loop
-  std::cout<<"\033c"<<std::endl;
-  std::cout << "Game ends!" << std::endl;
 }

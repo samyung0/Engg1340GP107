@@ -26,7 +26,7 @@ void Game::printStatus(int x, int y)
   speed << std::fixed << std::setprecision(1) << this->setting["speed"] / 1000.0;
 
   std::cout << "\033[2J\033[1;1H";
-  std::cout << color("Day: ", "magenta") << this->day << " (" << speed.str() << "s)" << " /" << this->timeLimit
+  std::cout << color("Day: ", "magenta") << this->day << "/" << this->timeLimit << " (" << speed.str() << "s)"
             << std::endl
             << std::endl;
 

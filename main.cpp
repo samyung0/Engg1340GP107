@@ -148,8 +148,7 @@ int main()
           actionThread.join();
 
           // DOES NOT DELETE GAME when still unsaved
-          menuPhase = prevMenuPhase;
-          std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+          menuPhase = 0;
         }
         (*select[menuPhase])(menuPhaseSelect[0], menuPhaseSelect[1], gameStats);
       }
