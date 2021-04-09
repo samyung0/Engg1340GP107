@@ -142,7 +142,7 @@ public:
   void giveDamage(double, double, double, double, double, Damage &);
 
   void takeDamage(double);
-  
+
   // not used
   void increaseHealth(double){};
 
@@ -505,4 +505,5 @@ private:
   double food = 1;
   double hp = 0;
 };
+
 #endif

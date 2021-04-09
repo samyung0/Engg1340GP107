@@ -26,6 +26,7 @@ public:
 
 private:
   std::string path;
+  int timeLimit = 0;
 
   // similar to how menu phase works, we progress the phase number according to use actions
   std::vector<std::vector<std::vector<int>>> map{

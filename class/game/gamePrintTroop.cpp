@@ -153,6 +153,7 @@ void Game::printTroop(int x, int y)
             << "   Armies: " << this->army->total.size() << "/10"
             << "   Camps: " << this->resource->campUsed << "/"<<this->resource->camp
             << "   Airports: " << this->resource->airportUsed << "/"<<this->resource->airport
+            << "   Enemies: " << (this->enemies->totalEnemies.size() -this->enemies->defeated)  << "/"<<this->enemies->totalEnemies.size()
             << std::endl
             << std::endl;
 

@@ -31,12 +31,12 @@ namespace data
     // to be updated in game fetch
     double food = 0;
     double equipment = 0;
-    int manpower = 5;
+    int manpower = 0;
     int manpowerInUse = 0;
-    double baseLand = 100;
+    double baseLand = 0;
     double usedLand = 0;
     double capturedLand = 0;
-    int camp = 100;
+    int camp = 0;
     int campUsed = 0;
     int airport = 0;
     int airportUsed = 0;
@@ -182,6 +182,15 @@ namespace data
          }}},
     };
 
+    // again not sure why I didnt use a map to store the building data
+    // but its too late to change so I made a herlp function to return the buildings data
+    std::unordered_map<std::string, std::function<int(int)>> helper = {
+        {"farm", [&](int index) -> int { return farmL[index]; }},
+        {"militaryFactory", [&](int index) -> int { return militaryFactoryL[index]; }},
+        {"civilianFactory", [&](int index) -> int { return civilianFactoryL[index]; }},
+        {"trainingCamp", [&](int index) -> int { return trainingCampL[index]; }},
+        {"airport", [&](int index) -> int { return airportL[index]; }}};
+
     // type, id, desc
     std::vector<std::tuple<std::string, std::string, std::string>> progressTrack = {};
     std::unordered_map<std::string, Progress *> progress;
@@ -248,14 +257,13 @@ namespace data
     int totalFoodRequired = 0;
     int totalEquipmentRequired = 0;
   };
-  
+
 }
 
 class ArmyUnit
 {
 public:
   ArmyUnit(std::string);
-  ArmyUnit(std::string, std::vector<std::tuple<int, int, TroopUnit *>>);
 
   // name should be unique among other armies (used as key in army struct map)
   std::string name;
@@ -264,7 +272,6 @@ public:
   bool inBattle = false;
   // country name, region coordinate
   std::pair<std::string, std::string> battleRegion = {};
-
 
   double calsualtyCount = 0;
   // calculated by dividing lost troops/ total troops x 100
@@ -308,6 +315,9 @@ public:
 
   void addTroop(int y, int x, std::string, data::Troop *troop, data::Resource *resource);
   void removeTroop(int y, int x, data::Troop *troop, data::Resource *resource);
+
+  void addTroopM(int y, int x, TroopUnit* instance);
+  void removeTroopM(int y, int x);
 };
 
 // used to pass into battleUnit as a wrapper of how many troops are present (applicable to both enemy side and your side)
@@ -351,7 +361,8 @@ public:
   };
 };
 
-namespace data{
+namespace data
+{
   struct Battle
   {
     std::vector<BattleUnit *> total;
@@ -363,7 +374,7 @@ namespace data{
 class Block
 {
 public:
-  Block(data::Troop *troop_, data::Resource *resource_, data::Battle *battler_, std::string country_, std::string name_, std::vector<std::string> attackable_, std::vector<std::string> encircled_, std::unordered_map<std::string, int> acquirable_, int total_, std::string terrain_) : name(name_), attackable(attackable_), encircled(encircled_), acquirable(acquirable_), troop(troop_), resource(resource_), country(country_), total(total_), terrain(terrain_), battler(battler_) {}
+  Block(data::Troop *troop_, data::Resource *resource_, data::Battle *battler_) :troop(troop_),resource(resource_),battler(battler_) {}
   data::Troop *troop;
   data::Resource *resource;
   data::Battle *battler;
@@ -376,8 +387,8 @@ public:
   bool captured = false;
   bool battling = false;
 
-  std::vector<std::string> attackable;
-  std::vector<std::string> encircled;
+  std::vector<std::pair<int,int>> attackable;
+  std::vector<std::pair<int,int>> encircled;
 
   std::unordered_map<std::string, int> acquirable;
 
@@ -497,7 +508,7 @@ private:
 class Enemy
 {
 public:
-  Enemy(std::string name_, std::vector<std::vector<Block *>> map_) : name(name_), map(map_) {}
+  Enemy(std::string name_) : name(name_) {}
   std::string name;
 
   int totalLand = 0;
@@ -633,6 +644,7 @@ namespace data
   struct Enemies
   {
     std::vector<Enemy *> totalEnemies;
+    int defeated = 0;
   };
 
 }
