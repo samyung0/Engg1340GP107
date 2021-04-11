@@ -48,6 +48,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
   int scroll0[2] = {0, 0};
   int phase0[2] = {0, 0};
   int subPhase0[2] = {0, 0};
+  int subPhase0Mode = 0;
   int scroll1[2] = {0, 0};
   int phase1[2] = {0, 0};
   int subPhase1[2] = {0, 0};
@@ -165,6 +166,32 @@ void Game::sensou(int &gamePhase, int prevPhase)
     std::unordered_map<int, int> hasBlock;
     int start = -1;
     int end = -1;
+    int scrollable[2] = {std::max(0, (int)(ptr->map.size() * 3 + 1 - screen[0])), std::max(0, (int)(ptr->map[0].size() * 6 - screen[1]))};
+
+    scroll0[0] = std::min(std::max(scroll0[0], 0), scrollable[0]);
+    scroll0[1] = std::min(std::max(scroll0[1], 0), scrollable[1]);
+
+    if (subPhase0Mode == 1)
+    {
+      if (scroll0[0] > phase0[0] * 3)
+        phase0[0] = scroll0[0] / 3 + 1;
+      if (scroll0[0] + screen[0] <= phase0[0] * 3 + 1)
+        phase0[0] = (scroll0[0] + screen[0]) / 3 - 1;
+      if (scroll0[1] > phase0[1] * 6)
+        phase0[1] = scroll0[1] / 6 + 1;
+      if (scroll0[1] + screen[1] <= phase0[1] * 6 + 1)
+        phase0[1] = (scroll0[1] + screen[1]) / 6 - 1;
+      phase0[0] = (phase0[0] + ptr->map.size()) % ptr->map.size();
+    }
+    else if (subPhase0Mode == 0)
+    {
+      if (scroll0[0] > phase0[0] * 3)
+        scroll0[0] = phase0[0] * 3;
+      if (scroll0[0] + screen[0] <= phase0[0] * 3 + 1)
+        scroll0[0] = phase0[0] * 3 - screen[0] + 3;
+      scroll0[0] = std::min(std::max(scroll0[0], 0), scrollable[0]);
+      scroll0[1] = std::min(std::max(scroll0[1], 0), scrollable[1]);
+    }
     for (int i = 0; i < ptr->map[phase0[0]].size(); i++)
     {
       if (ptr->map[phase0[0]][i] != NULL)
@@ -242,6 +269,17 @@ void Game::sensou(int &gamePhase, int prevPhase)
         }
       }
     }
+
+    if (subPhase0Mode == 0)
+    {
+      if (scroll0[1] > phase0[1] * 6)
+        scroll0[1] = phase0[1] * 6;
+      if (scroll0[1] + screen[1] <= phase0[1] * 6 + 1)
+        scroll0[1] = phase0[1] * 6 - screen[1] + 6;
+      scroll0[0] = std::min(std::max(scroll0[0], 0), scrollable[0]);
+      scroll0[1] = std::min(std::max(scroll0[1], 0), scrollable[1]);
+    }
+    subPhase0Mode = -1;
 
     prePhase0[0] = phase0[0];
     prePhase0[1] = phase0[1];
@@ -353,7 +391,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
         break;
       }
 
-    int maxLength2 = 16;
+    int maxLength2 = 20;
     std::vector<std::string> render2;
     if (!inBattle || name == ptr->name)
       render2.push_back("   Send Troop (z)   ");
@@ -405,10 +443,6 @@ void Game::sensou(int &gamePhase, int prevPhase)
         maxLength4 = i.length();
     for (int i = 0; i < render4.size(); i++)
       render4[i] += std::string(maxLength4 - render4[i].length(), ' ');
-
-    int scrollable[2] = {std::max(0, (int)render.size() - screen[0]), std::max(0, (int)render[0].size() - screen[1])};
-    scroll0[0] = std::min(std::max(scroll0[0], 0), scrollable[0]);
-    scroll0[1] = std::min(std::max(scroll0[1], 0), scrollable[1]);
 
     std::cout << "\033[1;1H";
     std::cout << color("Battle", "magenta") << std::endl;
@@ -700,6 +734,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
       case 'A':
         if (mode == 0)
         {
+          subPhase0Mode = 0;
           if (subMode == 0)
             phase0[0]--;
           else
@@ -717,6 +752,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
       case 'B':
         if (mode == 0)
         {
+          subPhase0Mode = 0;
           if (subMode == 0)
             phase0[0]++;
           else
@@ -734,6 +770,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
       case 'C':
         if (mode == 0)
         {
+          subPhase0Mode = 0;
           if (subMode == 0)
             phase0[1]++;
           else
@@ -751,6 +788,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
       case 'D':
         if (mode == 0)
         {
+          subPhase0Mode = 0;
           if (subMode == 0)
             phase0[1]--;
           else
@@ -774,7 +812,10 @@ void Game::sensou(int &gamePhase, int prevPhase)
     else if (input == 'w')
     {
       if (mode == 0)
+      {
+        subPhase0Mode = 1;
         scroll0[0]--;
+      }
       else if (mode == 1)
       {
         subPhase1Mode = 1;
@@ -784,7 +825,11 @@ void Game::sensou(int &gamePhase, int prevPhase)
     else if (input == 'a')
     {
       if (mode == 0)
+      {
+        subPhase0Mode = 1;
         scroll0[1]--;
+      }
+
       else if (mode == 1)
       {
         subPhase1Mode = 1;
@@ -794,7 +839,10 @@ void Game::sensou(int &gamePhase, int prevPhase)
     else if (input == 's')
     {
       if (mode == 0)
+      {
         scroll0[0]++;
+        subPhase0Mode = 1;
+      }
       else if (mode == 1)
       {
         subPhase1Mode = 1;
@@ -804,7 +852,10 @@ void Game::sensou(int &gamePhase, int prevPhase)
     else if (input == 'd')
     {
       if (mode == 0)
+      {
+        subPhase0Mode = 1;
         scroll0[1]++;
+      }
       else if (mode == 1)
       {
         subPhase1Mode = 1;
