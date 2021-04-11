@@ -41,11 +41,16 @@ public:
   std::unordered_map<std::string, bool> state = {{"free", true}, {"battle", false}, {"battlePlan", false}, {"army", false}};
 
   // if is getting pointed to by a pointer (only false when the vector array are all falses) (TODO: change to shared pointers)
+  // should be replaced by shared pointers
   bool isReferenced = false;
   std::vector<bool> reference;
 
   // health related strength, more signficant than subsequential strength
   double pivotalStrength = 1.0;
+  double subsequentialStrength = 1.0;
+
+  // for battle printing
+  bool selected = false;
 
   // reference (all data)
   // const static int trainingCamp;

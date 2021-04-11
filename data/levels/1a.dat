@@ -1,9 +1,14 @@
 time:-=1000
-baseLand:-=20
+baseLand:-=100
 building:farm-0=3
 building:civilianFactory-0=5
 building:militaryFactory-0=2
 building:trainingCamp-0=6
+building:airport-0=10
+troop:infantry-=200
+troop:suicideBomber-=2
+troop:kamikaze-=2
+troop:cas-=2
 enemy:create-=America
 map:America-start=
 0,0:;

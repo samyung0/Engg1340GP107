@@ -11,6 +11,8 @@
 #include <condition_variable>
 #include <functional>
 #include <cmath>
+#include <algorithm>
+#include <iostream>
 
 #include "gameStruct.h"
 #include "../../lib/uuid/uuid.hpp"
@@ -133,7 +135,7 @@ private:
       &Game::gameArmy,
       &Game::sensou};
 
-  std::thread *timerThread;
+  std::future<void> timerThread;
   std::future<void> loopPrintStatusThread;
   std::future<void> loopPrintBuildThread;
   std::future<void> loopPrintResearchThread;
@@ -432,27 +434,54 @@ private:
 
   void endGame();
 
+  std::vector<int> timeRange = {500, 1000, 2000};
+  int timeChosen;
+  int timeAcc = 0;
+
   // Note timer only progress day variable and battle
   // training troop/ building have their own async loops
   // reason is because the user can start a progress at anytime so it owuld be impossible to use a single loop for all progresses
 
   void timer(int time)
   {
-    while (1)
+    this->timerThread = std::async(
+        std::launch::async, [&](int time2) {
+          this->terminateTimer = false;
+          while (!terminateTimer)
+          {
+            std::unique_lock<std::mutex> lock(this->lgcv5b);
+            terminateTimerCV.wait_for(lock, std::chrono::milliseconds(1000 / this->fps));
+            this->timeAcc += 1000 / this->fps;
+            this->lg.lock();
+            if (this->timeAcc >= time2)
+            {
+              this->day++;
+              this->timeAcc = 0;
+            }
+            if (this->day >= this->timeLimit)
+            {
+              this->gameOver = true;
+              this->endGame();
+              this->lg.unlock();
+              break;
+            }
+            this->lg.unlock();
+          }
+        },
+        time);
+  }
+  void stopTimer()
+  {
+    if (this->timerThread.valid())
     {
-      std::this_thread::sleep_for(std::chrono::milliseconds(time));
-
-      this->lg.lock();
-      this->day++;
-      if(this->day >= this->timeLimit) {
-        this->gameOver = true;
-        this->endGame();
-        this->lg.unlock();
-        break;
-      }
-      this->lg.unlock();
+      this->lgcv5a.lock();
+      this->terminateTimer = true;
+      this->lgcv5a.unlock();
+      terminateTimerCV.notify_all();
+      this->timerThread.get();
     }
   }
+  bool terminateTimer = false;
   bool terminatePrint = false;
   bool terminateBuild = false;
   bool terminateResearch = false;
@@ -461,6 +490,7 @@ private:
   std::condition_variable terminateBuildCV;
   std::condition_variable terminateResearchCV;
   std::condition_variable terminateTroopCV;
+  std::condition_variable terminateTimerCV;
 
   int day = 1;
 
@@ -492,6 +522,9 @@ private:
   // for troop cv
   std::mutex lgcv4a;
   std::mutex lgcv4b;
+  // for timer cv
+  std::mutex lgcv5a;
+  std::mutex lgcv5b;
   // for loop thread
   std::mutex lg2;
   // for any mutation of data

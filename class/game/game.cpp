@@ -7,6 +7,7 @@
 #include <fstream>
 #include <cassert>
 #include <cstdlib>
+#include <cstdio>
 
 #include "gameStruct.h"
 #include "game.h"
@@ -64,6 +65,7 @@ void Game::fetch()
   std::unordered_map<std::string, std::function<TroopUnit *()>> troopToInstance = {
       {"infantry", [&]() { return new Infantry(this->uuid()); }},
       {"calvary", [&]() { return new Calvary(this->uuid()); }},
+      {"suicideBomber", [&]() { return new SuicideBomber(this->uuid()); }},
       {"artillery", [&]() { return new Artillery(this->uuid()); }},
       {"logistic", [&]() { return new Logistic(this->uuid()); }},
       {"armoredCar", [&]() { return new ArmoredCar(this->uuid()); }},
@@ -72,7 +74,22 @@ void Game::fetch()
       {"tankOshimai", [&]() { return new TankOshimai(this->uuid()); }},
       {"cas", [&]() { return new Cas(this->uuid()); }},
       {"fighter", [&]() { return new Fighter(this->uuid()); }},
-      {"bomber", [&]() { return new Bomber(this->uuid()); }}};
+      {"bomber", [&]() { return new Bomber(this->uuid()); }},
+      {"kamikaze", [&]() { return new Kamikaze(this->uuid()); }}};
+  std::unordered_map<std::string, int> troopToAirport = {
+      {"infantry", 0},
+      {"calvary", 0},
+      {"suicideBomber", 0},
+      {"artillery", 0},
+      {"logistic", 0},
+      {"armoredCar", 0},
+      {"tank1", 0},
+      {"tank2", 0},
+      {"tankOshimai", 0},
+      {"cas", 1},
+      {"fighter", 1},
+      {"bomber", 1},
+      {"kamikaze", 1}};
 
   std::string input;
   while (std::getline(in, input))
@@ -87,23 +104,41 @@ void Game::fetch()
     std::string operand = input.substr(0, index);
     if (operand == "building")
     {
-      std::cout << "Making buildings done" << std::endl;
       std::string type = input.substr(index + 1, index2 - index - 1);
       int level = std::atoi(input.substr(index2 + 1, index3 - index2 - 1).c_str());
       int num = std::atoi(input.substr(index3 + 1).c_str());
-      this->buildBase(type, 0, this->building->effect[type][level], "", 0, num);
+      this->buildBase(type, 0, this->building->effect[type][level], "", this->building->helper[type](0), num);
+      std::cout << "Making buildings done" << std::endl;
+    }
+    else if (operand == "troop")
+    {
+      std::string type = input.substr(index + 1, index2 - index - 1);
+      int num = std::atoi(input.substr(index3 + 1).c_str());
+      for (int i = 0; i < num; i++)
+      {
+        auto ptr = troopToInstance[type]();
+        this->trainBase(
+            type, [troopToInstance, type, ptr](data::Resource &resource, data::Troop &troop) {
+              troop.allTroop.push_back(ptr);
+              troop.totalTroops++;
+              troop.totalFoodRequired += troop.allTroop.back()->getFood();
+              troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
+              troop.helper2[type](0, 1);
+            },
+            0, troopToAirport[type], 0, 1);
+      }
     }
     else if (operand == "enemy")
     {
-      std::cout << "Creating countries done" << std::endl;
       std::string modifier = input.substr(index + 1, index2 - index - 1);
       if (modifier == "create")
         this->enemies->totalEnemies.push_back(new Enemy(input.substr(index3 + 1)));
+      std::cout << "Creating countries done" << std::endl;
     }
     else if (operand == "map")
     {
-      std::cout << "Opening map done" << std::endl;
       std::string country = input.substr(index + 1, index2 - index - 1);
+      std::cout << "Opening map done" << std::endl;
 
       int index = -1;
       for (int i = 0; i < this->enemies->totalEnemies.size(); i++)
@@ -309,7 +344,9 @@ void Game::fetch()
 
 void Game::start()
 {
-  this->timerThread = new std::thread(&Game::timer, this, this->setting["speed"]);
+  this->timeChosen = timeRange[0] == this->setting["time"] ? 0 : timeRange[1] == this->setting["time"] ? 1
+                                                                                                       : 2;
+  this->timer(this->setting["speed"]);
 
   char input;
   (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
@@ -321,6 +358,7 @@ void Game::start()
 
     // same method used in menuPhase
     input = getch();
+
     if (gameOver)
       break;
 
@@ -345,6 +383,7 @@ void Game::start()
         this->gamePhaseSelect[0] = (this->gamePhaseSelect[0]) % this->map[this->gamePhase].size();
         this->gamePhaseSelect[1] = (this->gamePhaseSelect[1] + -1 + this->map[this->gamePhase][this->gamePhaseSelect[0]].size()) % this->map[this->gamePhase][this->gamePhaseSelect[0]].size();
         break;
+      
       }
     }
     // progress game phase

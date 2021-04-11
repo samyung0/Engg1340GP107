@@ -9,6 +9,10 @@
 #include <condition_variable>
 #include <mutex>
 #include <chrono>
+#include <iterator>
+#include <thread>
+#include <algorithm>
+#include <cassert>
 
 #include "game.h"
 #include "gameStruct.h"
@@ -25,6 +29,7 @@
 //       when adding in troops, they will join the battle on the next day
 
 // printing technique: repaint every character, no screen clearing
+// default page render: 4 renders, each corresponding to the 4 columns (map, actions, rewards, enemy troops)
 // troop withdraw page: sorted in ascending order of health, then alphanumerical order of battling region
 
 // note the actual damage calculation and battle progression happens in the timer thread in game.cpp and in the BattleUnit class in gameStruct.cpp
@@ -32,15 +37,24 @@
 void Game::sensou(int &gamePhase, int prevPhase)
 {
   int currentCountry = 0;
-  // 0: map mode, 1: send troops, 2: withdraw troops, 3: view battle
+  // 0: map mode, 0: block action (0b), 1: add troop, 1: add troop detail (2b), 2: remove troop, 2:remove troop detail (4b), 3: view battle, 3: view battle detail (6b)
   int mode = 0;
+  int subMode = 0;
 
   int blockSize[2] = {4, 6};
 
   // io
-  int scroll[2] = {0, 0};
-  int phase[2] = {0, 0};
-  int enter = false;
+  int prePhase0[2] = {0, 0};
+  int scroll0[2] = {0, 0};
+  int phase0[2] = {0, 0};
+  int subPhase0[2] = {0, 0};
+  int scroll1[2] = {0, 0};
+  int phase1[2] = {0, 0};
+  int subPhase1[2] = {0, 0};
+  int subPhase1Mode = 0;
+  std::string subPhase1Type;
+  TroopUnit *subPhase1TroopDetail;
+  bool enter = false;
 
   std::vector<std::function<void()>> printMode;
   std::function<void(TroopUnit *, std::string, std::string)> sendTroop;
@@ -58,10 +72,82 @@ void Game::sensou(int &gamePhase, int prevPhase)
   bool terminatePrint = false;
 
   int battleCycle = 0;
-  const int iconInterval = 500;
+  const int iconInterval = 300;
   int iconLocation = 0;
 
+  std::unordered_map<std::string, int> typeToHealth = {
+      {"infantry", Infantry::baseHp},
+      {"calvary", Calvary::baseHp},
+      {"suicideBomber", 0},
+      {"artillery", Artillery::baseHp},
+      {"logistic", Logistic::baseHp},
+      {"armoredCar", ArmoredCar::baseHp},
+      {"tank1", Tank1::baseHp},
+      {"tank2", Tank2::baseHp},
+      {"tankOshimai", TankOshimai::baseHp},
+      {"cas", Cas::baseHp},
+      {"fighter", Fighter::baseHp},
+      {"bomber", Bomber::baseHp},
+      {"kamikaze", 0}};
+  std::vector<std::string> indexToTroop = {"infantry", "calvary", "suicideBomber", "artillery", "logistic", "armoredCar", "tank1", "tank2", "tankOshimai", "cas", "fighter", "bomber", "kamikaze"};
+  std::unordered_map<std::string, std::string> typeToDisplay = {
+      {"infantry", "Infantry"},
+      {"calvary", "Calvary"},
+      {"suicideBomber", "Suicide Bomber"},
+      {"artillery", "Artillery"},
+      {"logistic", "Logistic"},
+      {"armoredCar", "Armored Car"},
+      {"tank1", "Tank 1"},
+      {"tank2", "Tank 2"},
+      {"tankOshimai", "Tank Oshimai"},
+      {"cas", "Cas"},
+      {"fighter", "Fighter"},
+      {"bomber", "Bomber"},
+      {"kamikaze", "Kamikaze"}};
+  std::vector<TroopUnit *> selectedTroop;
+  std::vector<ArmyUnit *> selectedArmy;
+  std::unordered_map<std::string, bool> selectedArmyMap;
+  std::unordered_map<std::string, int> selectedTroopMap = {
+      {"infantry", 0},
+      {"calvary", 0},
+      {"suicideBomber", 0},
+      {"artillery", 0},
+      {"logistic", 0},
+      {"armoredCar", 0},
+      {"tank1", 0},
+      {"tank2", 0},
+      {"tankOshimai", 0},
+      {"cas", 0},
+      {"fighter", 0},
+      {"bomber", 0},
+      {"kamikaze", 0}};
+
   printMode.push_back([&]() {
+    if (enter)
+    {
+      enter = false;
+      if (subMode == 1)
+      {
+        if (subPhase0[0] == 0)
+          mode = 1;
+        else if (subPhase0[1] == 1)
+          mode = 2;
+        else
+          mode = 3;
+        subMode = 0;
+
+        // avoid resource deadlock error
+        std::thread temp([&]() {
+          stopPrint();
+          loopPrint();
+        });
+        temp.detach();
+
+        return;
+      }
+      else
+        subMode = 1;
+    }
     this->lg3.lock();
     int screen[2] = {25, 48};
     std::vector<std::string> render;
@@ -74,33 +160,91 @@ void Game::sensou(int &gamePhase, int prevPhase)
       iconLocation = !iconLocation;
     }
 
-    phase[0] = (phase[0] + ptr->map.size()) % ptr->map.size();
+    phase0[0] = (phase0[0] + ptr->map.size()) % ptr->map.size();
+
     std::unordered_map<int, int> hasBlock;
-    for (int i = 0; i < ptr->map[phase[0]].size(); i++)
+    int start = -1;
+    int end = -1;
+    for (int i = 0; i < ptr->map[phase0[0]].size(); i++)
     {
-      if (ptr->map[phase[0]][i] != NULL)
-        hasBlock[i] = 1;
-    }
-    // find closest block
-    if (hasBlock.count(phase[1]) == 0)
-    {
-      int diff = 1;
-      bool found = false;
-      while (!found)
+      if (ptr->map[phase0[0]][i] != NULL)
       {
-        if (hasBlock.count(phase[1] + diff) != 0)
-        {
-          phase[1] = phase[1] + diff;
-          found = true;
-        }
-        else if (hasBlock.count(phase[1] - diff) != 0)
-        {
-          phase[1] = phase[1] - diff;
-          found = true;
-        }
-        diff++;
+        hasBlock[i] = 1;
+        if (start == -1)
+          start = i;
+        end = i;
       }
     }
+    if (phase0[0] == prePhase0[0])
+    {
+      int diff = 0;
+      if (phase0[1] > prePhase0[1])
+      {
+        while (hasBlock.count(phase0[1] + diff) == 0 && phase0[1] + diff < ptr->map[phase0[0]].size())
+          diff++;
+        if (phase0[1] + diff == ptr->map[phase0[0]].size())
+          phase0[1] = start;
+        else
+          phase0[1] += diff;
+      }
+      else if (phase0[1] < prePhase0[1])
+      {
+        while (hasBlock.count(phase0[1] - diff) == 0 && phase0[1] - diff >= 0)
+          diff++;
+        if (phase0[1] - diff == -1)
+          phase0[1] = end;
+        else
+          phase0[1] -= diff;
+      }
+      else
+      {
+        if (hasBlock.count(phase0[1]) == 0)
+        {
+          int diff = 1;
+          bool found = false;
+          while (!found)
+          {
+            if (hasBlock.count(phase0[1] + diff) != 0)
+            {
+              phase0[1] = phase0[1] + diff;
+              found = true;
+            }
+            else if (hasBlock.count(phase0[1] - diff) != 0)
+            {
+              phase0[1] = phase0[1] - diff;
+              found = true;
+            }
+            diff++;
+          }
+        }
+      }
+    }
+    else
+    {
+      // find closest block
+      if (hasBlock.count(phase0[1]) == 0)
+      {
+        int diff = 1;
+        bool found = false;
+        while (!found)
+        {
+          if (hasBlock.count(phase0[1] + diff) != 0)
+          {
+            phase0[1] = phase0[1] + diff;
+            found = true;
+          }
+          else if (hasBlock.count(phase0[1] - diff) != 0)
+          {
+            phase0[1] = phase0[1] - diff;
+            found = true;
+          }
+          diff++;
+        }
+      }
+    }
+
+    prePhase0[0] = phase0[0];
+    prePhase0[1] = phase0[1];
 
     for (int i = 0; i < ptr->map.size(); i++)
     {
@@ -134,7 +278,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
             row2 += ' ';
             row3 += ' ';
           }
-          if (i == phase[0] && j == phase[1])
+          if (i == phase0[0] && j == phase0[1] && subMode == 0)
             row2 += ">";
           else
             row2 += " ";
@@ -146,7 +290,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
           else
             row2 += ' ';
 
-          if (i == phase[0] && j == phase[1])
+          if (i == phase0[0] && j == phase0[1] && subMode == 0)
             row3 += "> ";
           else
             row3 += "  ";
@@ -209,28 +353,32 @@ void Game::sensou(int &gamePhase, int prevPhase)
         break;
       }
 
-    int maxLength2 = 13;
+    int maxLength2 = 16;
     std::vector<std::string> render2;
     if (!inBattle || name == ptr->name)
-      render2.push_back("Send Troop" + std::string(3, ' '));
-    if (ptr->map[phase[0]][phase[1]]->battling)
+      render2.push_back("   Send Troop (z)   ");
+    if (ptr->map[phase0[0]][phase0[1]]->battling)
     {
-      render2.push_back("Retreat Troop");
-      render2.push_back("View Battle" + std::string(2, ' '));
+      render2.push_back("   Retreat Troop (x)");
+      render2.push_back("   View Battle (c)  ");
     }
+    subPhase0[0] = (subPhase0[0] + render2.size()) % render2.size();
+    subPhase0[1] = 0;
+    if (subMode == 1)
+      render2[subPhase0[0]].replace(1, 1, ">");
 
     std::vector<std::string> render3;
     render3.push_back("Rewards");
-    render3.push_back("Farm: " + std::to_string(ptr->map[phase[0]][phase[1]]->acquirable["farm"]));
-    render3.push_back("Civilian Factory: " + std::to_string(ptr->map[phase[0]][phase[1]]->acquirable["civilianFactory"]));
-    render3.push_back("Military Factory: " + std::to_string(ptr->map[phase[0]][phase[1]]->acquirable["militaryFactory"]));
-    render3.push_back("Training Camp: " + std::to_string(ptr->map[phase[0]][phase[1]]->acquirable["trainingCamp"]));
-    render3.push_back("Airport: " + std::to_string(ptr->map[phase[0]][phase[1]]->acquirable["airport"]));
-    render3.push_back("Land: " + std::to_string(ptr->map[phase[0]][phase[1]]->acquirable["land"]));
+    render3.push_back("Farm: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->acquirable["farm"]));
+    render3.push_back("Civilian Factory: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->acquirable["civilianFactory"]));
+    render3.push_back("Military Factory: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->acquirable["militaryFactory"]));
+    render3.push_back("Training Camp: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->acquirable["trainingCamp"]));
+    render3.push_back("Airport: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->acquirable["airport"]));
+    render3.push_back("Land: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->acquirable["land"]));
     render3.push_back("");
     render3.push_back("");
     render3.push_back("Terrain");
-    render3.push_back(ptr->map[phase[0]][phase[1]]->terrain);
+    render3.push_back(ptr->map[phase0[0]][phase0[1]]->terrain);
     int maxLength3 = 0;
     for (auto i : render3)
       if (i.length() > maxLength3)
@@ -240,17 +388,17 @@ void Game::sensou(int &gamePhase, int prevPhase)
 
     std::vector<std::string> render4;
     render4.push_back("Enemies troops");
-    render4.push_back("Infantry: " + std::to_string(ptr->map[phase[0]][phase[1]]->foeCount["infantry"]));
-    render4.push_back("Calvary: " + std::to_string(ptr->map[phase[0]][phase[1]]->foeCount["calvary"]));
-    render4.push_back("Logistic: " + std::to_string(ptr->map[phase[0]][phase[1]]->foeCount["logistic"]));
-    render4.push_back("Armored Car: " + std::to_string(ptr->map[phase[0]][phase[1]]->foeCount["armoredCar"]));
-    render4.push_back("Tank 1: " + std::to_string(ptr->map[phase[0]][phase[1]]->foeCount["tank1"]));
-    render4.push_back("Tank 2: " + std::to_string(ptr->map[phase[0]][phase[1]]->foeCount["tank2"]));
-    render4.push_back("Tank Oshimai: " + std::to_string(ptr->map[phase[0]][phase[1]]->foeCount["tankOshimai"]));
-    render4.push_back("Cas: " + std::to_string(ptr->map[phase[0]][phase[1]]->foeCount["cas"]));
-    render4.push_back("Fighter: " + std::to_string(ptr->map[phase[0]][phase[1]]->foeCount["fighter"]));
-    render4.push_back("Bomber: " + std::to_string(ptr->map[phase[0]][phase[1]]->foeCount["bomber"]));
-    render4.push_back("Armies: " + std::to_string(ptr->map[phase[0]][phase[1]]->foeCount["army"]));
+    render4.push_back("Infantry: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["infantry"]));
+    render4.push_back("Calvary: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["calvary"]));
+    render4.push_back("Logistic: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["logistic"]));
+    render4.push_back("Armored Car: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["armoredCar"]));
+    render4.push_back("Tank 1: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["tank1"]));
+    render4.push_back("Tank 2: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["tank2"]));
+    render4.push_back("Tank Oshimai: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["tankOshimai"]));
+    render4.push_back("Cas: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["cas"]));
+    render4.push_back("Fighter: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["fighter"]));
+    render4.push_back("Bomber: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["bomber"]));
+    render4.push_back("Armies: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["army"]));
     int maxLength4 = 0;
     for (auto i : render4)
       if (i.length() > maxLength4)
@@ -259,8 +407,8 @@ void Game::sensou(int &gamePhase, int prevPhase)
       render4[i] += std::string(maxLength4 - render4[i].length(), ' ');
 
     int scrollable[2] = {std::max(0, (int)render.size() - screen[0]), std::max(0, (int)render[0].size() - screen[1])};
-    scroll[0] = std::min(std::max(scroll[0], 0), scrollable[0]);
-    scroll[1] = std::min(std::max(scroll[1], 0), scrollable[1]);
+    scroll0[0] = std::min(std::max(scroll0[0], 0), scrollable[0]);
+    scroll0[1] = std::min(std::max(scroll0[1], 0), scrollable[1]);
 
     std::cout << "\033[1;1H";
     std::cout << color("Battle", "magenta") << std::endl;
@@ -273,22 +421,238 @@ void Game::sensou(int &gamePhase, int prevPhase)
     this->lg.unlock();
 
     std::cout << "Country: " << this->enemies->totalEnemies[currentCountry]->name
-              << " (" << (this->enemies->totalEnemies[currentCountry]->capitulated ? "defeated" : "not defeated") << ")"
+              << " (" << (this->enemies->totalEnemies[currentCountry]->capitulated ? "defeated" : "not defeated") << "/" + std::to_string(selectedTroopMap["infantry"])
               << "   Battling Regions: " << this->enemies->totalEnemies[currentCountry]->battlingRegions
               << std::endl;
 
-    std::cout << "Change speed: e   Next country: q (total: " << this->enemies->totalEnemies.size() << ")     (wasd to move map if too large)" << std::endl
+    std::cout << "Change speed: e   Next country: q (total: " << this->enemies->totalEnemies.size() << ")   Move map: wasd   Return: spacebar " << std::endl
               << std::endl;
 
     for (int i = 0; i < 12; i++)
     {
-      std::cout << render[i+scroll[0]].substr(scroll[1],screen[1]) << "        "
+      std::cout << render[i + scroll0[0]].substr(scroll0[1], screen[1]) << "        "
                 << (render2.size() > i ? render2[i] : std::string(maxLength2, ' ')) << "        "
                 << (render3.size() > i ? render3[i] : std::string(maxLength3, ' ')) << "        "
                 << (render4.size() > i ? render4[i] : std::string(maxLength4, ' ')) << std::endl;
     }
     for (int i = 12; i < screen[0]; i++)
-      std::cout << render[i+scroll[0]].substr(scroll[1],screen[1]) << std::endl;
+      std::cout << render[i + scroll0[0]].substr(scroll0[1], screen[1]) << std::endl;
+
+    this->lg3.unlock();
+  });
+
+  printMode.push_back([&]() {
+    std::unordered_map<std::string, int> fullHealth = {
+        {"infantry", 0},
+        {"calvary", 0},
+        {"artillery", 0},
+        {"logistic", 0},
+        {"armoredCar", 0},
+        {"tank1", 0},
+        {"tank2", 0},
+        {"tankOshimai", 0},
+        {"cas", 0},
+        {"fighter", 0},
+        {"bomber", 0}};
+
+    if (enter)
+    {
+      enter = false;
+      if (subMode == 1)
+      {
+        if (subPhase1TroopDetail != NULL)
+        {
+          if (subPhase1TroopDetail->selected)
+          {
+            subPhase1TroopDetail->selected = false;
+            int index = -1;
+            for (int i = 0; i < selectedTroop.size(); i++)
+              if (selectedTroop[i] == subPhase1TroopDetail)
+              {
+                index = i;
+                break;
+              }
+            assert(index != -1);
+            selectedTroop.erase(selectedTroop.begin() + index);
+            selectedTroopMap[subPhase1Type]--;
+          }
+          else
+          {
+            subPhase1TroopDetail->selected = true;
+            selectedTroop.push_back(subPhase1TroopDetail);
+            selectedTroopMap[subPhase1Type]++;
+          }
+        }
+      }
+      else
+      {
+        if (phase1[0] >= 0 && phase1[0] <= 12)
+        {
+          if (phase1[1] == 3)
+          {
+            subMode = 1;
+            subPhase1Type = indexToTroop[phase1[0]];
+          }
+        }
+      }
+    }
+
+    this->lg3.lock();
+
+    std::cout << "\033[2J\033[1;1H";
+
+    if (subMode == 0)
+    {
+      std::vector<std::vector<std::string>> prefix = {
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   ", "   ", "   "},
+          {"   ", "   "},
+          {"   "}};
+      for (int i = 0; i < this->army->total.size(); i++)
+        prefix[i].push_back("   ");
+
+      phase1[0] = (phase1[0] + prefix.size()) % prefix.size();
+      phase1[1] = (phase1[1] + prefix[phase1[0]].size()) % prefix[phase1[0]].size();
+      prefix[phase1[0]][phase1[1]].replace(1, 1, color(">", "cyan"));
+      for (int i = 0; i < this->troop->allTroop.size(); i++)
+      {
+        if (this->troop->allTroop[i]->type != "suicideBomber" && this->troop->allTroop[i]->type != "kamikaze" && this->troop->allTroop[i]->getHealth() == typeToHealth[this->troop->allTroop[i]->type])
+          fullHealth[this->troop->allTroop[i]->type]++;
+      }
+      std::cout << color("Send Troops", "magenta") << std::endl
+                << std::endl;
+      std::cout << std::setw(75 + 11) << color("Troop", "green") + " (full health, free, selected)" << color("Army", "green") << std::endl;
+      std::cout << std::setw(30) << "Infantry:       " + std::to_string(fullHealth["infantry"]) + "/" + std::to_string(this->troop->helper["infantry"](0)) + "/" + std::to_string(selectedTroopMap["infantry"])
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 0 ? 11 : 0)) << prefix[0][0] + underline("+1", "green") + " (1)" + prefix[0][1] + underline("-1", "green") + prefix[0][2] + underline("All", "green") + prefix[0][3] + underline("Details", "green")
+                << (this->army->total.size() > 0 ? (this->army->total.begin()->first + " (" + std::to_string(this->army->total.begin()->second->troopCount) + "/16)" + prefix[0][4] + (selectedArmyMap.count(this->army->total.begin()->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(30) << "Calvary:        " + std::to_string(fullHealth["calvary"]) + "/" + std::to_string(this->troop->helper["calvary"](0)) + "/" + std::to_string(selectedTroopMap["calvary"])
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 1 ? 11 : 0)) << prefix[1][0] + underline("+1", "green") + " (2)" + prefix[1][1] + underline("-1", "green") + prefix[1][2] + underline("All", "green") + prefix[1][3] + underline("Details", "green")
+                << (this->army->total.size() > 1 ? (std::next(this->army->total.begin(), 1)->first + " (" + std::to_string(std::next(this->army->total.begin(), 1)->second->troopCount) + "/16)" + prefix[1][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 1)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(30) << "Suicide Bomber: " + std::to_string(this->troop->helper["suicideBomber"](0)) + "/" + std::to_string(selectedTroopMap["suicideBomber"])
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 2 ? 11 : 0)) << prefix[2][0] + underline("+1", "green") + " (3)" + prefix[2][1] + underline("-1", "green") + prefix[2][2] + underline("All", "green") + prefix[2][3] + underline("Details", "green")
+                << (this->army->total.size() > 2 ? (std::next(this->army->total.begin(), 2)->first + " (" + std::to_string(std::next(this->army->total.begin(), 2)->second->troopCount) + prefix[2][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 2)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(30) << "Artillery:      " + std::to_string(fullHealth["artillery"]) + "/" + std::to_string(this->troop->helper["artillery"](0)) + "/" + std::to_string(selectedTroopMap["artillery"])
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 3 ? 11 : 0)) << prefix[3][0] + underline("+1", "green") + " (4)" + prefix[3][1] + underline("-1", "green") + prefix[3][2] + underline("All", "green") + prefix[3][3] + underline("Details", "green")
+                << (this->army->total.size() > 3 ? (std::next(this->army->total.begin(), 3)->first + " (" + std::to_string(std::next(this->army->total.begin(), 3)->second->troopCount) + prefix[3][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 3)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(30) << "Logistic:       " + std::to_string(fullHealth["logistic"]) + "/" + std::to_string(this->troop->helper["logistic"](0)) + "/" + std::to_string(selectedTroopMap["logistic"])
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 4 ? 11 : 0)) << prefix[4][0] + underline("+1", "green") + " (5)" + prefix[4][1] + underline("-1", "green") + prefix[4][2] + underline("All", "green") + prefix[4][3] + underline("Details", "green")
+                << (this->army->total.size() > 4 ? (std::next(this->army->total.begin(), 4)->first + " (" + std::to_string(std::next(this->army->total.begin(), 4)->second->troopCount) + prefix[4][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 4)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(30) << "Armored Car:    " + std::to_string(fullHealth["armoredCar"]) + "/" + std::to_string(this->troop->helper["armoredCar"](0)) + "/" + std::to_string(selectedTroopMap["armoredCar"])
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 5 ? 11 : 0)) << prefix[5][0] + underline("+1", "green") + " (6)" + prefix[5][1] + underline("-1", "green") + prefix[5][2] + underline("All", "green") + prefix[5][3] + underline("Details", "green")
+                << (this->army->total.size() > 5 ? (std::next(this->army->total.begin(), 5)->first + " (" + std::to_string(std::next(this->army->total.begin(), 5)->second->troopCount) + prefix[5][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 5)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(30) << "Tank 1:         " + std::to_string(fullHealth["tank1"]) + "/" + std::to_string(this->troop->helper["tank1"](0)) + "/" + std::to_string(selectedTroopMap["tank1"])
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 6 ? 11 : 0)) << prefix[6][0] + underline("+1", "green") + " (7)" + prefix[6][1] + underline("-1", "green") + prefix[6][2] + underline("All", "green") + prefix[6][3] + underline("Details", "green")
+                << (this->army->total.size() > 6 ? (std::next(this->army->total.begin(), 6)->first + " (" + std::to_string(std::next(this->army->total.begin(), 6)->second->troopCount) + prefix[6][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 6)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(30) << "Tank 2:         " + std::to_string(fullHealth["tank2"]) + "/" + std::to_string(this->troop->helper["tank2"](0)) + "/" + std::to_string(selectedTroopMap["tank2"])
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 7 ? 11 : 0)) << prefix[7][0] + underline("+1", "green") + " (8)" + prefix[7][1] + underline("-1", "green") + prefix[7][2] + underline("All", "green") + prefix[7][3] + underline("Details", "green")
+                << (this->army->total.size() > 7 ? (std::next(this->army->total.begin(), 7)->first + " (" + std::to_string(std::next(this->army->total.begin(), 7)->second->troopCount) + prefix[7][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 7)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(30) << "Tank Oshimai:   " + std::to_string(fullHealth["tankOshimai"]) + "/" + std::to_string(this->troop->helper["tankOshimai"](0)) + "/" + std::to_string(selectedTroopMap["tankOshimai"])
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 8 ? 11 : 0)) << prefix[8][0] + underline("+1", "green") + " (9)" + prefix[8][1] + underline("-1", "green") + prefix[8][2] + underline("All", "green") + prefix[8][3] + underline("Details", "green")
+                << (this->army->total.size() > 8 ? (std::next(this->army->total.begin(), 8)->first + " (" + std::to_string(std::next(this->army->total.begin(), 8)->second->troopCount) + prefix[8][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 8)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(30) << "Cas:            " + std::to_string(fullHealth["cas"]) + "/" + std::to_string(this->troop->helper["cas"](0)) + "/" + std::to_string(selectedTroopMap["cas"])
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 9 ? 11 : 0)) << prefix[9][0] + underline("+1", "green") + " (q)" + prefix[9][1] + underline("-1", "green") + prefix[9][2] + underline("All", "green") + prefix[9][3] + underline("Details", "green")
+                << (this->army->total.size() > 9 ? (std::next(this->army->total.begin(), 8)->first + " (" + std::to_string(std::next(this->army->total.begin(), 9)->second->troopCount) + prefix[9][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 8)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(30) << "Fighter:        " + std::to_string(fullHealth["fighter"]) + "/" + std::to_string(this->troop->helper["fighter"](0)) + "/" + std::to_string(selectedTroopMap["fighter"])
+                << std::setw(75 + 11 * 4 - 30) << prefix[10][0] + underline("+1", "green") + " (w)" + prefix[10][1] + underline("-1", "green") + prefix[10][2] + underline("All", "green") + prefix[10][3] + underline("Details", "green") << std::endl
+                << std::setw(30) << "Bomber:         " + std::to_string(fullHealth["bomber"]) + "/" + std::to_string(this->troop->helper["bomber"](0)) + "/" + std::to_string(selectedTroopMap["bomber"])
+                << std::setw(75 + 11 * 4 - 30) << prefix[11][0] + underline("+1", "green") + " (e)" + prefix[11][1] + underline("-1", "green") + prefix[11][2] + underline("All", "green") + prefix[11][3] + underline("Details", "green") << std::endl
+                << std::setw(30) << "Kamikaze:       " + std::to_string(this->troop->helper["kamikaze"](0)) + "/" + std::to_string(selectedTroopMap["kamikaze"])
+                << std::setw(75 + 11 * 4 - 30) << prefix[12][0] + underline("+1", "green") + " (r)" + prefix[12][1] + underline("-1", "green") + prefix[12][2] + underline("All", "green") + prefix[12][3] + underline("Details", "green") << std::endl
+                << std::endl;
+      std::cout << std::setw(30 + 11) << color("Troops selected: ", "green") + std::to_string(selectedTroop.size()) << color(" Armies selected: ", "green") << selectedArmy.size() << std::endl
+                << std::endl;
+      std::cout << prefix[13][0] << underline("Confirm", "green") << " (i)" << prefix[13][1] << underline("Deselect all", "green") << " (o)" << std::endl
+                << prefix[14][0] << underline("Back", "green") << " (spacebar)" << std::endl;
+    }
+    else if (subMode == 1)
+    {
+      std::vector<TroopUnit *> sort;
+      for (auto i : this->troop->allTroop)
+        if (i->type == subPhase1Type)
+          sort.push_back(i);
+      std::sort(sort.begin(), sort.end(), [](TroopUnit *a, TroopUnit *b) -> bool {
+        return a->getHealth() < b->getHealth();
+      });
+
+      if (sort.size() > 0)
+      {
+        subPhase1[0] = (subPhase1[0] + (int)std::ceil(sort.size() / 4.0)) % (int)std::ceil(sort.size() / 4.0);
+        subPhase1[1] = (subPhase1[1] + std::min((int)(sort.size() - subPhase1[0] * 4), 4)) % std::min((int)(sort.size() - subPhase1[0] * 4), 4);
+      }
+      else
+      {
+        subPhase1[0] = 0;
+        subPhase1[1] = 0;
+      }
+
+      int screenY = 20;
+      std::vector<std::string> render;
+      for (int i = 0; i < sort.size(); i++)
+      {
+        if (i % 4 == 0)
+          render.push_back("");
+        render.back() += std::string((i / 4 == subPhase1[0] && i % 4 == subPhase1[1] ? " > " : "   ")) + (sort[i]->selected ? "   ++" : "     ") + typeToDisplay[subPhase1Type] + " (" + std::to_string((int)sort[i]->getHealth()) + "/" + std::to_string(typeToHealth[subPhase1Type]) + ")        ";
+      }
+
+      int maxX = 0;
+      for (int i = 0; i < render.size(); i++)
+        if (render[i].length() > maxX)
+          maxX = render[i].length();
+      for (int i = 0; i < render.size(); i++)
+        if (render[i].length() < maxX)
+          render[i] += std::string(maxX - render[i].length(), ' ');
+
+      int scrollableY = std::max(0, (int)(render.size() - screenY));
+
+      scroll1[1] = 0;
+      scroll1[0] = std::min(std::max(0, scroll1[0]), scrollableY);
+
+      if (subPhase1Mode == 0)
+      {
+        if (subPhase1[0] < scroll1[0])
+          scroll1[0] = subPhase1[0];
+        else if (subPhase1[0] >= scroll1[0] + screenY)
+          scroll1[0] = subPhase1[0] - screenY + 1;
+
+        scroll1[0] = std::min(std::max(0, scroll1[0]), scrollableY);
+      }
+      else if (subPhase1Mode == 1)
+      {
+        if (subPhase1[0] < scroll1[0])
+          subPhase1[0] = scroll1[0];
+        else if (subPhase1[0] >= scroll1[0] + screenY)
+          subPhase1[0] = scroll1[0] + screenY - 1;
+      }
+
+      if (sort.size() > 0)
+        subPhase1TroopDetail = sort[subPhase1[0] * 4 + subPhase1[1]];
+
+      std::cout << color("Details of " + typeToDisplay[subPhase1Type], "green") << std::endl
+                << "(enter to select/deselect) (spacebar to return)" << std::endl
+                << std::endl;
+
+      if (scroll1[0] != 0)
+        std::cout << std::string(maxX / 2 - 8, ' ') + "||Scroll up (w)||" + std::string(maxX / 2 - 8, ' ') << std::endl;
+      else
+        std::cout << std::endl;
+      for (int i = scroll1[0]; i < std::min(scroll1[0] + screenY, (int)render.size()); i++)
+        std::cout << render[i] << std::endl;
+      if (scroll1[0] != scrollableY)
+        std::cout << std::string(maxX / 2 - 8, ' ') + "||Scroll down (s)||" + std::string(maxX / 2 - 8, ' ') << std::endl;
+      else
+        std::cout << std::endl;
+    }
 
     this->lg3.unlock();
   });
@@ -315,7 +679,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
   };
 
   std::cout << "\033[2J\033[1;1H";
-  printMode[mode]();
+  loopPrint();
   char input;
   while (1)
   {
@@ -334,29 +698,178 @@ void Game::sensou(int &gamePhase, int prevPhase)
       switch (getch())
       {
       case 'A':
-        phase[0]--;
+        if (mode == 0)
+        {
+          if (subMode == 0)
+            phase0[0]--;
+          else
+            subPhase0[0]--;
+        }
+        else if (mode == 1)
+        {
+          subPhase1Mode = 0;
+          if (subMode == 0)
+            phase1[0]--;
+          else
+            subPhase1[0]--;
+        }
         break;
       case 'B':
-        phase[0]++;
+        if (mode == 0)
+        {
+          if (subMode == 0)
+            phase0[0]++;
+          else
+            subPhase0[0]++;
+        }
+        else if (mode == 1)
+        {
+          subPhase1Mode = 0;
+          if (subMode == 0)
+            phase1[0]++;
+          else
+            subPhase1[0]++;
+        }
         break;
       case 'C':
-        phase[1]++;
+        if (mode == 0)
+        {
+          if (subMode == 0)
+            phase0[1]++;
+          else
+            subPhase0[1]++;
+        }
+        else if (mode == 1)
+        {
+          subPhase1Mode = 0;
+          if (subMode == 0)
+            phase1[1]++;
+          else
+            subPhase1[1]++;
+        }
         break;
       case 'D':
-        phase[1]--;
+        if (mode == 0)
+        {
+          if (subMode == 0)
+            phase0[1]--;
+          else
+            subPhase0[1]--;
+        }
+        else if (mode == 1)
+        {
+          subPhase1Mode = 0;
+          if (subMode == 0)
+            phase1[1]--;
+          else
+            subPhase1[1]--;
+        }
         break;
       }
     }
     else if (input == '\n')
+    {
       enter = true;
+    }
     else if (input == 'w')
-      scroll[0]--;
+    {
+      if (mode == 0)
+        scroll0[0]--;
+      else if (mode == 1)
+      {
+        subPhase1Mode = 1;
+        scroll1[0]--;
+      }
+    }
     else if (input == 'a')
-      scroll[1]--;
+    {
+      if (mode == 0)
+        scroll0[1]--;
+      else if (mode == 1)
+      {
+        subPhase1Mode = 1;
+        scroll1[1]--;
+      }
+    }
     else if (input == 's')
-      scroll[0]++;
+    {
+      if (mode == 0)
+        scroll0[0]++;
+      else if (mode == 1)
+      {
+        subPhase1Mode = 1;
+        scroll1[0]++;
+      }
+    }
     else if (input == 'd')
-      scroll[1]++;
+    {
+      if (mode == 0)
+        scroll0[1]++;
+      else if (mode == 1)
+      {
+        subPhase1Mode = 1;
+        scroll1[1]++;
+      }
+    }
+    else if (input == 'q')
+    {
+      if (mode == 0)
+        currentCountry = (currentCountry + 1) % this->enemies->totalEnemies.size();
+    }
+    else if (input == 'z')
+    {
+      if (mode == 0)
+      {
+        bool inBattle = false;
+        std::string name;
+        for (auto i : this->enemies->totalEnemies)
+          if (i->battlingRegions > 0)
+          {
+            inBattle = true;
+            name = i->name;
+            break;
+          }
+        if (!inBattle || name == this->enemies->totalEnemies[currentCountry]->name)
+        {
+          mode = 1;
+          subMode = 0;
+        }
+      }
+    }
+    else if (input == 'e')
+    {
+      this->stopTimer();
+      timeChosen = (timeChosen + 1) % this->timeRange.size();
+      this->setting["speed"] = this->timeRange[this->timeChosen];
+      this->timer(this->setting["speed"]);
+    }
+    else if (input == 'p')
+    {
+      // pause
+    }
+    else if (input == ' ')
+    {
+      if (mode == 0)
+      {
+        if (subMode == 0)
+        {
+          gamePhase = prevPhase;
+          this->gamePhaseSelect[0] = 0;
+          this->gamePhaseSelect[1] = 0;
+          (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+          break;
+        }
+        else
+          subMode = 0;
+      }
+      else if (mode == 1)
+      {
+        if (subMode == 0)
+          mode = 0;
+        else
+          subMode = 0;
+      }
+    }
 
     std::cout << "\033[2J\033[1;1H";
     loopPrint();

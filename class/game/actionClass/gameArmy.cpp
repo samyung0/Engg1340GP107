@@ -645,7 +645,8 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
         else
           actionPhase2Troop[armyPhaseSelect[0]][armyPhaseSelect[1]]();
       }
-    }
+    }// reset terminal
+    else if(input == '/') std::cout << "\033c" << std::endl;
     else
     {
 

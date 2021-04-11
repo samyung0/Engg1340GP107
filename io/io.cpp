@@ -14,7 +14,8 @@ void init(bool echo = false)
   current.c_lflag &= ~ICANON;
 
   // no echo
-  if(!echo) current.c_lflag &= ~ECHO;
+  if (!echo)
+    current.c_lflag &= ~ECHO;
   tcsetattr(0, TCSANOW, &current);
 }
 
