@@ -451,6 +451,8 @@ private:
           {
             std::unique_lock<std::mutex> lock(this->lgcv5b);
             terminateTimerCV.wait_for(lock, std::chrono::milliseconds(1000 / this->fps));
+
+            if(this->paused) continue;
             this->timeAcc += 1000 / this->fps;
             this->lg.lock();
             if (this->timeAcc >= time2)
@@ -493,6 +495,7 @@ private:
   std::condition_variable terminateTimerCV;
 
   int day = 1;
+  bool paused = false;
 
   // key: speed
   std::unordered_map<std::string, int> setting;
@@ -529,6 +532,8 @@ private:
   std::mutex lg2;
   // for any mutation of data
   std::mutex lg3;
+  // for any mutation of battle
+  std::mutex lg4;
   // user action lock (prevent spamming)
   std::mutex lguser;
 

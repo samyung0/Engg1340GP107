@@ -13,6 +13,7 @@
 #include <thread>
 #include <algorithm>
 #include <cassert>
+#include <map>
 
 #include "game.h"
 #include "gameStruct.h"
@@ -58,10 +59,16 @@ void Game::sensou(int &gamePhase, int prevPhase)
   bool enter = false;
 
   std::vector<std::function<void()>> printMode;
-  std::function<void(TroopUnit *, std::string, std::string)> sendTroop;
-  std::function<void(ArmyUnit *, std::string, std::string)> sendArmy;
+  std::function<void()> sendAll;
   std::function<void(TroopUnit *, std::string, std::string)> retreatTroop;
   std::function<void(ArmyUnit *, std::string, std::string)> retreatArmy;
+  std::function<void(std::string)> troopIreru;
+  std::function<void(ArmyUnit *)> armyIreru;
+  std::function<void(std::string)> troopNuku;
+  std::function<void(ArmyUnit *)> armyNuku;
+  std::vector<TroopUnit *> selectedTroop;
+  std::vector<ArmyUnit *> selectedArmy;
+  std::function<void()> deselectAll;
 
   std::function<void()> loopPrint;
   std::function<void()> stopPrint;
@@ -105,9 +112,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
       {"fighter", "Fighter"},
       {"bomber", "Bomber"},
       {"kamikaze", "Kamikaze"}};
-  std::vector<TroopUnit *> selectedTroop;
-  std::vector<ArmyUnit *> selectedArmy;
-  std::unordered_map<std::string, bool> selectedArmyMap;
+  std::map<std::string, bool> selectedArmyMap;
   std::unordered_map<std::string, int> selectedTroopMap = {
       {"infantry", 0},
       {"calvary", 0},
@@ -123,6 +128,95 @@ void Game::sensou(int &gamePhase, int prevPhase)
       {"bomber", 0},
       {"kamikaze", 0}};
 
+  deselectAll = [&]() {
+    for (auto i : selectedTroopMap)
+      for (int j = 0; j < i.second; j++)
+        troopNuku(i.first);
+    for (int i = selectedArmy.size() - 1; i >= 0; i--)
+      armyNuku(selectedArmy[i]);
+  };
+
+  sendAll = [&]() {
+    Enemy *ptr = this->enemies->totalEnemies[currentCountry];
+    for (auto i : selectedTroop)
+      ptr->map[phase0[0]][phase0[1]]->reinforce(i);
+    for (auto i : selectedArmy)
+      ptr->map[phase0[0]][phase0[1]]->reinforce(i);
+    std::cout << "\033[2J\033[1;1H" << std::endl;
+    deselectAll();
+    mode = 0;
+    // avoid resource deadlock error
+    std::thread temp([&]() {
+      stopPrint();
+      loopPrint();
+    });
+    temp.detach();
+  };
+
+  troopIreru = [&](std::string type) {
+    std::vector<int> indices;
+    for (int i = 0; i < this->troop->allTroop.size(); i++)
+    {
+      if (this->troop->allTroop[i]->type == type && this->troop->allTroop[i]->state["free"] && !this->troop->allTroop[i]->selected)
+      {
+        indices.push_back(i);
+      }
+    }
+    assert(indices.size() != 0);
+
+    std::sort(indices.begin(), indices.end(), [this](int a, int b) -> bool {
+      return this->troop->allTroop[a]->getHealth() > this->troop->allTroop[b]->getHealth();
+    });
+
+    this->troop->allTroop[indices[0]]->selected = true;
+    selectedTroop.push_back(this->troop->allTroop[indices[0]]);
+    selectedTroopMap[type]++;
+  };
+
+  armyIreru = [&](ArmyUnit *guntai) {
+    assert(guntai != NULL);
+
+    selectedArmy.push_back(guntai);
+    selectedArmyMap[guntai->name] = true;
+  };
+
+  troopNuku = [&](std::string type) {
+    std::vector<int> indices;
+    for (int i = 0; i < selectedTroop.size(); i++)
+    {
+      if (selectedTroop[i]->type == type)
+      {
+        indices.push_back(i);
+      }
+    }
+    if (indices.size() == 0)
+      return;
+    std::sort(indices.begin(), indices.end(), [&selectedTroop](int a, int b) -> bool {
+      return selectedTroop[a]->getHealth() < selectedTroop[b]->getHealth();
+    });
+
+    selectedTroop[indices[0]]->selected = false;
+    selectedTroopMap[selectedTroop[indices[0]]->type]--;
+    selectedTroop.erase(selectedTroop.begin() + indices[0]);
+  };
+
+  armyNuku = [&](ArmyUnit *guntai) {
+    assert(guntai != NULL);
+
+    int index = -1;
+    for (int i = 0; i < selectedArmy.size(); i++)
+      if (selectedArmy[i] == guntai)
+      {
+        index = i;
+        break;
+      }
+
+    assert(index != -1);
+
+    selectedArmy.erase(selectedArmy.begin() + index);
+    selectedArmyMap.erase(guntai->name);
+  };
+
   printMode.push_back([&]() {
     if (enter)
     {
@@ -137,6 +231,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
           mode = 3;
         subMode = 0;
 
+        std::cout << "\033[2J\033[1;1H" << std::endl;
         // avoid resource deadlock error
         std::thread temp([&]() {
           stopPrint();
@@ -146,8 +241,18 @@ void Game::sensou(int &gamePhase, int prevPhase)
 
         return;
       }
-      else
-        subMode = 1;
+      else {
+        bool inBattle = false;
+    std::string name;
+    for (auto i : this->enemies->totalEnemies)
+      if (i->battlingRegions > 0)
+      {
+        inBattle = true;
+        name = i->name;
+        break;
+      }
+      if(!inBattle || name== this->enemies->totalEnemies[currentCountry]->name) subMode = 1;
+      }
     }
     this->lg3.lock();
     int screen[2] = {25, 48};
@@ -400,10 +505,13 @@ void Game::sensou(int &gamePhase, int prevPhase)
       render2.push_back("   Retreat Troop (x)");
       render2.push_back("   View Battle (c)  ");
     }
-    subPhase0[0] = (subPhase0[0] + render2.size()) % render2.size();
-    subPhase0[1] = 0;
-    if (subMode == 1)
-      render2[subPhase0[0]].replace(1, 1, ">");
+    if (render2.size() > 0)
+    {
+      subPhase0[0] = (subPhase0[0] + render2.size()) % render2.size();
+      subPhase0[1] = 0;
+      if (subMode == 1)
+        render2[subPhase0[0]].replace(1, 1, ">");
+    }
 
     std::vector<std::string> render3;
     render3.push_back("Rewards");
@@ -445,12 +553,12 @@ void Game::sensou(int &gamePhase, int prevPhase)
       render4[i] += std::string(maxLength4 - render4[i].length(), ' ');
 
     std::cout << "\033[1;1H";
-    std::cout << color("Battle", "magenta") << std::endl;
+    std::cout << color("Battle", "magenta") << std::endl << std::endl;
 
     this->lg.lock();
     std::stringstream speed;
     speed << std::fixed << std::setprecision(1) << this->setting["speed"] / 1000.0;
-    std::cout << color("Day: ", "green") << this->day << "/" << this->timeLimit << " (" << speed.str() << "s)" << std::endl
+    std::cout << color("Day: ", "green") << this->day << "/" << this->timeLimit << " (" << speed.str() << "s)     "<< (this->paused ? color("PAUSED", "red") : "") << std::endl
               << std::endl;
     this->lg.unlock();
 
@@ -459,8 +567,8 @@ void Game::sensou(int &gamePhase, int prevPhase)
               << "   Battling Regions: " << this->enemies->totalEnemies[currentCountry]->battlingRegions
               << std::endl;
 
-    std::cout << "Change speed: e   Next country: q (total: " << this->enemies->totalEnemies.size() << ")   Move map: wasd   Return: spacebar " << std::endl
-              << std::endl;
+    std::cout << "Change speed: q     Pause: p     Next country: e (total: " << this->enemies->totalEnemies.size() << ")     Move map: wasd     Return: spacebar " << std::endl
+              << std::endl << std::endl;
 
     for (int i = 0; i < 12; i++)
     {
@@ -522,11 +630,56 @@ void Game::sensou(int &gamePhase, int prevPhase)
       {
         if (phase1[0] >= 0 && phase1[0] <= 12)
         {
-          if (phase1[1] == 3)
+          if (phase1[1] == 0 && this->troop->helper[indexToTroop[phase1[0]]](0) > 0 && selectedTroopMap[indexToTroop[phase1[0]]] < this->troop->helper[indexToTroop[phase1[0]]](0))
+            troopIreru(indexToTroop[phase1[0]]);
+          else if (phase1[1] == 1)
+            troopNuku(indexToTroop[phase1[0]]);
+          else if (phase1[1] == 2)
+          {
+            for (int i = selectedTroopMap[indexToTroop[phase1[0]]]; i < this->troop->helper[indexToTroop[phase1[0]]](0); i++)
+              troopIreru(indexToTroop[phase1[0]]);
+          }
+          else if (phase1[1] == 3)
           {
             subMode = 1;
             subPhase1Type = indexToTroop[phase1[0]];
           }
+          else if (phase1[1] == 4)
+          {
+            auto current = std::next(this->army->total.begin(), phase1[0]);
+            bool found = false;
+            for (auto i : selectedArmy)
+            {
+              if (i == current->second)
+              {
+                armyNuku(current->second);
+                found = true;
+                break;
+              }
+            }
+            if (!found)
+              armyIreru(current->second);
+          }
+        }
+        else if (phase1[0] == 13)
+        {
+          if (phase1[1] == 0)
+            sendAll();
+          else
+            deselectAll();
+        }
+        else
+        {
+          std::cout << "\033[2J\033[1;1H" << std::endl;
+          deselectAll();
+          mode = 0;
+          // avoid resource deadlock error
+          std::thread temp([&]() {
+            stopPrint();
+            loopPrint();
+          });
+          temp.detach();
+          return;
         }
       }
     }
@@ -568,35 +721,35 @@ void Game::sensou(int &gamePhase, int prevPhase)
                 << std::endl;
       std::cout << std::setw(75 + 11) << color("Troop", "green") + " (full health, free, selected)" << color("Army", "green") << std::endl;
       std::cout << std::setw(30) << "Infantry:       " + std::to_string(fullHealth["infantry"]) + "/" + std::to_string(this->troop->helper["infantry"](0)) + "/" + std::to_string(selectedTroopMap["infantry"])
-                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 0 ? 11 : 0)) << prefix[0][0] + underline("+1", "green") + " (1)" + prefix[0][1] + underline("-1", "green") + prefix[0][2] + underline("All", "green") + prefix[0][3] + underline("Details", "green")
-                << (this->army->total.size() > 0 ? (this->army->total.begin()->first + " (" + std::to_string(this->army->total.begin()->second->troopCount) + "/16)" + prefix[0][4] + (selectedArmyMap.count(this->army->total.begin()->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 0 ? 11 : 0)) << prefix[0][0] + underline("+1", "green") + " (1)" + prefix[0][1] + underline("-1", "green") + prefix[0][2] + underline("All", "green") + prefix[0][3] + underline("Details", "green")
+                << (this->army->total.size() > 0 ? (this->army->total.begin()->first + " (" + std::to_string(this->army->total.begin()->second->troopCount) + "/16)" + prefix[0][4] + (selectedArmyMap.count(this->army->total.begin()->first) == 0 ? underline("select", "green") : underline("deselect", "green"))) : "") << std::endl
                 << std::setw(30) << "Calvary:        " + std::to_string(fullHealth["calvary"]) + "/" + std::to_string(this->troop->helper["calvary"](0)) + "/" + std::to_string(selectedTroopMap["calvary"])
-                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 1 ? 11 : 0)) << prefix[1][0] + underline("+1", "green") + " (2)" + prefix[1][1] + underline("-1", "green") + prefix[1][2] + underline("All", "green") + prefix[1][3] + underline("Details", "green")
-                << (this->army->total.size() > 1 ? (std::next(this->army->total.begin(), 1)->first + " (" + std::to_string(std::next(this->army->total.begin(), 1)->second->troopCount) + "/16)" + prefix[1][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 1)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 1 ? 11 : 0)) << prefix[1][0] + underline("+1", "green") + " (2)" + prefix[1][1] + underline("-1", "green") + prefix[1][2] + underline("All", "green") + prefix[1][3] + underline("Details", "green")
+                << (this->army->total.size() > 1 ? (std::next(this->army->total.begin(), 1)->first + " (" + std::to_string(std::next(this->army->total.begin(), 1)->second->troopCount) + "/16)" + prefix[1][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 1)->first) == 0 ? underline("select", "green") : underline("deselect", "green"))) : "") << std::endl
                 << std::setw(30) << "Suicide Bomber: " + std::to_string(this->troop->helper["suicideBomber"](0)) + "/" + std::to_string(selectedTroopMap["suicideBomber"])
-                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 2 ? 11 : 0)) << prefix[2][0] + underline("+1", "green") + " (3)" + prefix[2][1] + underline("-1", "green") + prefix[2][2] + underline("All", "green") + prefix[2][3] + underline("Details", "green")
-                << (this->army->total.size() > 2 ? (std::next(this->army->total.begin(), 2)->first + " (" + std::to_string(std::next(this->army->total.begin(), 2)->second->troopCount) + prefix[2][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 2)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 2 ? 11 : 0)) << prefix[2][0] + underline("+1", "green") + " (3)" + prefix[2][1] + underline("-1", "green") + prefix[2][2] + underline("All", "green") + prefix[2][3] + underline("Details", "green")
+                << (this->army->total.size() > 2 ? (std::next(this->army->total.begin(), 2)->first + " (" + std::to_string(std::next(this->army->total.begin(), 2)->second->troopCount) + prefix[2][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 2)->first) == 0 ? underline("select", "green") : underline("deselect", "green"))) : "") << std::endl
                 << std::setw(30) << "Artillery:      " + std::to_string(fullHealth["artillery"]) + "/" + std::to_string(this->troop->helper["artillery"](0)) + "/" + std::to_string(selectedTroopMap["artillery"])
-                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 3 ? 11 : 0)) << prefix[3][0] + underline("+1", "green") + " (4)" + prefix[3][1] + underline("-1", "green") + prefix[3][2] + underline("All", "green") + prefix[3][3] + underline("Details", "green")
-                << (this->army->total.size() > 3 ? (std::next(this->army->total.begin(), 3)->first + " (" + std::to_string(std::next(this->army->total.begin(), 3)->second->troopCount) + prefix[3][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 3)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 3 ? 11 : 0)) << prefix[3][0] + underline("+1", "green") + " (4)" + prefix[3][1] + underline("-1", "green") + prefix[3][2] + underline("All", "green") + prefix[3][3] + underline("Details", "green")
+                << (this->army->total.size() > 3 ? (std::next(this->army->total.begin(), 3)->first + " (" + std::to_string(std::next(this->army->total.begin(), 3)->second->troopCount) + prefix[3][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 3)->first) == 0 ? underline("select", "green") : underline("deselect", "green"))) : "") << std::endl
                 << std::setw(30) << "Logistic:       " + std::to_string(fullHealth["logistic"]) + "/" + std::to_string(this->troop->helper["logistic"](0)) + "/" + std::to_string(selectedTroopMap["logistic"])
-                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 4 ? 11 : 0)) << prefix[4][0] + underline("+1", "green") + " (5)" + prefix[4][1] + underline("-1", "green") + prefix[4][2] + underline("All", "green") + prefix[4][3] + underline("Details", "green")
-                << (this->army->total.size() > 4 ? (std::next(this->army->total.begin(), 4)->first + " (" + std::to_string(std::next(this->army->total.begin(), 4)->second->troopCount) + prefix[4][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 4)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 4 ? 11 : 0)) << prefix[4][0] + underline("+1", "green") + " (5)" + prefix[4][1] + underline("-1", "green") + prefix[4][2] + underline("All", "green") + prefix[4][3] + underline("Details", "green")
+                << (this->army->total.size() > 4 ? (std::next(this->army->total.begin(), 4)->first + " (" + std::to_string(std::next(this->army->total.begin(), 4)->second->troopCount) + prefix[4][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 4)->first) == 0 ? underline("select", "green") : underline("deselect", "green"))) : "") << std::endl
                 << std::setw(30) << "Armored Car:    " + std::to_string(fullHealth["armoredCar"]) + "/" + std::to_string(this->troop->helper["armoredCar"](0)) + "/" + std::to_string(selectedTroopMap["armoredCar"])
-                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 5 ? 11 : 0)) << prefix[5][0] + underline("+1", "green") + " (6)" + prefix[5][1] + underline("-1", "green") + prefix[5][2] + underline("All", "green") + prefix[5][3] + underline("Details", "green")
-                << (this->army->total.size() > 5 ? (std::next(this->army->total.begin(), 5)->first + " (" + std::to_string(std::next(this->army->total.begin(), 5)->second->troopCount) + prefix[5][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 5)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 5 ? 11 : 0)) << prefix[5][0] + underline("+1", "green") + " (6)" + prefix[5][1] + underline("-1", "green") + prefix[5][2] + underline("All", "green") + prefix[5][3] + underline("Details", "green")
+                << (this->army->total.size() > 5 ? (std::next(this->army->total.begin(), 5)->first + " (" + std::to_string(std::next(this->army->total.begin(), 5)->second->troopCount) + prefix[5][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 5)->first) == 0 ? underline("select", "green") : underline("deselect", "green"))) : "") << std::endl
                 << std::setw(30) << "Tank 1:         " + std::to_string(fullHealth["tank1"]) + "/" + std::to_string(this->troop->helper["tank1"](0)) + "/" + std::to_string(selectedTroopMap["tank1"])
-                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 6 ? 11 : 0)) << prefix[6][0] + underline("+1", "green") + " (7)" + prefix[6][1] + underline("-1", "green") + prefix[6][2] + underline("All", "green") + prefix[6][3] + underline("Details", "green")
-                << (this->army->total.size() > 6 ? (std::next(this->army->total.begin(), 6)->first + " (" + std::to_string(std::next(this->army->total.begin(), 6)->second->troopCount) + prefix[6][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 6)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 6 ? 11 : 0)) << prefix[6][0] + underline("+1", "green") + " (7)" + prefix[6][1] + underline("-1", "green") + prefix[6][2] + underline("All", "green") + prefix[6][3] + underline("Details", "green")
+                << (this->army->total.size() > 6 ? (std::next(this->army->total.begin(), 6)->first + " (" + std::to_string(std::next(this->army->total.begin(), 6)->second->troopCount) + prefix[6][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 6)->first) == 0 ? underline("select", "green") : underline("deselect", "green"))) : "") << std::endl
                 << std::setw(30) << "Tank 2:         " + std::to_string(fullHealth["tank2"]) + "/" + std::to_string(this->troop->helper["tank2"](0)) + "/" + std::to_string(selectedTroopMap["tank2"])
-                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 7 ? 11 : 0)) << prefix[7][0] + underline("+1", "green") + " (8)" + prefix[7][1] + underline("-1", "green") + prefix[7][2] + underline("All", "green") + prefix[7][3] + underline("Details", "green")
-                << (this->army->total.size() > 7 ? (std::next(this->army->total.begin(), 7)->first + " (" + std::to_string(std::next(this->army->total.begin(), 7)->second->troopCount) + prefix[7][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 7)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 7 ? 11 : 0)) << prefix[7][0] + underline("+1", "green") + " (8)" + prefix[7][1] + underline("-1", "green") + prefix[7][2] + underline("All", "green") + prefix[7][3] + underline("Details", "green")
+                << (this->army->total.size() > 7 ? (std::next(this->army->total.begin(), 7)->first + " (" + std::to_string(std::next(this->army->total.begin(), 7)->second->troopCount) + prefix[7][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 7)->first) == 0 ? underline("select", "green") : underline("deselect", "green"))) : "") << std::endl
                 << std::setw(30) << "Tank Oshimai:   " + std::to_string(fullHealth["tankOshimai"]) + "/" + std::to_string(this->troop->helper["tankOshimai"](0)) + "/" + std::to_string(selectedTroopMap["tankOshimai"])
-                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 8 ? 11 : 0)) << prefix[8][0] + underline("+1", "green") + " (9)" + prefix[8][1] + underline("-1", "green") + prefix[8][2] + underline("All", "green") + prefix[8][3] + underline("Details", "green")
-                << (this->army->total.size() > 8 ? (std::next(this->army->total.begin(), 8)->first + " (" + std::to_string(std::next(this->army->total.begin(), 8)->second->troopCount) + prefix[8][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 8)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 8 ? 11 : 0)) << prefix[8][0] + underline("+1", "green") + " (9)" + prefix[8][1] + underline("-1", "green") + prefix[8][2] + underline("All", "green") + prefix[8][3] + underline("Details", "green")
+                << (this->army->total.size() > 8 ? (std::next(this->army->total.begin(), 8)->first + " (" + std::to_string(std::next(this->army->total.begin(), 8)->second->troopCount) + prefix[8][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 8)->first) == 0 ? underline("select", "green") : underline("deselect", "green"))) : "") << std::endl
                 << std::setw(30) << "Cas:            " + std::to_string(fullHealth["cas"]) + "/" + std::to_string(this->troop->helper["cas"](0)) + "/" + std::to_string(selectedTroopMap["cas"])
-                << std::setw(75 + 11 * 4 - 30 + (phase1[1] == 9 ? 11 : 0)) << prefix[9][0] + underline("+1", "green") + " (q)" + prefix[9][1] + underline("-1", "green") + prefix[9][2] + underline("All", "green") + prefix[9][3] + underline("Details", "green")
-                << (this->army->total.size() > 9 ? (std::next(this->army->total.begin(), 8)->first + " (" + std::to_string(std::next(this->army->total.begin(), 9)->second->troopCount) + prefix[9][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 8)->first) == 0 ? "Select" : "Deselect")) : "") << std::endl
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 9 ? 11 : 0)) << prefix[9][0] + underline("+1", "green") + " (q)" + prefix[9][1] + underline("-1", "green") + prefix[9][2] + underline("All", "green") + prefix[9][3] + underline("Details", "green")
+                << (this->army->total.size() > 9 ? (std::next(this->army->total.begin(), 8)->first + " (" + std::to_string(std::next(this->army->total.begin(), 9)->second->troopCount) + prefix[9][4] + (selectedArmyMap.count(std::next(this->army->total.begin(), 8)->first) == 0 ? underline("select", "green") : underline("deselect", "green"))) : "") << std::endl
                 << std::setw(30) << "Fighter:        " + std::to_string(fullHealth["fighter"]) + "/" + std::to_string(this->troop->helper["fighter"](0)) + "/" + std::to_string(selectedTroopMap["fighter"])
                 << std::setw(75 + 11 * 4 - 30) << prefix[10][0] + underline("+1", "green") + " (w)" + prefix[10][1] + underline("-1", "green") + prefix[10][2] + underline("All", "green") + prefix[10][3] + underline("Details", "green") << std::endl
                 << std::setw(30) << "Bomber:         " + std::to_string(fullHealth["bomber"]) + "/" + std::to_string(this->troop->helper["bomber"](0)) + "/" + std::to_string(selectedTroopMap["bomber"])
@@ -864,8 +1017,10 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == 'q')
     {
-      if (mode == 0)
-        currentCountry = (currentCountry + 1) % this->enemies->totalEnemies.size();
+     this->stopTimer();
+      timeChosen = (timeChosen + 1) % this->timeRange.size();
+      this->setting["speed"] = this->timeRange[this->timeChosen];
+      this->timer(this->setting["speed"]);
     }
     else if (input == 'z')
     {
@@ -889,14 +1044,23 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == 'e')
     {
-      this->stopTimer();
-      timeChosen = (timeChosen + 1) % this->timeRange.size();
-      this->setting["speed"] = this->timeRange[this->timeChosen];
-      this->timer(this->setting["speed"]);
+      
+      if (mode == 0)
+        currentCountry = (currentCountry + 1) % this->enemies->totalEnemies.size();
+    }
+    else if (input == 'i')
+    {
+      if (mode == 1)
+        sendAll();
+    }
+    else if (input == 'o')
+    {
+      if (mode == 1)
+        deselectAll();
     }
     else if (input == 'p')
     {
-      // pause
+      this->paused = !this->paused;
     }
     else if (input == ' ')
     {
@@ -915,6 +1079,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
       }
       else if (mode == 1)
       {
+        deselectAll();
         if (subMode == 0)
           mode = 0;
         else

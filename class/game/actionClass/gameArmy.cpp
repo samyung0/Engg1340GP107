@@ -238,17 +238,17 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
         for (int k = 3; k >= 0; k--)
         {
 
-          if (i.second->formation[j][k] == NULL)
+          if (i.second->formation[k][j] == NULL)
           {
             content.back() += "None" + std::string(25 - 4, ' ');
           }
           else
           {
-            content.back() += typeToDisplay[i.second->formation[j][k]->type] + "(";
+            content.back() += typeToDisplay[i.second->formation[k][j]->type] + "(";
 
             // casting down from double to int
-            int hp = i.second->formation[j][k]->getHealth();
-            int baseHp = typeToHp[i.second->formation[j][k]->type];
+            int hp = i.second->formation[k][j]->getHealth();
+            int baseHp = typeToHp[i.second->formation[k][j]->type];
             content.back() += std::to_string(hp) + "/" + std::to_string(baseHp) + ")";
             content.back() += std::string((j == 0 ? 12 : 0) + (4 - k) * 25 - content.back().length(), ' ');
           }
@@ -472,10 +472,10 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
     {
       for (int j = 3; j >= 0; j--)
       {
-        if (this->army->total[armySelected]->formation[i][j] == NULL)
-          std::cout << std::setw(25) << prefixPhase2Pick[i][3 - j] + "None";
+        if (this->army->total[armySelected]->formation[j][i] == NULL)
+          std::cout << std::setw(25) << prefixPhase2Pick[i][3-j] + "None";
         else
-          std::cout << std::setw(25) << prefixPhase2Pick[i][3 - j] + typeToDisplay[this->army->total[armySelected]->formation[i][j]->type] + " (" + std::to_string((int)this->army->total[armySelected]->formation[i][j]->getHealth()) + "/" + std::to_string(typeToHp[this->army->total[armySelected]->formation[i][j]->type]) + ")";
+          std::cout << std::setw(25) << prefixPhase2Pick[i][3-j] + typeToDisplay[this->army->total[armySelected]->formation[j][i]->type] + " (" + std::to_string((int)this->army->total[armySelected]->formation[j][i]->getHealth()) + "/" + std::to_string(typeToHp[this->army->total[armySelected]->formation[j][i]->type]) + ")";
       }
       std::cout << std::string(15, ' ') << std::setw(18) << prefixPhase2Troop[i][0] + posToTroop[i] << " (" + std::to_string(this->troop->helper[posToTroop[i]](0)) + ")" + " (shortcut: " + std::to_string(i + 1) + ")";
       if (i == 0)
@@ -515,12 +515,12 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
       this->lg3.unlock();
       return;
     }
-    this->army->total[armySelected]->addTroop(pos[0], 3 - pos[1], type, this->troop, this->resource);
+    this->army->total[armySelected]->addTroop(3-pos[1],pos[0], type, this->troop, this->resource);
     this->lg3.unlock();
   };
   removeTroop = [&](int *pos) {
     this->lg3.lock();
-    this->army->total[armySelected]->removeTroop(pos[0], 3 - pos[1], this->troop, this->resource);
+    this->army->total[armySelected]->removeTroop(3-pos[1],pos[0], this->troop, this->resource);
     this->lg3.unlock();
   };
 
@@ -645,8 +645,9 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
         else
           actionPhase2Troop[armyPhaseSelect[0]][armyPhaseSelect[1]]();
       }
-    }// reset terminal
-    else if(input == '/') std::cout << "\033c" << std::endl;
+    } // reset terminal
+    else if (input == '/')
+      std::cout << "\033c" << std::endl;
     else
     {
 

@@ -11,7 +11,7 @@ void Game::researchBase(std::string desc, std::function<void(data::Resource &, d
   std::string id = this->uuid();
   this->research->progressTrack = std::make_tuple(desc, id);
   this->research->progressAsync[id] = std::async(std::launch::async, [this, id, callBack, time](){
-    this->research->progress[id] = new Progress(time, this->setting["speed"]);
+    this->research->progress[id] = new Progress(time, this->setting["speed"], this->fps, this->paused);
     this->lg3.unlock();
 
     this->research->progress[id]->start(this->lg3);

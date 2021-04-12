@@ -7,7 +7,7 @@
 #include <fstream>
 #include <cassert>
 #include <cstdlib>
-#include <cstdio>
+#include <cmath>
 
 #include "gameStruct.h"
 #include "game.h"
@@ -16,21 +16,30 @@
 #include "../../data/troop/troop.h"
 
 // decrement remain by 1 every interval until 0
-Progress::Progress(int time, int interval_)
-    : remain(time), interval(interval_)
+Progress::Progress(int time, int &interval_, int fps_, bool &paused_)
+    : remain(time), milliRemain(time * 1000.0), interval(interval_), fps(fps_), paused(paused_)
 {
+}
+Progress::Progress(double time, int &interval_, int fps_, bool &paused_)
+    : milliRemain(time), interval(interval_), fps(fps_), paused(paused_)
+{
+  this->remain = std::max((int)std::ceil(this->milliRemain/1000), 0);
 }
 void Progress::start(std::mutex &lg3)
 {
-  while (this->remain > 0)
+  while (this->milliRemain > 0)
   {
-    std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / this->fps));
 
+    if (this->paused)
+      continue;
+    this->milliRemain -= 1000 * 1000 / this->fps / this->interval;
     lg3.lock();
-    this->remain--;
+    this->remain = std::max((int)std::ceil(this->milliRemain/1000.0), 0);
     lg3.unlock();
   }
 }
+
 
 Game::~Game() {}
 Game::Game(std::unordered_map<std::string, int> setting_, const int screenX_, const int screenY_, const int fps_, const std::string path_) : setting(setting_), screenWidth(screenX_), screenHeight(screenY_), fps(fps_), path(path_)
@@ -110,6 +119,40 @@ void Game::fetch()
       this->buildBase(type, 0, this->building->effect[type][level], "", this->building->helper[type](0), num);
       std::cout << "Making buildings done" << std::endl;
     }
+    else if (operand == "army")
+    {
+      std::string name = input.substr(index + 1, index2 - index - 1);
+      ArmyUnit *temp = new ArmyUnit(name);
+      int armySep = input.find("$");
+      int armyEnd = input.find("$", armySep + 1);
+
+      std::vector<int> sepArmy = {(int)input.find(",", armySep)};
+      for (int i = 0; i < 14; i++)
+        sepArmy.push_back((int)input.find(",", sepArmy.back() + 1));
+      for (int i = 0; i < 15; i++)
+        assert(sepArmy[i] != std::string::npos);
+
+      int brackettemp = input.find(")", armySep);
+      if (brackettemp + 1 != sepArmy[0])
+      {
+        temp->addTroop(0, 0, indexToTroop[std::atoi(input.substr(brackettemp + 1, sepArmy[0] - brackettemp - 1).c_str())], this->troop, this->resource);
+      }
+      for (int i = 0; i < 14; i++)
+      {
+        brackettemp = input.find(")", sepArmy[i]);
+        if (brackettemp + 1 != sepArmy[i + 1])
+        {
+          temp->addTroop((i + 1) / 4, (i + 1) % 4, indexToTroop[std::atoi(input.substr(brackettemp + 1, sepArmy[i + 1] - brackettemp - 1).c_str())], this->troop, this->resource);
+        }
+      }
+      brackettemp = input.find(")", sepArmy[14]);
+      if (brackettemp + 1 != armyEnd)
+      {
+        temp->addTroop(3, 3, indexToTroop[std::atoi(input.substr(brackettemp + 1, armyEnd - brackettemp - 1).c_str())], this->troop, this->resource);
+      }
+      this->army->total[name] = temp;
+      std::cout << "Making army done" << std::endl;
+    }
     else if (operand == "troop")
     {
       std::string type = input.substr(index + 1, index2 - index - 1);
@@ -177,7 +220,7 @@ void Game::fetch()
           else
           {
             totalLand++;
-            mapA.back().push_back(new Block(this->troop, this->resource, this->battle));
+            mapA.back().push_back(new Block(this->troop, this->resource, this->battle, this->enemies->totalEnemies.back()->capturedLand, this->enemies->totalEnemies.back()->capitulated, this->enemies->totalEnemies.back()->battlingRegions));
             mapA.back().back()->country = country;
 
             std::vector<int> sep = {(int)map.find(",", i2)};
@@ -215,20 +258,24 @@ void Game::fetch()
                 sepArmy.push_back((int)map.find(",", sepArmy.back() + 1));
               for (int i = 0; i < 15; i++)
                 assert(sepArmy[i] != std::string::npos);
-
               int brackettemp = map.find(")", armySep);
               if (brackettemp + 1 != sepArmy[0])
+              {
                 mapA.back().back()->totalFoeArmy.back()->addTroopM(0, 0, troopToInstance[indexToTroop[std::atoi(map.substr(brackettemp + 1, sepArmy[0] - brackettemp - 1).c_str())]]());
+              }
               for (int i = 0; i < 14; i++)
               {
                 brackettemp = map.find(")", sepArmy[i]);
                 if (brackettemp + 1 != sepArmy[i + 1])
-                  mapA.back().back()->totalFoeArmy.back()->addTroopM(i / 4, i % 4, troopToInstance[indexToTroop[std::atoi(map.substr(brackettemp + 1, sepArmy[i + 1] - brackettemp - 1).c_str())]]());
+                {
+                  mapA.back().back()->totalFoeArmy.back()->addTroopM((i + 1) / 4, (i + 1) % 4, troopToInstance[indexToTroop[std::atoi(map.substr(brackettemp + 1, sepArmy[i + 1] - brackettemp - 1).c_str())]]());
+                }
               }
               brackettemp = map.find(")", sepArmy[14]);
               if (brackettemp + 1 != armyEnd)
+              {
                 mapA.back().back()->totalFoeArmy.back()->addTroopM(3, 3, troopToInstance[indexToTroop[std::atoi(map.substr(brackettemp + 1, armyEnd - brackettemp - 1).c_str())]]());
-
+              }
               armySep = map.find("$", armyEnd + 1);
             }
 
@@ -383,7 +430,6 @@ void Game::start()
         this->gamePhaseSelect[0] = (this->gamePhaseSelect[0]) % this->map[this->gamePhase].size();
         this->gamePhaseSelect[1] = (this->gamePhaseSelect[1] + -1 + this->map[this->gamePhase][this->gamePhaseSelect[0]].size()) % this->map[this->gamePhase][this->gamePhaseSelect[0]].size();
         break;
-      
       }
     }
     // progress game phase

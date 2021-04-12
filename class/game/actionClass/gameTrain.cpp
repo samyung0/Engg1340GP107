@@ -23,7 +23,7 @@ void Game::trainBase(std::string type, std::function<void(data::Resource &, data
   }
 
   this->troop->progressAsync[idStore[0]] = std::async(std::launch::async, [this, idStore, time, callBack, type, camp]() {
-    this->troop->progress[idStore[0]] = new Progress(time, this->setting["speed"]);
+    this->troop->progress[idStore[0]] = new Progress(time, this->setting["speed"], this->fps, this->paused);
     for (int i = 1; i < idStore.size(); i++)
       this->troop->progress[idStore[i]] = this->troop->progress[idStore[0]];
 

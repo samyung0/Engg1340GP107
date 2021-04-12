@@ -18,9 +18,14 @@ class Progress
 {
 public:
   int remain;
-  int interval;
-  Progress(int, int);
+  int& interval;
+  int fps;
+  bool& paused;
+  Progress(int, int&, int, bool&);
+  Progress(double, int&, int, bool&);
   void start(std::mutex &);
+private:
+  double milliRemain = 0;
 };
 
 namespace data
@@ -200,7 +205,7 @@ namespace data
   {
     std::vector<TroopUnit *> allTroop;
 
-    // indices: free, in Army, in Battle plan, in Battle
+    // indices: free, in Army, null, in Battle (battle plan scrapped)
 
     // update: I dont know why i didnt use a map but too late to change,
     // so I made a helper function that returns the value when queried
@@ -317,7 +322,7 @@ public:
   void addTroop(int y, int x, std::string, data::Troop *troop, data::Resource *resource);
   void removeTroop(int y, int x, data::Troop *troop, data::Resource *resource);
 
-  void addTroopM(int y, int x, TroopUnit* instance);
+  void addTroopM(int y, int x, TroopUnit *instance);
   void removeTroopM(int y, int x);
 };
 
@@ -395,21 +400,24 @@ namespace data
 class Block
 {
 public:
-  Block(data::Troop *troop_, data::Resource *resource_, data::Battle *battler_) :troop(troop_),resource(resource_),battler(battler_) {}
+  Block(data::Troop *troop_, data::Resource *resource_, data::Battle *battler_, int&capturedLand_, bool& capitulated_, int& battlingRegions_) : troop(troop_), resource(resource_), battler(battler_), capturedLand(capturedLand_), capitulated(capitulated_), battlingRegions(battlingRegions_) {}
   data::Troop *troop;
   data::Resource *resource;
   data::Battle *battler;
 
   std::string country;
   std::string name;
-
   std::string terrain;
+
+  int& capturedLand;
+  bool& capitulated;
+  int& battlingRegions;
 
   bool captured = false;
   bool battling = false;
 
-  std::vector<std::pair<int,int>> attackable;
-  std::vector<std::pair<int,int>> encircled;
+  std::vector<std::pair<int, int>> attackable;
+  std::vector<std::pair<int, int>> encircled;
 
   std::unordered_map<std::string, int> acquirable;
 
@@ -418,18 +426,19 @@ public:
   std::vector<ArmyUnit *> totalFoeArmy;
   std::vector<TroopUnit *> totalFoeTroop;
   std::unordered_map<std::string, int> foeCount = {
-    {"infantry", 0},
-    {"calvary", 0},
-    {"logistic", 0},
-    {"armoredCar", 0},
-    {"tank1", 0},
-    {"tank2", 0},
-    {"tankOshimai", 0},
-    {"cas", 0},
-    {"fighter", 0},
-    {"bomber", 0},
-    {"army", 0}
-  };
+      {"infantry", 0},
+      {"calvary", 0},
+      {"logistic", 0},
+      {"armoredCar", 0},
+      {"tank1", 0},
+      {"tank2", 0},
+      {"tankOshimai", 0},
+      {"cas", 0},
+      {"fighter", 0},
+      {"bomber", 0},
+      {"army", 0}};
+
+  std::mutex lg;
 
   int total = 0;
 
@@ -437,12 +446,14 @@ public:
   {
     assert(reinforcement != NULL);
 
+    this->lg.lock();
     if (!this->battling)
     {
       this->battle.push_back(new BattleUnit(this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
       this->battling = true;
       battler->inBattle = true;
       battler->countryBattling = country;
+      battlingRegions++;
     }
 
     troop->helper2[reinforcement->type](0, -1);
@@ -453,32 +464,39 @@ public:
     reinforcement->isReferenced = true;
 
     battle.back()->mikata->totalTroop.push_back(reinforcement);
+
+    this->lg.unlock();
   }
   void reinforce(ArmyUnit *reinforcement)
   {
     assert(reinforcement != NULL);
 
+    this->lg.lock();
     if (!this->battling)
     {
       this->battle.push_back(new BattleUnit(this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
       this->battling = true;
       battler->inBattle = true;
       battler->countryBattling = country;
+      battlingRegions++;
     }
-
     reinforcement->inBattle = true;
     reinforcement->battleRegion = std::make_pair(this->country, this->name);
     for (auto i : reinforcement->formation)
       for (auto j : i)
       {
-        troop->helper2[j->type](3, 1);
-        j->state["battle"] = true;
+        if (j != NULL)
+        {
+          troop->helper2[j->type](3, 1);
+          j->state["battle"] = true;
+        }
       }
-
     battle.back()->mikata->totalArmy.push_back(reinforcement);
+    this->lg.unlock();
   }
   void retreat(TroopUnit *retreating)
   {
+    this->lg.lock();
     auto ptr = std::find(battle.back()->mikata->totalTroop.begin(), battle.back()->mikata->totalTroop.end(), retreating);
     assert(ptr != battle.back()->mikata->totalTroop.end());
 
@@ -495,9 +513,12 @@ public:
 
     if (battle.back()->mikata->totalTroop.size() == 0 && battle.back()->mikata->totalArmy.size() == 0)
       this->endBattle();
+
+    this->lg.unlock();
   }
   void retreat(ArmyUnit *retreating)
   {
+    this->lg.lock();
     auto ptr = std::find(battle.back()->mikata->totalArmy.begin(), battle.back()->mikata->totalArmy.end(), retreating);
     assert(ptr != battle.back()->mikata->totalArmy.end());
 
@@ -514,6 +535,7 @@ public:
 
     if (battle.back()->mikata->totalTroop.size() == 0 && battle.back()->mikata->totalArmy.size() == 0)
       this->endBattle();
+    this->lg.unlock();
   }
   void retreatAll()
   {

@@ -32,7 +32,7 @@ void Game::buildBase(std::string type, int time, std::function<void(data::Resour
   this->building->progressAsync[idStore[0]] = std::async(std::launch::async, [this, idStore, time, callBack, type]() {
 
     // here no matter how much the amount is, only 1 progress will be created so the time remaining stays in sync
-    this->building->progress[idStore[0]] = new Progress(time, this->setting["speed"]);
+    this->building->progress[idStore[0]] = new Progress(time, this->setting["speed"], this->fps, this->paused);
     for (int i = 1; i < idStore.size(); i++)
       this->building->progress[idStore[i]] = this->building->progress[idStore[0]];
 
@@ -81,7 +81,7 @@ void Game::buildBase(std::string type, int time, std::function<void()> callBack,
   }
 
   this->building->progressAsync[idStore[0]] = std::async(std::launch::async, [this, idStore, time, callBack, type]() {
-    this->building->progress[idStore[0]] = new Progress(time, this->setting["speed"]);
+    this->building->progress[idStore[0]] = new Progress(time, this->setting["speed"], this->fps, this->paused);
     for (int i = 1; i < idStore.size(); i++)
       this->building->progress[idStore[i]] = this->building->progress[idStore[0]];
 
