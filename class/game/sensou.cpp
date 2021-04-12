@@ -38,7 +38,7 @@
 void Game::sensou(int &gamePhase, int prevPhase)
 {
   int currentCountry = 0;
-  // 0: map mode, 0: block action (0b), 1: add troop, 1: add troop detail (2b), 2: remove troop, 2:remove troop detail (4b), 3: view battle, 3: view battle detail (6b)
+  // 0: map mode, 0: block action (0b), 1: add troop, 1: add troop detail (2b), 3: remove troop, 3:remove troop detail (4b), 2: view battle
   int mode = 0;
   int subMode = 0;
 
@@ -54,6 +54,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
   int phase1[2] = {0, 0};
   int subPhase1[2] = {0, 0};
   int subPhase1Mode = 0;
+  int scroll2[2] = {0, 0};
   std::string subPhase1Type;
   TroopUnit *subPhase1TroopDetail;
   bool enter = false;
@@ -225,7 +226,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
       {
         if (subPhase0[0] == 0)
           mode = 1;
-        else if (subPhase0[1] == 1)
+        else if (subPhase0[0] == 2)
           mode = 2;
         else
           mode = 3;
@@ -241,17 +242,19 @@ void Game::sensou(int &gamePhase, int prevPhase)
 
         return;
       }
-      else {
-        bool inBattle = false;
-    std::string name;
-    for (auto i : this->enemies->totalEnemies)
-      if (i->battlingRegions > 0)
+      else
       {
-        inBattle = true;
-        name = i->name;
-        break;
-      }
-      if(!inBattle || name== this->enemies->totalEnemies[currentCountry]->name) subMode = 1;
+        bool inBattle = false;
+        std::string name;
+        for (auto i : this->enemies->totalEnemies)
+          if (i->battlingRegions > 0)
+          {
+            inBattle = true;
+            name = i->name;
+            break;
+          }
+        if (!inBattle || name == this->enemies->totalEnemies[currentCountry]->name)
+          subMode = 1;
       }
     }
     this->lg3.lock();
@@ -486,19 +489,9 @@ void Game::sensou(int &gamePhase, int prevPhase)
     for (int i = render.size(); i < screen[0]; i++)
       render.push_back(std::string(screen[1], ' '));
 
-    bool inBattle = false;
-    std::string name;
-    for (auto i : this->enemies->totalEnemies)
-      if (i->battlingRegions > 0)
-      {
-        inBattle = true;
-        name = i->name;
-        break;
-      }
-
     int maxLength2 = 20;
     std::vector<std::string> render2;
-    if (!inBattle || name == ptr->name)
+    if ((!this->battle->inBattle || this->battle->countryBattling == ptr->name) && !ptr->map[phase0[0]][phase0[1]]->captured)
       render2.push_back("   Send Troop (z)   ");
     if (ptr->map[phase0[0]][phase0[1]]->battling)
     {
@@ -553,12 +546,13 @@ void Game::sensou(int &gamePhase, int prevPhase)
       render4[i] += std::string(maxLength4 - render4[i].length(), ' ');
 
     std::cout << "\033[1;1H";
-    std::cout << color("Battle", "magenta") << std::endl << std::endl;
+    std::cout << color("Battle", "magenta") << std::endl
+              << std::endl;
 
     this->lg.lock();
     std::stringstream speed;
     speed << std::fixed << std::setprecision(1) << this->setting["speed"] / 1000.0;
-    std::cout << color("Day: ", "green") << this->day << "/" << this->timeLimit << " (" << speed.str() << "s)     "<< (this->paused ? color("PAUSED", "red") : "") << std::endl
+    std::cout << color("Day: ", "green") << this->day << "/" << this->timeLimit << " (" << speed.str() << "s)     " << (this->paused ? color("PAUSED", "red") : "") << std::endl
               << std::endl;
     this->lg.unlock();
 
@@ -567,8 +561,9 @@ void Game::sensou(int &gamePhase, int prevPhase)
               << "   Battling Regions: " << this->enemies->totalEnemies[currentCountry]->battlingRegions
               << std::endl;
 
-    std::cout << "Change speed: q     Pause: p     Next country: e (total: " << this->enemies->totalEnemies.size() << ")     Move map: wasd     Return: spacebar " << std::endl
-              << std::endl << std::endl;
+    std::cout << "Change speed: q     Pause: p     Next country: e (total: " << this->enemies->totalEnemies.size() << ")     Move map: wasd     Back: spacebar " << std::endl
+              << std::endl
+              << std::endl;
 
     for (int i = 0; i < 12; i++)
     {
@@ -844,6 +839,174 @@ void Game::sensou(int &gamePhase, int prevPhase)
     this->lg3.unlock();
   });
 
+  printMode.push_back([&]() {
+    int fillX = 150;
+    int screenY = 27;
+    std::vector<std::string> render;
+
+    Block *ptr = this->enemies->totalEnemies[currentCountry]->map[phase0[0]][phase0[1]];
+    BattleUnit *ptr2 = ptr->battle.back();
+    ptr2->lg.lock();
+
+    render.push_back(std::string(fillX / 2 - 2, ' ') + "Stats");
+    render.back() += std::string((int)(fillX - render.back().length()), ' ');
+    int deathFd = std::round(ptr2->totalFriendlyDeathCount / ptr2->totalFriendly * 20);
+    int deathFoe = std::round(ptr2->totalFoeDeathCount / ptr->totalFoe * 20);
+    render.push_back("Casualty Rate: " + std::string(20 - deathFd, '+') + std::string(deathFd, '-'));
+    std::string temp = std::string(deathFoe, '-') + std::string(20 - deathFoe, '+') + " :Casualty Rate";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Soft Attack: " + std::to_string((int)ptr2->totalSoftAttack));
+    temp = std::to_string((int)ptr2->totalFoeSoftAttack) + " :Soft Attack";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Hard Attack: " + std::to_string((int)ptr2->totalHardAttack));
+    temp = std::to_string((int)ptr2->totalFoeHardAttack) + " :Hard Attack";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Air Attack: " + std::to_string((int)ptr2->totalAirAttack));
+    temp = std::to_string((int)ptr2->totalFoeAirAttack) + " :Air Attack";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
+    render.push_back(std::string(fillX / 2 - 2, ' ') + "Troops");
+    render.back() += std::string((int)(fillX - render.back().length()), ' ');
+    render.push_back("Infantry: " + std::to_string(ptr2->friendCount["infantry"]));
+    temp = std::to_string(ptr->foeCount["infantry"]) + " :Infantry";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Calvary: " + std::to_string(ptr2->friendCount["Calvary"]));
+    temp = std::to_string(ptr->foeCount["Calvary"]) + " :Calvary";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Suicide Bomber: " + std::to_string(ptr2->friendCount["suicideBomber"]));
+    temp = "0 :Suicide Bomber";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Artillery: " + std::to_string(ptr2->friendCount["artillery"]));
+    temp = std::to_string(ptr->foeCount["artillery"]) + " :Artillery";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Logistic: " + std::to_string(ptr2->friendCount["logistic"]));
+    temp = std::to_string(ptr->foeCount["logistic"]) + " :Logistic";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Armored Car: " + std::to_string(ptr2->friendCount["armoredCar"]));
+    temp = std::to_string(ptr->foeCount["armoredCar"]) + " :Armored Car";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Tank 1: " + std::to_string(ptr2->friendCount["tank1"]));
+    temp = std::to_string(ptr->foeCount["tank1"]) + " :Tank 1";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Tank 2: " + std::to_string(ptr2->friendCount["tank2"]));
+    temp = std::to_string(ptr->foeCount["tank2"]) + " :Tank 2";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Tank Oshimai: " + std::to_string(ptr2->friendCount["tankOshimai"]));
+    temp = std::to_string(ptr->foeCount["tankOshimai"]) + " :Tank Oshimai";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Cas: " + std::to_string(ptr2->friendCount["cas"]));
+    temp = std::to_string(ptr->foeCount["cas"]) + " :Cas";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Fighter: " + std::to_string(ptr2->friendCount["fighter"]));
+    temp = std::to_string(ptr->foeCount["fighter"]) + " :Fighter";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Bomber: " + std::to_string(ptr2->friendCount["bomber"]));
+    temp = std::to_string(ptr->foeCount["bomber"]) + " :Bomber";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+    render.push_back("Kamikaze: " + std::to_string(ptr2->friendCount["kamikaze"]));
+    temp = "0 :Kamikaze";
+    render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
+    for (int i = 0; i < render.size(); i++)
+      assert(render[i].length() == fillX);
+
+    render.push_back(std::string(fillX / 2 - 2, ' ') + "Armies");
+    render.back() += std::string((int)(fillX - render.back().length()), ' ');
+    int troopLength = 16;
+    int start = render.size();
+    for (auto i : ptr2->mikata->totalArmy)
+    {
+      render.push_back("D" + std::string(troopLength - 1, ' ') + "C" + std::string(troopLength - 1, ' ') + "B" + std::string(troopLength - 1, ' ') + "A" + std::string(troopLength - 1, ' '));
+      render.back() += std::string((int)(fillX / 2 - render.back().length()), ' ');
+      for (int j = 0; j < 4; j++)
+      {
+        render.push_back("");
+        for (int k = 3; k >= 0; k--)
+        {
+          if (i->formation[k][j] != NULL)
+            temp = typeToDisplay[i->formation[k][j]->type];
+          else
+            temp = "None";
+          render.back() += temp + std::string(troopLength - temp.length(), ' ');
+        }
+        render.back() += std::string((int)(fillX / 2 - render.back().length()), ' ');
+        render.push_back("");
+        for (int k = 3; k >= 0; k--)
+        {
+          if (i->formation[k][j] != NULL)
+            temp = "(" + std::to_string((int)i->formation[k][j]->getHealth()) + "/" + std::to_string(i->formation[k][j]->getBaseHealth()) + ")";
+          else
+            temp = "";
+          render.back() += temp + std::string(troopLength - temp.length(), ' ');
+        }
+        render.back() += std::string((int)(fillX / 2 - render.back().length()), ' ');
+      }
+      render.push_back(std::string(fillX / 2, ' '));
+    }
+    int tempCount = 0;
+    std::string temp2 = "";
+    for (auto i : ptr2->foe->totalArmy)
+    {
+      temp = std::string(troopLength - 1, ' ') + "A" + std::string(troopLength - 1, ' ') + "B" + std::string(troopLength - 1, ' ') + "C" + std::string(troopLength - 1, ' ') + "D";
+      if (render.size() <= start + tempCount * 10)
+      {
+        for (int i = 0; i < 10; i++)
+          render.push_back(std::string(fillX / 2, ' '));
+      }
+      render[start + tempCount * 10] += std::string((int)(fillX / 2 - temp.length()), ' ') + temp;
+      for (int j = 0; j < 4; j++)
+      {
+        for (int k = 0; k < 4; k++)
+        {
+          if (i->formation[k][j] != NULL)
+            temp = typeToDisplay[i->formation[k][j]->type];
+          else
+            temp = "None";
+          temp2 += std::string(troopLength - temp.length(), ' ') + temp;
+        }
+        render[start + tempCount * 10 + j * 2 + 1] += std::string((int)(fillX / 2 - temp2.length()), ' ') + temp2;
+        temp2 = std::string(troopLength * 4, ' ');
+        render[start + tempCount * 10 + j * 2 + 2] += std::string((int)(fillX / 2 - temp2.length()), ' ') + temp2;
+        temp2 = "";
+      }
+      render[start + tempCount * 10 + 9] += std::string(fillX / 2, ' ');
+      tempCount++;
+    }
+
+    for (int i = 0; i < render.size(); i++)
+      if (render[i].length() < fillX)
+        render[i] += std::string(fillX - render[i].length(), ' ');
+
+    int scrollableY = std::max(0, (int)(render.size() - screenY));
+    scroll2[1] = 0;
+    scroll2[0] = std::min(std::max(0, scroll2[0]), scrollableY);
+
+    std::cout << "\033[1;1H";
+    std::cout << color("View Battle", "magenta") << std::endl
+              << "Change Speed: q     Pause: p     Back: spacebar"
+              << std::endl
+              << std::endl;
+
+    this->lg.lock();
+    std::stringstream speed;
+    speed << std::fixed << std::setprecision(1) << this->setting["speed"] / 1000.0;
+    std::cout << color("Day: ", "green") << this->day << "/" << this->timeLimit << " (" << speed.str() << "s)     " << (this->paused ? color("PAUSED", "red") : "") << std::endl
+              << std::endl;
+    this->lg.unlock();
+
+    if (scroll2[0] != 0)
+      std::cout << std::string(fillX / 2 - 7, ' ') + "||Scroll up (w)||" + std::string(fillX / 2 - 8, ' ') << std::endl;
+    else
+      std::cout << std::string(fillX, ' ') << std::endl;
+    for (int i = scroll2[0]; i < std::min((int)render.size(), scroll2[0] + screenY); i++)
+      std::cout << render[i] << std::endl;
+    if (scroll2[0] != scrollableY)
+      std::cout << std::string(fillX / 2 - 8, ' ') + "||Scroll down (s)||" + std::string(fillX / 2 - 9, ' ') << std::endl;
+    else
+      std::cout << std::string(fillX, ' ') << std::endl;
+    ptr2->lg.unlock();
+  });
+
   loopPrint = [&]() {
     printFuture = std::async(std::launch::async, [&]() {
       terminatePrint = false;
@@ -974,6 +1137,8 @@ void Game::sensou(int &gamePhase, int prevPhase)
         subPhase1Mode = 1;
         scroll1[0]--;
       }
+      else if (mode == 2)
+        scroll2[0]--;
     }
     else if (input == 'a')
     {
@@ -982,12 +1147,13 @@ void Game::sensou(int &gamePhase, int prevPhase)
         subPhase0Mode = 1;
         scroll0[1]--;
       }
-
       else if (mode == 1)
       {
         subPhase1Mode = 1;
         scroll1[1]--;
       }
+      else if (mode == 2)
+        scroll2[1]--;
     }
     else if (input == 's')
     {
@@ -1001,6 +1167,8 @@ void Game::sensou(int &gamePhase, int prevPhase)
         subPhase1Mode = 1;
         scroll1[0]++;
       }
+      else if (mode == 2)
+        scroll2[0]++;
     }
     else if (input == 'd')
     {
@@ -1014,10 +1182,12 @@ void Game::sensou(int &gamePhase, int prevPhase)
         subPhase1Mode = 1;
         scroll1[1]++;
       }
+      else if (mode == 2)
+        scroll2[1]++;
     }
     else if (input == 'q')
     {
-     this->stopTimer();
+      this->stopTimer();
       timeChosen = (timeChosen + 1) % this->timeRange.size();
       this->setting["speed"] = this->timeRange[this->timeChosen];
       this->timer(this->setting["speed"]);
@@ -1026,25 +1196,26 @@ void Game::sensou(int &gamePhase, int prevPhase)
     {
       if (mode == 0)
       {
-        bool inBattle = false;
-        std::string name;
-        for (auto i : this->enemies->totalEnemies)
-          if (i->battlingRegions > 0)
-          {
-            inBattle = true;
-            name = i->name;
-            break;
-          }
-        if (!inBattle || name == this->enemies->totalEnemies[currentCountry]->name)
+        if ((!this->battle->inBattle || this->battle->countryBattling == this->enemies->totalEnemies[currentCountry]->name) && !this->enemies->totalEnemies[currentCountry]->map[phase0[0]][phase0[1]]->captured)
         {
           mode = 1;
           subMode = 0;
         }
       }
     }
+    else if (input == 'c')
+    {
+      if (mode == 0)
+      {
+        if (this->enemies->totalEnemies[currentCountry]->map[phase0[0]][phase0[1]]->battling)
+        {
+          mode = 2;
+          subMode = 0;
+        }
+      }
+    }
     else if (input == 'e')
     {
-      
       if (mode == 0)
         currentCountry = (currentCountry + 1) % this->enemies->totalEnemies.size();
     }
@@ -1085,6 +1256,8 @@ void Game::sensou(int &gamePhase, int prevPhase)
         else
           subMode = 0;
       }
+      else if (mode == 2)
+        mode = 0;
     }
 
     std::cout << "\033[2J\033[1;1H";

@@ -34,6 +34,10 @@ public:
   virtual double getHealth() = 0;
   virtual double getFood() = 0;
   virtual double getEquipment() = 0;
+  virtual int getBaseHealth() = 0;
+  virtual int getSoftAttack() = 0;
+  virtual int getHardAttack() = 0;
+  virtual int getAirAttack() = 0;
   std::string uuid;
   std::string type;
 
@@ -45,7 +49,6 @@ public:
   bool isReferenced = false;
   std::vector<bool> reference;
 
-  // health related strength, more signficant than subsequential strength
   double pivotalStrength = 1.0;
   double subsequentialStrength = 1.0;
 
@@ -64,10 +67,6 @@ public:
   // const static int armor;
   // const static int conspicuousness;
   // const static int baseHp;
-  // const static int baseHp
-  // double equipment;
-  // double food;
-  // double hp;
 };
 class Infantry : public TroopUnit
 {
@@ -86,6 +85,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;
@@ -120,6 +123,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;
@@ -156,6 +163,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;
@@ -189,6 +200,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;
@@ -224,6 +239,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;
@@ -257,6 +276,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;
@@ -290,6 +313,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;
@@ -323,6 +350,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;
@@ -356,6 +387,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;
@@ -389,6 +424,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;
@@ -422,6 +461,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;
@@ -455,6 +498,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;
@@ -490,6 +537,10 @@ public:
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
+  int getBaseHealth() { return baseHp; }
+  int getSoftAttack() { return softAttack; }
+  int getHardAttack() { return hardAttack; }
+  int getAirAttack() { return airAttack; }
 
   //permanent
   const static int trainingCamp;

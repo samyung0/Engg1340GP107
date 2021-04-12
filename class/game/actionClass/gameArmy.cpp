@@ -477,25 +477,25 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
         else
           std::cout << std::setw(25) << prefixPhase2Pick[i][3-j] + typeToDisplay[this->army->total[armySelected]->formation[j][i]->type] + " (" + std::to_string((int)this->army->total[armySelected]->formation[j][i]->getHealth()) + "/" + std::to_string(typeToHp[this->army->total[armySelected]->formation[j][i]->type]) + ")";
       }
-      std::cout << std::string(15, ' ') << std::setw(18) << prefixPhase2Troop[i][0] + posToTroop[i] << " (" + std::to_string(this->troop->helper[posToTroop[i]](0)) + ")" + " (shortcut: " + std::to_string(i + 1) + ")";
+      std::cout << std::string(15, ' ') << std::setw(18) << prefixPhase2Troop[i][0] + typeToDisplay[posToTroop[i]] << " (" + std::to_string(this->troop->helper[posToTroop[i]](0)) + ")" + " (shortcut: " + std::to_string(i + 1) + ")";
       if (i == 0)
         std::cout << prefixPhase2Troop[0][1] << underline("Remove", "green") << " (shortcut: 0)";
       std::cout << std::endl;
     }
-    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[4][0] + posToTroop[4] << " (" + std::to_string(this->troop->helper[posToTroop[4]](0)) + ")"
+    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[4][0] + typeToDisplay[posToTroop[4]] << " (" + std::to_string(this->troop->helper[posToTroop[4]](0)) + ")"
               << " (shortcut: 4)" << std::endl;
-    std::cout << std::setw(25 * 4 + 11 + 15) << prefixPhase2Pick[4][0] + underline("Back", "green") + " (Or spacebar)" << std::setw(18) << prefixPhase2Troop[5][0] + posToTroop[5] << " (" + std::to_string(this->troop->helper[posToTroop[5]](0)) + ")"
+    std::cout << std::setw(25 * 4 + 11 + 15) << prefixPhase2Pick[4][0] + underline("Back", "green") + " (Or spacebar)" << std::setw(18) << prefixPhase2Troop[5][0] + typeToDisplay[posToTroop[5]] << " (" + std::to_string(this->troop->helper[posToTroop[5]](0)) + ")"
               << " (shortcut: 5)" << std::endl;
     for (int i = 6; i < 9; i++)
-      std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[i][0] + posToTroop[i] << " (" + std::to_string(this->troop->helper[posToTroop[i]](0)) + ")"
+      std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[i][0] + typeToDisplay[posToTroop[i]] << " (" + std::to_string(this->troop->helper[posToTroop[i]](0)) + ")"
                 << " (shortcut: " + std::to_string(i + 1) + ")" << std::endl;
-    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[9][0] + posToTroop[9] << " (" + std::to_string(this->troop->helper[posToTroop[9]](0)) + ")"
+    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[9][0] + typeToDisplay[posToTroop[9]] << " (" + std::to_string(this->troop->helper[posToTroop[9]](0)) + ")"
               << " (shortcut: q)" << std::endl;
-    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[10][0] + posToTroop[10] << " (" + std::to_string(this->troop->helper[posToTroop[10]](0)) + ")"
+    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[10][0] + typeToDisplay[posToTroop[10]] << " (" + std::to_string(this->troop->helper[posToTroop[10]](0)) + ")"
               << " (shortcut: w)" << std::endl;
-    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[11][0] + posToTroop[11] << " (" + std::to_string(this->troop->helper[posToTroop[11]](0)) + ")"
+    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[11][0] + typeToDisplay[posToTroop[11]] << " (" + std::to_string(this->troop->helper[posToTroop[11]](0)) + ")"
               << " (shortcut: e)" << std::endl;
-    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[12][0] + posToTroop[12] << " (" + std::to_string(this->troop->helper[posToTroop[12]](0)) + ")"
+    std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[12][0] + typeToDisplay[posToTroop[12]] << " (" + std::to_string(this->troop->helper[posToTroop[12]](0)) + ")"
               << " (shortcut: r)" << std::endl;
 
     std::cout << std::endl;

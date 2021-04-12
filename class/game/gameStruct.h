@@ -11,6 +11,7 @@
 #include <mutex>
 #include <cassert>
 #include <algorithm>
+#include <cmath>
 
 #include "../../data/troop/troop.h"
 
@@ -18,12 +19,13 @@ class Progress
 {
 public:
   int remain;
-  int& interval;
+  int &interval;
   int fps;
-  bool& paused;
-  Progress(int, int&, int, bool&);
-  Progress(double, int&, int, bool&);
+  bool &paused;
+  Progress(int, int &, int, bool &);
+  Progress(double, int &, int, bool &);
   void start(std::mutex &);
+
 private:
   double milliRemain = 0;
 };
@@ -341,7 +343,24 @@ class BattleUnit
 {
 public:
   // country, region, your side troop, enemy side troop
-  BattleUnit(std::string country_, std::string region_, BattleTroopWrapper *mikata_, BattleTroopWrapper *foe_) : country(country_), region(region_), mikata(mikata_), foe(foe_){};
+  BattleUnit(std::mutex &lg_, std::string country_, std::string region_, BattleTroopWrapper *mikata_, BattleTroopWrapper *foe_) : country(country_), region(region_), mikata(mikata_), foe(foe_), lg(lg_)
+  {
+    for (auto i : foe->totalTroop)
+    {
+      totalFoeSoftAttack += i->getSoftAttack();
+      totalFoeHardAttack += i->getHardAttack();
+      totalFoeAirAttack += i->getAirAttack();
+    }
+    for (auto i : foe->totalArmy)
+      for (auto j : i->formation)
+        for (auto k : j)
+          if (k != NULL)
+          {
+            totalFoeSoftAttack += k->getSoftAttack();
+            totalFoeHardAttack += k->getHardAttack();
+            totalFoeAirAttack += k->getAirAttack();
+          }
+  };
 
   std::string country;
   std::string region;
@@ -349,14 +368,26 @@ public:
   BattleTroopWrapper *mikata;
   BattleTroopWrapper *foe;
 
-  // may the better Hoi player win
-  void fight();
-  void clean();
-  void regen();
+  std::mutex &lg;
 
   // stats
   int duration = 0;
   double damageDealt = 0;
+  std::unordered_map<std::string, int> friendCount = {
+      {"infantry", 0},
+      {"calvary", 0},
+      {"suicideBomber", 0},
+      {"artillery", 0},
+      {"logistic", 0},
+      {"armoredCar", 0},
+      {"tank1", 0},
+      {"tank2", 0},
+      {"tankOshimai", 0},
+      {"cas", 0},
+      {"fighter", 0},
+      {"Bomber", 0},
+      {"Kamikaze", 0},
+  };
   std::unordered_map<std::string, int> killCount = {
       {"infantry", 0},
       {"calvary", 0},
@@ -385,6 +416,29 @@ public:
       {"Bomber", 0},
       {"kamikaze", 0},
   };
+  int totalFriendlyDeathCount = 0;
+  int totalFoeDeathCount = 0;
+  int totalFriendly = 0;
+  double totalSoftAttack = 0;
+  double totalHardAttack = 0;
+  double totalAirAttack = 0;
+  double totalFoeSoftAttack = 0;
+  double totalFoeHardAttack = 0;
+  double totalFoeAirAttack = 0;
+
+  // may the better Hoi player win
+  void fight()
+  {
+    this->lg.lock();
+    // calculate the pivotal strength for both sides since its affected by health
+    for (auto i : this->mikata->totalTroop)
+      i->pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (i->getHealth() / i->getBaseHealth()) + std::log(0.2) + 1.5), 1 - i->getHealth() / i->getBaseHealth());
+
+    this->duration++;
+    this->lg.unlock();
+  }
+  void regen();
+  void clean();
 };
 
 namespace data
@@ -400,7 +454,7 @@ namespace data
 class Block
 {
 public:
-  Block(data::Troop *troop_, data::Resource *resource_, data::Battle *battler_, int&capturedLand_, bool& capitulated_, int& battlingRegions_) : troop(troop_), resource(resource_), battler(battler_), capturedLand(capturedLand_), capitulated(capitulated_), battlingRegions(battlingRegions_) {}
+  Block(data::Troop *troop_, data::Resource *resource_, data::Battle *battler_, int &capturedLand_, bool &capitulated_, int &battlingRegions_) : troop(troop_), resource(resource_), battler(battler_), capturedLand(capturedLand_), capitulated(capitulated_), battlingRegions(battlingRegions_) {}
   data::Troop *troop;
   data::Resource *resource;
   data::Battle *battler;
@@ -409,9 +463,9 @@ public:
   std::string name;
   std::string terrain;
 
-  int& capturedLand;
-  bool& capitulated;
-  int& battlingRegions;
+  int &capturedLand;
+  bool &capitulated;
+  int &battlingRegions;
 
   bool captured = false;
   bool battling = false;
@@ -428,6 +482,7 @@ public:
   std::unordered_map<std::string, int> foeCount = {
       {"infantry", 0},
       {"calvary", 0},
+      {"artillery", 0},
       {"logistic", 0},
       {"armoredCar", 0},
       {"tank1", 0},
@@ -440,8 +495,7 @@ public:
 
   std::mutex lg;
 
-  int total = 0;
-
+  int totalFoe = 0;
   void reinforce(TroopUnit *reinforcement)
   {
     assert(reinforcement != NULL);
@@ -449,11 +503,11 @@ public:
     this->lg.lock();
     if (!this->battling)
     {
-      this->battle.push_back(new BattleUnit(this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
+      this->battle.push_back(new BattleUnit(this->lg, this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
       this->battling = true;
       battler->inBattle = true;
       battler->countryBattling = country;
-      battlingRegions++;
+      this->battlingRegions++;
     }
 
     troop->helper2[reinforcement->type](0, -1);
@@ -464,21 +518,22 @@ public:
     reinforcement->isReferenced = true;
 
     battle.back()->mikata->totalTroop.push_back(reinforcement);
+    battle.back()->totalFriendly++;
+    battle.back()->friendCount[reinforcement->type]++;
 
     this->lg.unlock();
   }
   void reinforce(ArmyUnit *reinforcement)
   {
     assert(reinforcement != NULL);
-
     this->lg.lock();
     if (!this->battling)
     {
-      this->battle.push_back(new BattleUnit(this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
+      this->battle.push_back(new BattleUnit(this->lg, this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
       this->battling = true;
       battler->inBattle = true;
       battler->countryBattling = country;
-      battlingRegions++;
+      this->battlingRegions++;
     }
     reinforcement->inBattle = true;
     reinforcement->battleRegion = std::make_pair(this->country, this->name);
@@ -487,6 +542,8 @@ public:
       {
         if (j != NULL)
         {
+          battle.back()->friendCount[j->type]++;
+          battle.back()->totalFriendly++;
           troop->helper2[j->type](3, 1);
           j->state["battle"] = true;
         }
@@ -496,6 +553,8 @@ public:
   }
   void retreat(TroopUnit *retreating)
   {
+    if (retreating == NULL)
+      return;
     this->lg.lock();
     auto ptr = std::find(battle.back()->mikata->totalTroop.begin(), battle.back()->mikata->totalTroop.end(), retreating);
     assert(ptr != battle.back()->mikata->totalTroop.end());
@@ -510,10 +569,11 @@ public:
     battle.back()->mikata->totalTroop.erase(ptr);
     retreating->reference.pop_back();
     retreating->isReferenced = retreating->reference.size() != 0;
+    battle.back()->totalFriendly--;
+    battle.back()->friendCount[retreating->type]--;
 
     if (battle.back()->mikata->totalTroop.size() == 0 && battle.back()->mikata->totalArmy.size() == 0)
       this->endBattle();
-
     this->lg.unlock();
   }
   void retreat(ArmyUnit *retreating)
@@ -527,8 +587,13 @@ public:
     for (auto i : retreating->formation)
       for (auto j : i)
       {
-        troop->helper2[j->type](3, -1);
-        j->state["battle"] = false;
+        if (j != NULL)
+        {
+          battle.back()->friendCount[j->type]--;
+          battle.back()->totalFriendly--;
+          troop->helper2[j->type](3, -1);
+          j->state["battle"] = false;
+        }
       }
 
     battle.back()->mikata->totalArmy.erase(ptr);

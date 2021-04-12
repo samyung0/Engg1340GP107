@@ -23,7 +23,7 @@ Progress::Progress(int time, int &interval_, int fps_, bool &paused_)
 Progress::Progress(double time, int &interval_, int fps_, bool &paused_)
     : milliRemain(time), interval(interval_), fps(fps_), paused(paused_)
 {
-  this->remain = std::max((int)std::ceil(this->milliRemain/1000), 0);
+  this->remain = std::max((int)std::ceil(this->milliRemain / 1000), 0);
 }
 void Progress::start(std::mutex &lg3)
 {
@@ -35,11 +35,10 @@ void Progress::start(std::mutex &lg3)
       continue;
     this->milliRemain -= 1000 * 1000 / this->fps / this->interval;
     lg3.lock();
-    this->remain = std::max((int)std::ceil(this->milliRemain/1000.0), 0);
+    this->remain = std::max((int)std::ceil(this->milliRemain / 1000.0), 0);
     lg3.unlock();
   }
 }
-
 
 Game::~Game() {}
 Game::Game(std::unordered_map<std::string, int> setting_, const int screenX_, const int screenY_, const int fps_, const std::string path_) : setting(setting_), screenWidth(screenX_), screenHeight(screenY_), fps(fps_), path(path_)
@@ -238,6 +237,7 @@ void Game::fetch()
             {
               int num = std::atoi(map.substr(sep[i] + 1, sep[i + 1] - sep[i] - 1).c_str());
               mapA.back().back()->foeCount[indexToTroop[i]] += num;
+              mapA.back().back()->totalFoe += num;
               for (int j = 0; j < num; j++)
                 mapA.back().back()->totalFoeTroop.push_back(troopToInstance[indexToTroop[i]]());
             }
@@ -261,6 +261,7 @@ void Game::fetch()
               int brackettemp = map.find(")", armySep);
               if (brackettemp + 1 != sepArmy[0])
               {
+                mapA.back().back()->totalFoe++;
                 mapA.back().back()->totalFoeArmy.back()->addTroopM(0, 0, troopToInstance[indexToTroop[std::atoi(map.substr(brackettemp + 1, sepArmy[0] - brackettemp - 1).c_str())]]());
               }
               for (int i = 0; i < 14; i++)
@@ -268,12 +269,14 @@ void Game::fetch()
                 brackettemp = map.find(")", sepArmy[i]);
                 if (brackettemp + 1 != sepArmy[i + 1])
                 {
+                  mapA.back().back()->totalFoe++;
                   mapA.back().back()->totalFoeArmy.back()->addTroopM((i + 1) / 4, (i + 1) % 4, troopToInstance[indexToTroop[std::atoi(map.substr(brackettemp + 1, sepArmy[i + 1] - brackettemp - 1).c_str())]]());
                 }
               }
               brackettemp = map.find(")", sepArmy[14]);
               if (brackettemp + 1 != armyEnd)
               {
+                mapA.back().back()->totalFoe++;
                 mapA.back().back()->totalFoeArmy.back()->addTroopM(3, 3, troopToInstance[indexToTroop[std::atoi(map.substr(brackettemp + 1, armyEnd - brackettemp - 1).c_str())]]());
               }
               armySep = map.find("$", armyEnd + 1);
