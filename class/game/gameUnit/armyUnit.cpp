@@ -33,6 +33,7 @@ void ArmyUnit::addTroop(int x, int y, std::string type, data::Troop *troop, data
   this->formation[x][y] = troop->allTroop[index];
 
   this->troopCount++;
+  this->historicTroopCount++;
   this->totalBaseFoodRequired += troop->allTroop[index]->getFood();
   this->totalBaseEquipmentRequired += troop->allTroop[index]->getEquipment();
 
@@ -40,7 +41,7 @@ void ArmyUnit::addTroop(int x, int y, std::string type, data::Troop *troop, data
   {
     this->logisticCount++;
     this->foodReductionPer++;
-    this->speedBoostPerLand += 2;
+    this->speedBoostPerLand += 1;
   }
 
   this->totalFoodRequired = this->totalBaseFoodRequired - this->foodReductionPer * this->troopCount;
@@ -77,7 +78,7 @@ void ArmyUnit::removeTroop(int x, int y, data::Troop *troop, data::Resource *res
   {
     this->logisticCount--;
     this->foodReductionPer--;
-    this->speedBoostPerLand -= 2;
+    this->speedBoostPerLand -= 1;
   }
 
   this->totalFoodRequired = this->totalBaseFoodRequired - this->foodReductionPer * this->troopCount;
@@ -106,7 +107,7 @@ void ArmyUnit::addTroopM(int x, int y, TroopUnit* instance)
   {
     this->logisticCount++;
     this->foodReductionPer++;
-    this->speedBoostPerLand += 2;
+    this->speedBoostPerLand += 1;
   }
 
   this->totalFoodRequired = this->totalBaseFoodRequired - this->foodReductionPer * this->troopCount;
@@ -136,7 +137,7 @@ void ArmyUnit::removeTroopM(int x, int y)
   {
     this->logisticCount--;
     this->foodReductionPer--;
-    this->speedBoostPerLand -= 2;
+    this->speedBoostPerLand -= 1;
   }
 
   this->totalFoodRequired = this->totalBaseFoodRequired - this->foodReductionPer * this->troopCount;

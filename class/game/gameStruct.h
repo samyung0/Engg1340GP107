@@ -12,8 +12,10 @@
 #include <cassert>
 #include <algorithm>
 #include <cmath>
+#include <random>
 
 #include "../../data/troop/troop.h"
+#include "../../random/random.h"
 
 class Progress
 {
@@ -32,7 +34,6 @@ private:
 
 namespace data
 {
-
   struct Resource
   {
     // to be updated in game fetch
@@ -275,14 +276,15 @@ public:
   // name should be unique among other armies (used as key in army struct map)
   std::string name;
   int troopCount = 0;
+  int historicTroopCount = 0;
 
   bool inBattle = false;
   // country name, region coordinate
   std::pair<std::string, std::string> battleRegion = {};
 
-  double calsualtyCount = 0;
+  // double calsualtyCount = 0;
   // calculated by dividing lost troops/ total troops
-  double casualtyPercentage = 0;
+  // double casualtyPercentage = 0;
 
   // pointer to troops
   std::vector<std::vector<TroopUnit *>> formation = {
@@ -306,20 +308,12 @@ public:
   double totalFoodRequired = 0;
   double totalEquipmentRequired = 0;
 
+  double historicCasualtyCount = 0;
+  double casualtyPercentage = 0;
+
   // supplied/ required
   // double foodRatio = 1;
   // double equipmentRatio = 1;
-
-  // stored as decimal, displayed as percentage
-  // all troops within army should have same subsequential strength
-  // double subsequentialStrength = 1.0;
-
-  // take and deal damage to all troops within the army during battle
-  void takeDamage(Damage &);
-  void dealDamage(Damage &);
-
-  // remove troops that have 0 health or below
-  void cleanUp();
 
   void addTroop(int y, int x, std::string, data::Troop *troop, data::Resource *resource);
   void removeTroop(int y, int x, data::Troop *troop, data::Resource *resource);
@@ -343,7 +337,7 @@ class BattleUnit
 {
 public:
   // country, region, your side troop, enemy side troop
-  BattleUnit(std::mutex &lg_, std::string country_, std::string region_, BattleTroopWrapper *mikata_, BattleTroopWrapper *foe_) : country(country_), region(region_), mikata(mikata_), foe(foe_), lg(lg_)
+  BattleUnit(std::mutex &lg_, std::string country_, std::string region_, BattleTroopWrapper *mikata_, BattleTroopWrapper *foe_, double terrainDebuff_, bool &isEncircled_) : terrainDebuff(terrainDebuff_), country(country_), region(region_), mikata(mikata_), foe(foe_), lg(lg_), isEncircled(isEncircled_)
   {
     for (auto i : foe->totalTroop)
     {
@@ -364,15 +358,24 @@ public:
 
   std::string country;
   std::string region;
+  double terrainDebuff;
+  bool isEncircled;
 
   BattleTroopWrapper *mikata;
   BattleTroopWrapper *foe;
+
+  std::unordered_map<std::string, int> armorTroop = {{"armoredCar", 1}, {"tank1", 1}, {"tank2", 1}, {"tankOshimai", 1}};
+  std::unordered_map<std::string, int> airTroop = {{"cas", 1}, {"fighter", 1}, {"bomber", 1}, {"kamikaze", 1}};
+  std::random_device rd;
+  std::vector<std::function<std::vector<double>(std::random_device &)>> randArmy = {
+      [](std::random_device &) -> std::vector<double> { return {1}; }, &randArmy2, &randArmy3, &randArmy4};
+
 
   std::mutex &lg;
 
   // stats
   int duration = 0;
-  double damageDealt = 0;
+  Damage *damageDealt = new Damage();
   std::unordered_map<std::string, int> friendCount = {
       {"infantry", 0},
       {"calvary", 0},
@@ -425,27 +428,477 @@ public:
   double totalFoeSoftAttack = 0;
   double totalFoeHardAttack = 0;
   double totalFoeAirAttack = 0;
+  double totalFriendlyDisruption = 0;
+  double totalFoeDisruption = 0;
+  double foodRatio = 1;
+  double equipmentRatio = 1;
 
   // may the better Hoi player win
-  void fight()
+  void fight(data::Troop *troop, data::Resource *resource)
   {
     this->lg.lock();
-    // calculate the pivotal strength for both sides since its affected by health
+
+    // calculate the stats for both sides
+    double foodRatio = std::min(1.0, resource->food / troop->totalFoodRequired);
+    double equipmentRatio = std::min(1.0, resource->equipment / troop->totalEquipmentRequired);
+    double totalFriendlyAirAttack = 0;
+    double totalFoeAirAttack = 0;
+    double airSupremacy = 1;
+    double normalizedAirSurpremacy = 0;
+    int nonSpecialTroop = 0;
+    int specialTroop = 0;
+    int unitFd = 0;
+    int armorTroopFd = 0;
+    int airTroopFd = 0;
+    int unitFoe = 0;
+    int armorTroopFoe = 0;
+    int airTroopFoe = 0;
+    int totalConspicuousnessFd = 0;
+    int totalConspicuousnessFoe = 0;
     for (auto i : this->mikata->totalTroop)
+    {
       i->pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (i->getHealth() / i->getBaseHealth()) + std::log(0.2) + 1.5), 1 - i->getHealth() / i->getBaseHealth());
+      i->subsequentialStrength = (foodRatio + equipmentRatio) / 2;
+      i->attackDebuff = this->terrainDebuff * (1 - std::min(1.0, i->getSpeed() / 10.0));
+      totalFriendlyAirAttack += i->getAirAttack() * equipmentRatio;
+      this->totalFriendlyDisruption += i->getDisruption();
+      if (i->type != "suicideBomber" && i->type != "kamikaze")
+        nonSpecialTroop++;
+      else
+        specialTroop++;
+      unitFd++;
+      if (this->armorTroop.count(i->type) != 0)
+        armorTroopFd++;
+      if (this->airTroop.count(i->type) != 0)
+      {
+        totalConspicuousnessFd += i->getConspicuousness();
+        airTroopFd++;
+      }
+    }
+    for (auto i : this->foe->totalTroop)
+    {
+      i->pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (i->getHealth() / i->getBaseHealth()) + std::log(0.2) + 1.5), 1 - i->getHealth() / i->getBaseHealth());
+      i->subsequentialStrength = this->isEncircled ? 0.5 : 1;
+      i->attackDebuff = 0;
+      totalFoeAirAttack += i->getAirAttack();
+      this->totalFoeDisruption += i->getDisruption();
+      unitFoe++;
+      if (this->armorTroop.count(i->type) != 0)
+        armorTroopFoe++;
+      if (this->airTroop.count(i->type) != 0)
+      {
+        totalConspicuousnessFoe += i->getConspicuousness();
+        airTroopFoe++;
+      }
+    }
+    for (auto i : this->mikata->totalArmy)
+    {
+      double armyFoodRatio = std::min(1.0, (foodRatio * i->totalBaseFoodRequired) / i->totalFoodRequired);
+      double armyEquipmentRatio = std::min(1.0, (equipmentRatio * i->totalBaseEquipmentRequired) / i->totalEquipmentRequired);
+      bool isEmpty = true;
+      for (auto j : i->formation)
+        for (auto k : j)
+          if (k != NULL)
+          {
+            isEmpty = false;
+            k->pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (k->getHealth() / k->getBaseHealth()) + std::log(0.2) + 1.5), 1 - k->getHealth() / k->getBaseHealth());
+            k->subsequentialStrength = (armyFoodRatio + armyEquipmentRatio) / 2;
+            k->attackDebuff = this->terrainDebuff * (1 - std::min(1.0, (k->getSpeed() + i->speedBoostPerLand) / 10.0));
+            totalFriendlyAirAttack += k->getAirAttack() * armyEquipmentRatio;
+            this->totalFriendlyDisruption += k->getDisruption();
+            if (k->type != "suicideBomber" && k->type != "kamikaze")
+              nonSpecialTroop++;
+            else
+              specialTroop++;
+
+            if (this->armorTroop.count(k->type) != 0)
+              armorTroopFd++;
+            if (this->airTroop.count(k->type) != 0)
+            {
+              totalConspicuousnessFd += k->getConspicuousness();
+              airTroopFd++;
+            }
+          }
+      if (!isEmpty)
+        unitFd++;
+    }
+    for (auto i : this->foe->totalArmy)
+    {
+      bool isEmpty = true;
+      for (auto j : i->formation)
+        for (auto k : j)
+          if (k != NULL)
+          {
+            isEmpty = false;
+            k->pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (k->getHealth() / k->getBaseHealth()) + std::log(0.2) + 1.5), 1 - k->getHealth() / k->getBaseHealth());
+            k->subsequentialStrength = this->isEncircled ? 0.5 : 1;
+            k->attackDebuff = 0;
+            totalFoeAirAttack += k->getAirAttack();
+            this->totalFoeDisruption += k->getDisruption();
+            if (this->armorTroop.count(k->type) != 0)
+              armorTroopFoe++;
+            if (this->airTroop.count(k->type) != 0)
+            {
+              totalConspicuousnessFoe += k->getConspicuousness();
+              airTroopFoe++;
+            }
+          }
+      if (!isEmpty)
+        unitFoe++;
+    }
+    this->totalFriendlyDisruption = 0.5 - std::exp(-0.1 * (this->totalFriendlyDisruption - 10 * std::log(0.5)));
+    this->totalFoeDisruption = 0.5 - std::exp(-0.1 * (this->totalFoeDisruption - 10 * std::log(0.5)));
+    airSupremacy = (totalFoeAirAttack == 0 ? 1 : 1 - std::exp((std::log(0.1) * totalFriendlyAirAttack) / (1.3 * totalFoeAirAttack)));
+    normalizedAirSurpremacy = airSupremacy * 0.3 + 0.7;
+
+    // damage structs
+    Damage *foe = new Damage();
+    Damage *nakama = new Damage();
+    for (auto i : this->mikata->totalTroop)
+    {
+      if (nonSpecialTroop < specialTroop * 2 && (i->type == "suicideBomber" || i->type == "kamikaze"))
+        continue;
+      i->giveDamage(this->totalFriendlyDisruption, normalizedAirSurpremacy, resource->baseLandTroopMul, resource->baseAirTroopMul, resource->baseTankMul, resource->baseAirToopMul2, *nakama);
+    }
+    for (auto i : this->foe->totalTroop)
+    {
+      i->giveDamage(this->totalFriendlyDisruption, normalizedAirSurpremacy, 1, 1, 1, 1, *foe);
+    }
+    for (auto i : this->mikata->totalArmy)
+    {
+      for (auto j : i->formation)
+        for (auto k : j)
+          if (k != NULL)
+          {
+            if (nonSpecialTroop < specialTroop * 2 && (k->type == "suicideBomber" || k->type == "kamikaze"))
+              continue;
+            k->giveDamage(this->totalFriendlyDisruption, normalizedAirSurpremacy, resource->baseLandTroopMul, resource->baseAirTroopMul, resource->baseTankMul, resource->baseAirToopMul2, *nakama);
+          }
+    }
+    for (auto i : this->foe->totalArmy)
+    {
+      for (auto j : i->formation)
+        for (auto k : j)
+          if (k != NULL)
+          {
+            k->giveDamage(this->totalFriendlyDisruption, normalizedAirSurpremacy, 1, 1, 1, 1, *foe);
+          }
+    }
+    if (armorTroopFoe == 0)
+    {
+      nakama->softAttack += nakama->hardAttack;
+      nakama->hardAttack = 0;
+    }
+    if (armorTroopFd == 0)
+    {
+      foe->softAttack += foe->hardAttack;
+      foe->hardAttack = 0;
+    }
+    this->damageDealt->softAttack += nakama->softAttack;
+    this->damageDealt->hardAttack += nakama->hardAttack;
+    this->damageDealt->airAttack += nakama->airAttack;
+    this->totalSoftAttack = nakama->softAttack;
+    this->totalHardAttack = nakama->hardAttack;
+    this->totalAirAttack = nakama->airAttack;
+
+    double perUnit = foe->softAttack / unitFd;
+    double perArmor = foe->hardAttack / armorTroopFd;
+    double perUnitFoe = nakama->softAttack / unitFoe;
+    double perArmorFoe = nakama->hardAttack / armorTroopFoe;
+    for (auto i : this->mikata->totalTroop)
+    {
+      double damage = 0;
+      if (this->airTroop.count(i->type) != 0)
+      {
+        damage = foe->airAttack * i->getConspicuousness() / totalConspicuousnessFd;
+      }
+      else
+      {
+        if (this->armorTroop.count(i->type) != 0)
+        {
+          damage = std::min(0., (perUnit - i->getDefense()) / 4) + std::min(0., (perArmor - i->getArmor()) * 1.1);
+        }
+        else
+        {
+          damage = perUnit - i->getDefense();
+        }
+      }
+      damage = std::min(damage, 0.);
+      i->takeDamage(damage);
+    }
+    for (auto i : this->foe->totalTroop)
+    {
+      double damage = 0;
+      if (this->airTroop.count(i->type) != 0)
+      {
+        damage = nakama->airAttack * i->getConspicuousness() / totalConspicuousnessFoe;
+      }
+      else
+      {
+        if (this->armorTroop.count(i->type) != 0)
+        {
+          damage = std::min(0., (perUnitFoe - i->getDefense()) / 4) + std::min(0., (perArmorFoe - i->getArmor()) * 1.1);
+        }
+        else
+        {
+          damage = perUnitFoe - i->getDefense();
+        }
+      }
+      damage = std::min(damage, 0.);
+      i->takeDamage(damage);
+    }
+    for (auto i : this->mikata->totalArmy)
+    {
+      std::vector<int> landPresent = {0, 0, 0, 0};
+      for (int j = 0; j < 4; j++)
+        for (int k = 0; k < 4; k++)
+        {
+          if (i->formation[j][k] != NULL)
+          {
+            if (this->airTroop.count(i->formation[j][k]->type) == 0)
+              landPresent[j]++;
+          }
+        }
+      std::vector<double> columnDistribution = {0, 0, 0, 0};
+      double acc = 0;
+      if (landPresent[0] != 0)
+        columnDistribution[0] = 0.6;
+      else
+        acc = 0.6;
+      if (landPresent[1] != 0)
+        columnDistribution[1] = 0.3 + acc;
+      else
+        acc += 0.3;
+      if (landPresent[2] != 0)
+        columnDistribution[2] = 0.1 + acc;
+      else
+        acc += 0.1;
+      columnDistribution[3] = acc;
+      for (int j = 0; j < 4; j++)
+      {
+        std::vector<double> distribution = {};
+        if (columnDistribution[j] != 0)
+          distribution = this->randArmy[landPresent[j] - 1](this->rd);
+        int count = 0;
+
+        for (int k = 0; k < 4; k++)
+          if (i->formation[j][k] != NULL)
+          {
+            double damage = 0;
+            if (this->airTroop.count(i->formation[j][k]->type) != 0)
+              damage = foe->airAttack * i->formation[j][k]->getConspicuousness() / totalConspicuousnessFd;
+            else
+            {
+              if (this->armorTroop.count(i->formation[j][k]->type) != 0)
+                damage = std::min(0., (perUnit * columnDistribution[j] * distribution[count] - i->formation[j][k]->getDefense()) / 4) + std::min(0., (perArmor - i->formation[j][k]->getArmor()) * 1.1);
+              else
+                damage = perUnit * columnDistribution[j] * distribution[count] - i->formation[j][k]->getDefense();
+              count++;
+            }
+            damage = std::min(damage, 0.);
+            i->formation[j][k]->takeDamage(damage);
+          }
+      }
+    }
+    for (auto i : this->foe->totalArmy)
+    {
+      std::vector<int> landPresent = {0, 0, 0, 0};
+      for (int j = 0; j < 4; j++)
+        for (int k = 0; k < 4; k++)
+        {
+          if (i->formation[j][k] != NULL)
+          {
+            if (this->airTroop.count(i->formation[j][k]->type) == 0)
+              landPresent[j]++;
+          }
+        }
+      std::vector<double> columnDistribution = {0, 0, 0, 0};
+      double acc = 0;
+      if (landPresent[0] != 0)
+        columnDistribution[0] = 0.6;
+      else
+        acc = 0.6;
+      if (landPresent[1] != 0)
+        columnDistribution[1] = 0.3 + acc;
+      else
+        acc += 0.3;
+      if (landPresent[2] != 0)
+        columnDistribution[2] = 0.1 + acc;
+      else
+        acc += 0.1;
+      columnDistribution[3] = acc;
+      for (int j = 0; j < 4; j++)
+      {
+        std::vector<double> distribution = {};
+        if (columnDistribution[j] != 0)
+          distribution = this->randArmy[landPresent[j] - 1](this->rd);
+        int count = 0;
+
+        for (int k = 0; k < 4; k++)
+          if (i->formation[j][k] != NULL)
+          {
+            double damage = 0;
+            if (this->airTroop.count(i->formation[j][k]->type) != 0)
+              damage = nakama->airAttack * i->formation[j][k]->getConspicuousness() / totalConspicuousnessFoe;
+            else
+            {
+              if (this->armorTroop.count(i->formation[j][k]->type) != 0)
+                damage = std::min(0., (perUnitFoe * columnDistribution[j] * distribution[count] - i->formation[j][k]->getDefense()) / 4) + std::min(0., (perArmorFoe - i->formation[j][k]->getArmor()) * 1.1);
+              else
+                damage = perUnitFoe * columnDistribution[j] * distribution[count] - i->formation[j][k]->getDefense();
+              count++;
+            }
+            damage = std::min(damage, 0.);
+            i->formation[j][k]->takeDamage(damage);
+          }
+      }
+    }
 
     this->duration++;
     this->lg.unlock();
   }
-  void regen();
-  void clean();
+  void regen(data::Resource *resource)
+  {
+    for (auto i : this->mikata->totalTroop)
+      i->increaseHealth((resource->baseRecovery + resource->baseRecoveryDiff) * (1 - totalFoeDisruption / 2) * std::pow(foodRatio, 1.5));
+    for (auto i : this->mikata->totalArmy)
+      for (auto j : i->formation)
+        for (auto k : j)
+          k->increaseHealth((resource->baseRecovery + resource->baseRecoveryDiff) * (1 - totalFoeDisruption / 2) * std::pow(std::min(1.0, (foodRatio * i->totalBaseFoodRequired) / i->totalFoodRequired), 1.5));
+    for (auto i : this->foe->totalTroop)
+      i->increaseHealth(resource->baseRecovery * (1 - totalFriendlyDisruption / 2) * (this->isEncircled ? 0 : 1));
+    for (auto i : this->foe->totalArmy)
+      for (auto j : i->formation)
+        for (auto k : j)
+          k->increaseHealth(resource->baseRecovery * (1 - totalFriendlyDisruption / 2) * (this->isEncircled ? 0 : 1));
+  }
+  void clean(data::Troop *troop, data::Resource *resource)
+  {
+    for (int i = this->mikata->totalTroop.size() - 1; i >= 0; i--)
+    {
+      if (this->mikata->totalTroop[i]->getHealth() <= 0)
+      {
+        this->mikata->totalTroop[i]->reference.pop_back();
+        assert(this->mikata->totalTroop[i]->reference.size() == 0);
+
+        int index = -1;
+        for (int i = 0; i < troop->allTroop.size(); i++)
+          if (troop->allTroop[i] == this->mikata->totalTroop[i])
+          {
+            index = i;
+            break;
+          }
+        assert(index != -1);
+
+        troop->totalFoodRequired -= this->mikata->totalTroop[i]->getFood();
+        troop->totalEquipmentRequired -= this->mikata->totalTroop[i]->getEquipment();
+        troop->totalTroops--;
+
+        this->friendCount[this->mikata->totalTroop[i]->type]--;
+        this->deathCount[this->mikata->totalTroop[i]->type]++;
+        this->totalFriendly--;
+
+        troop->helper2[this->mikata->totalTroop[i]->type](3, -1);
+        troop->helper2[this->mikata->totalTroop[i]->type](0, -1);
+        delete this->mikata->totalTroop[i];
+        this->mikata->totalTroop.erase(this->mikata->totalTroop.begin() + i);
+        troop->allTroop.erase(troop->allTroop.begin() + index);
+      }
+    }
+    for (int i = this->foe->totalTroop.size() - 1; i >= 0; i--)
+    {
+      if (this->foe->totalTroop[i]->getHealth() <= 0)
+      {
+        assert(this->foe->totalTroop[i]->reference.size() == 0);
+
+        this->killCount[this->foe->totalTroop[i]->type]++;
+
+        delete this->foe->totalTroop[i];
+        this->foe->totalTroop.erase(this->foe->totalTroop.begin() + i);
+      }
+    }
+    for (auto i : this->mikata->totalArmy)
+      for (int x = 0; x < 4; x++)
+        for (int y = 0; y < 4; y++)
+        {
+          TroopUnit *k = i->formation[x][y];
+          if (k != NULL && k->getHealth() <= 0)
+          {
+            k->reference.pop_back();
+            assert(k->reference.size() == 0);
+
+            int index = -1;
+            for (int i = 0; i < troop->allTroop.size(); i++)
+              if (troop->allTroop[i] == k)
+              {
+                index = i;
+                break;
+              }
+            assert(index != -1);
+
+            troop->totalFoodRequired -= k->getFood();
+            troop->totalEquipmentRequired -= k->getEquipment();
+            troop->totalTroops--;
+            i->totalBaseFoodRequired -= k->getFood();
+            i->totalBaseEquipmentRequired -= k->getEquipment();
+            i->troopCount--;
+            if (k->type == "logistic")
+            {
+              i->logisticCount--;
+              i->foodReductionPer--;
+              i->speedBoostPerLand -= 1;
+            }
+            i->totalFoodRequired = i->totalBaseFoodRequired - i->foodReductionPer * i->troopCount;
+            i->totalEquipmentRequired = i->totalBaseEquipmentRequired - i->equipmentReductionPer * i->troopCount;
+            i->historicCasualtyCount++;
+            i->casualtyPercentage = i->historicCasualtyCount / i->historicTroopCount;
+
+            this->friendCount[k->type]--;
+            this->deathCount[k->type]++;
+            this->totalFriendly--;
+
+            troop->helper2[k->type](3, -1);
+            troop->helper2[k->type](1, -1);
+            troop->helper2[k->type](0, -1);
+            delete k;
+            i->formation[x][y] = NULL;
+            troop->allTroop.erase(troop->allTroop.begin() + index);
+          }
+        }
+    for (auto i : this->mikata->totalArmy)
+      for (int x = 0; x < 4; x++)
+        for (int y = 0; y < 4; y++)
+        {
+          TroopUnit *k = i->formation[x][y];
+          if (k != NULL && k->getHealth() <= 0)
+          {
+            assert(k->reference.size() == 0);
+
+            i->totalBaseFoodRequired -= k->getFood();
+            i->totalBaseEquipmentRequired -= k->getEquipment();
+            i->troopCount--;
+            if (k->type == "logistic")
+            {
+              i->logisticCount--;
+              i->foodReductionPer--;
+              i->speedBoostPerLand -= 1;
+            }
+            i->totalFoodRequired = i->totalBaseFoodRequired - i->foodReductionPer * i->troopCount;
+            i->totalEquipmentRequired = i->totalBaseEquipmentRequired - i->equipmentReductionPer * i->troopCount;
+
+            this->killCount[k->type]--;
+
+            delete k;
+            i->formation[x][y] = NULL;
+          }
+        }
+  }
 };
 
 namespace data
 {
   struct Battle
   {
-    std::vector<BattleUnit *> total;
     bool inBattle = false;
     std::string countryBattling = "";
   };
@@ -454,7 +907,7 @@ namespace data
 class Block
 {
 public:
-  Block(data::Troop *troop_, data::Resource *resource_, data::Battle *battler_, int &capturedLand_, bool &capitulated_, int &battlingRegions_) : troop(troop_), resource(resource_), battler(battler_), capturedLand(capturedLand_), capitulated(capitulated_), battlingRegions(battlingRegions_) {}
+  Block(data::Troop *troop_, data::Resource *resource_, data::Battle *battler_, int &capturedLand_, bool &capitulated_, int &battlingRegions_, int &totalLand_, int &defeated_, std::vector<std::vector<Block *>> &map_, int coordX_, int coordY_) : troop(troop_), resource(resource_), battler(battler_), capturedLand(capturedLand_), capitulated(capitulated_), battlingRegions(battlingRegions_), totalLand(totalLand_), defeated(defeated_), map(map_), coordX(coordX_), coordY(coordY_) {}
   data::Troop *troop;
   data::Resource *resource;
   data::Battle *battler;
@@ -463,12 +916,28 @@ public:
   std::string name;
   std::string terrain;
 
+  int coordX;
+  int coordY;
+
+  std::unordered_map<std::string, int> terrainToDebuff = {
+      {"plain", 0},
+      {"hill", 0.02},
+      {"river", 0.04},
+      {"mountian", 0.05},
+      {"snowland", 0.08},
+      {"desert", 0.1}};
+
   int &capturedLand;
   bool &capitulated;
   int &battlingRegions;
+  int &totalLand;
+  int &defeated;
+  std::vector<std::vector<Block *>> &map;
 
   bool captured = false;
   bool battling = false;
+  bool isEncircled = false;
+  bool isAttackable = false;
 
   std::vector<std::pair<int, int>> attackable;
   std::vector<std::pair<int, int>> encircled;
@@ -503,7 +972,7 @@ public:
     this->lg.lock();
     if (!this->battling)
     {
-      this->battle.push_back(new BattleUnit(this->lg, this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
+      this->battle.push_back(new BattleUnit(this->lg, this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop), this->terrainToDebuff[this->terrain], this->isEncircled));
       this->battling = true;
       battler->inBattle = true;
       battler->countryBattling = country;
@@ -529,7 +998,7 @@ public:
     this->lg.lock();
     if (!this->battling)
     {
-      this->battle.push_back(new BattleUnit(this->lg, this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop)));
+      this->battle.push_back(new BattleUnit(this->lg, this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop), this->terrainToDebuff[this->terrain], this->isEncircled));
       this->battling = true;
       battler->inBattle = true;
       battler->countryBattling = country;
@@ -551,13 +1020,13 @@ public:
     battle.back()->mikata->totalArmy.push_back(reinforcement);
     this->lg.unlock();
   }
-  void retreat(TroopUnit *retreating)
+  void retreat(TroopUnit *retreating, data::Battle *battle, bool userInitiated = true)
   {
     if (retreating == NULL)
       return;
     this->lg.lock();
-    auto ptr = std::find(battle.back()->mikata->totalTroop.begin(), battle.back()->mikata->totalTroop.end(), retreating);
-    assert(ptr != battle.back()->mikata->totalTroop.end());
+    auto ptr = std::find(this->battle.back()->mikata->totalTroop.begin(), this->battle.back()->mikata->totalTroop.end(), retreating);
+    assert(ptr != this->battle.back()->mikata->totalTroop.end());
 
     troop->helper2[retreating->type](3, -1);
     retreating->state["battle"] = false;
@@ -566,21 +1035,20 @@ public:
     retreating->state["free"] = true;
     troop->helper2[retreating->type](0, 1);
 
-    battle.back()->mikata->totalTroop.erase(ptr);
+    this->battle.back()->mikata->totalTroop.erase(ptr);
     retreating->reference.pop_back();
     retreating->isReferenced = retreating->reference.size() != 0;
-    battle.back()->totalFriendly--;
-    battle.back()->friendCount[retreating->type]--;
-
-    if (battle.back()->mikata->totalTroop.size() == 0 && battle.back()->mikata->totalArmy.size() == 0)
-      this->endBattle();
+    this->battle.back()->totalFriendly--;
+    this->battle.back()->friendCount[retreating->type]--;
+    if (userInitiated)
+      this->checkEndBattleLose(battle);
     this->lg.unlock();
   }
-  void retreat(ArmyUnit *retreating)
+  void retreat(ArmyUnit *retreating, data::Battle *battle, bool userInitiated = true)
   {
     this->lg.lock();
-    auto ptr = std::find(battle.back()->mikata->totalArmy.begin(), battle.back()->mikata->totalArmy.end(), retreating);
-    assert(ptr != battle.back()->mikata->totalArmy.end());
+    auto ptr = std::find(this->battle.back()->mikata->totalArmy.begin(), this->battle.back()->mikata->totalArmy.end(), retreating);
+    assert(ptr != this->battle.back()->mikata->totalArmy.end());
 
     retreating->inBattle = false;
     retreating->battleRegion = {};
@@ -589,47 +1057,215 @@ public:
       {
         if (j != NULL)
         {
-          battle.back()->friendCount[j->type]--;
-          battle.back()->totalFriendly--;
+          this->battle.back()->friendCount[j->type]--;
+          this->battle.back()->totalFriendly--;
           troop->helper2[j->type](3, -1);
           j->state["battle"] = false;
         }
       }
 
-    battle.back()->mikata->totalArmy.erase(ptr);
+    this->battle.back()->mikata->totalArmy.erase(ptr);
 
-    if (battle.back()->mikata->totalTroop.size() == 0 && battle.back()->mikata->totalArmy.size() == 0)
-      this->endBattle();
+    if (userInitiated)
+      this->checkEndBattleLose(battle);
     this->lg.unlock();
   }
-  void retreatAll()
+  void retreatAll(data::Battle *battle, bool userInitiated = true)
   {
-    for (auto i : battle.back()->mikata->totalTroop)
-      this->retreat(i);
-    for (auto i : battle.back()->mikata->totalArmy)
-      this->retreat(i);
+    for (auto i : this->battle.back()->mikata->totalTroop)
+      this->retreat(i, battle, userInitiated);
+    for (auto i : this->battle.back()->mikata->totalArmy)
+      this->retreat(i, battle, userInitiated);
   }
 
-  void capturedF()
+  void cycle(data::Troop *troop, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
   {
+    this->lg.lock();
+    this->battle.back()->fight(troop, resource);
+    this->battle.back()->clean(troop, resource);
+    this->battle.back()->regen(resource);
+    this->lg.unlock();
+    this->checkEndBattle(resource, building, battle, buildBase);
   }
 
 private:
-  void endBattle()
+  // only called when the enemy has lost the battle
+  void endBattle(data::Resource *resource, data::Building *building, data::Battle* battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
   {
-    delete battle.back()->mikata;
-    delete battle.back()->foe;
-    this->battling = false;
+    BattleUnit *ptr = this->battle.back();
+    if (this->battling)
+    {
+      this->battlingRegions--;
+      this->captured = true;
+      this->battling = false;
+    }
+    resource->capturedLand += this->acquirable["land"];
+    if (this->acquirable["farm"] > 0)
+      buildBase("farm", 0, building->effect["farm"][0], "", building->helper["farm"](0), this->acquirable["farm"]);
+    if (this->acquirable["civilianFactory"] > 0)
+      buildBase("civilianFactory", 0, building->effect["civilianFactory"][0], "", building->helper["civilianFactory"](0), this->acquirable["civilianFactory"]);
+    if (this->acquirable["militaryFactory"] > 0)
+      buildBase("militaryFactory", 0, building->effect["militaryFactory"][0], "", building->helper["militaryFactory"](0), this->acquirable["militaryFactory"]);
+    if (this->acquirable["trainingCamp"] > 0)
+      buildBase("trainingCamp", 0, building->effect["trainingCamp"][0], "", building->helper["trainingCamp"](0), this->acquirable["trainingCamp"]);
+    if (this->acquirable["airport"] > 0)
+      buildBase("airport", 0, building->effect["airport"][0], "", building->helper["airport"](0), this->acquirable["airport"]);
 
-    battler->inBattle = false;
-    battler->countryBattling = "";
+    this->retreatAll(battle, false);
+    
+    for (auto i : ptr->foe->totalTroop)
+      delete i;
+    for (auto i : ptr->foe->totalArmy)
+    {
+      for (auto j : i->formation)
+        for (auto k : j)
+          delete k;
+      delete i;
+    }
+    delete ptr->foe;
+    ptr->foe = NULL;
+    delete ptr->mikata;
+    ptr->mikata = NULL;
+  }
+  void checkEndBattleLose(data::Battle *battle)
+  {
+    BattleUnit *ptr = this->battle.back();
+    bool nakamaShinda = false;
+    bool nonEmptyarmynakama = false;
+
+    for (auto i : ptr->mikata->totalArmy)
+      for (auto j : i->formation)
+        for (auto k : j)
+          if (k != NULL)
+          {
+            nonEmptyarmynakama = true;
+            break;
+          }
+    nakamaShinda = ptr->mikata->totalTroop.size() == 0 && !nonEmptyarmynakama;
+    if (nakamaShinda)
+    {
+      retreatAll(battle, false);
+      BattleUnit *ptr = this->battle.back();
+      delete ptr->foe;
+      ptr->foe = NULL;
+      delete ptr->mikata;
+      ptr->mikata = NULL;
+      this->battling = false;
+
+      bool remainingBattling = false;
+      for (auto i : this->map)
+        for (auto j : i)
+          if (j != NULL && j->battling)
+          {
+            remainingBattling = true;
+            break;
+          }
+
+      if (!remainingBattling)
+      {
+        battle->inBattle = false;
+        battle->countryBattling = "";
+      }
+    }
+  }
+  void checkEndBattle(data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
+  {
+    BattleUnit *ptr = this->battle.back();
+    bool nakamaShinda = false;
+    bool tekiShinda = false;
+
+    bool nonEmptyarmynakama = false;
+    bool nonEmptyarmyteki = false;
+
+    for (auto i : ptr->mikata->totalArmy)
+      for (auto j : i->formation)
+        for (auto k : j)
+          if (k != NULL)
+          {
+            nonEmptyarmynakama = true;
+            break;
+          }
+    for (auto i : ptr->foe->totalArmy)
+      for (auto j : i->formation)
+        for (auto k : j)
+          if (k != NULL)
+          {
+            nonEmptyarmyteki = true;
+            break;
+          }
+    nakamaShinda = ptr->mikata->totalTroop.size() == 0 && !nonEmptyarmynakama;
+    tekiShinda = ptr->foe->totalTroop.size() == 0 && !nonEmptyarmyteki;
+
+    if (tekiShinda)
+    {
+      this->capturedLand++;
+      if (this->capturedLand / this->totalLand >= 0.7)
+      {
+        this->capitulated = true;
+        this->defeated++;
+        battle->inBattle = false;
+        battle->countryBattling = "";
+        for (auto i : this->map)
+          for (auto j : i)
+            if (j != NULL)
+              j->endBattle(resource, building, battle, buildBase);
+      }
+      else
+      {
+        this->endBattle(resource, building, battle, buildBase);
+        for (auto i : this->map)
+          for (auto j : i)
+            if (j != NULL)
+            {
+              j->isAttackable = j->isAttackable || std::find(j->attackable.begin(), j->attackable.end(), std::make_pair(this->coordX, this->coordY)) != j->attackable.end();
+              if (!j->isEncircled)
+              {
+                bool allCaptured = true;
+                for (auto k : j->encircled)
+                  if (!this->map[k.first][k.second]->captured)
+                  {
+                    allCaptured = false;
+                    break;
+                  }
+                if (allCaptured)
+                  j->isEncircled = true;
+              }
+              break;
+            }
+      }
+    }
+    else if (nakamaShinda)
+    {
+      retreatAll(battle, false);
+      BattleUnit *ptr = this->battle.back();
+      delete ptr->foe;
+      ptr->foe = NULL;
+      delete ptr->mikata;
+      ptr->mikata = NULL;
+      this->battling = false;
+
+      bool remainingBattling = false;
+      for (auto i : this->map)
+        for (auto j : i)
+          if (j != NULL && j->battling)
+          {
+            remainingBattling = true;
+            break;
+          }
+
+      if (!remainingBattling)
+      {
+        battle->inBattle = false;
+        battle->countryBattling = "";
+      }
+    }
   }
 };
 
 class Enemy
 {
 public:
-  Enemy(std::string name_) : name(name_) {}
+  Enemy(std::string name_, int &defeated_) : name(name_), defeated(defeated_) {}
   std::string name;
 
   int totalLand = 0;
@@ -637,6 +1273,7 @@ public:
   bool capitulated = false;
 
   int battlingRegions = 0;
+  int &defeated;
 
   std::vector<std::vector<Block *>> map;
 };

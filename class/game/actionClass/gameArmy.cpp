@@ -562,7 +562,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
 
     assert(index2[0] != -1);
 
-    this->enemies->totalEnemies[index]->map[index2[0]][index2[1]]->retreat(army);
+    this->enemies->totalEnemies[index]->map[index2[0]][index2[1]]->retreat(army, this->battle);
 
     this->lg3.unlock();
   };

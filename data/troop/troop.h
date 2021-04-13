@@ -22,22 +22,25 @@ public:
   // Each troop is uniquely identified with a uuid
   TroopUnit(std::string id, std::string type_) : uuid(id), type(type_) {}
 
-  // food supplied, equipment supplied, disruption, attack debuff, air supremacy, accumulate to Damage struct
-  virtual void giveDamage(double, double, double, double, double, Damage &) = 0;
+  // disruption, air supremacy, land multiplier, air multiplier, tank multiplier, air multiplier 2, accumulate to Damage struct
+  virtual void giveDamage(double, double, double, double, double, double, Damage &) = 0;
 
   // damage received is calculated outside of troop
   virtual void takeDamage(double) = 0;
   virtual void increaseHealth(double) = 0;
 
-  virtual void setFood(double) = 0;
-  virtual void setEquipment(double) = 0;
   virtual double getHealth() = 0;
   virtual double getFood() = 0;
   virtual double getEquipment() = 0;
+  virtual int getSpeed() = 0;
   virtual int getBaseHealth() = 0;
   virtual int getSoftAttack() = 0;
   virtual int getHardAttack() = 0;
   virtual int getAirAttack() = 0;
+  virtual int getDisruption() = 0;
+  virtual int getConspicuousness() = 0;
+  virtual int getDefense() = 0; 
+  virtual int getArmor() = 0;
   std::string uuid;
   std::string type;
 
@@ -51,6 +54,7 @@ public:
 
   double pivotalStrength = 1.0;
   double subsequentialStrength = 1.0;
+  double attackDebuff = 0;
 
   // for battle printing
   bool selected = false;
@@ -73,15 +77,13 @@ class Infantry : public TroopUnit
 public:
   Infantry(std::string id) : TroopUnit(id, "infantry") {}
 
-  // food supplied, equipment supplied, disruption, attack debuff, air supremacy, accumulate to Damage struct
-  void giveDamage(double, double, double, double, double, Damage &);
+  // adjusted disruption, air supremacy, mul 1-4, accumulate to Damage struct
+  void giveDamage(double, double, double, double, double, double, Damage &);
 
   // damage received is calculated outside of troop
   void takeDamage(double);
   void increaseHealth(double);
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -89,6 +91,12 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
+  
 
   //permanent
   const static int trainingCamp;
@@ -114,12 +122,10 @@ class Calvary : public TroopUnit
 
 public:
   Calvary(std::string id) : TroopUnit(id, "calvary") {}
-  void giveDamage(double, double, double, double, double, Damage &);
+  void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -127,6 +133,11 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
 
   //permanent
   const static int trainingCamp;
@@ -151,15 +162,13 @@ class SuicideBomber : public TroopUnit
 {
 public:
   SuicideBomber(std::string id) : TroopUnit(id, "suicideBomber") {}
-  void giveDamage(double, double, double, double, double, Damage &);
+  void giveDamage(double, double, double, double, double, double, Damage &);
 
   void takeDamage(double);
 
   // not used
   void increaseHealth(double){};
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -167,6 +176,11 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
 
   //permanent
   const static int trainingCamp;
@@ -191,12 +205,10 @@ class Artillery : public TroopUnit
 {
 public:
   Artillery(std::string id) : TroopUnit(id, "artillery") {}
-  void giveDamage(double, double, double, double, double, Damage &);
+  void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -204,6 +216,11 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
 
   //permanent
   const static int trainingCamp;
@@ -232,10 +249,8 @@ public:
   void increaseHealth(double);
 
   // not used
-  void giveDamage(double, double, double, double, double, Damage &){};
+  void giveDamage(double disruption, double airSupremacy, double mul1, double mul2, double mul3, double mul4, Damage &damage){}
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -243,6 +258,11 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
 
   //permanent
   const static int trainingCamp;
@@ -267,12 +287,10 @@ class ArmoredCar : public TroopUnit
 {
 public:
   ArmoredCar(std::string id) : TroopUnit(id, "armoredCar") {}
-  void giveDamage(double, double, double, double, double, Damage &);
+  void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -280,6 +298,11 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
 
   //permanent
   const static int trainingCamp;
@@ -304,12 +327,10 @@ class Tank1 : public TroopUnit
 {
 public:
   Tank1(std::string id) : TroopUnit(id, "tank1") {}
-  void giveDamage(double, double, double, double, double, Damage &);
+  void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -317,6 +338,11 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
 
   //permanent
   const static int trainingCamp;
@@ -341,12 +367,10 @@ class Tank2 : public TroopUnit
 {
 public:
   Tank2(std::string id) : TroopUnit(id, "tank2") {}
-  void giveDamage(double, double, double, double, double, Damage &);
+  void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -354,6 +378,11 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
 
   //permanent
   const static int trainingCamp;
@@ -378,12 +407,10 @@ class TankOshimai : public TroopUnit
 {
 public:
   TankOshimai(std::string id) : TroopUnit(id, "tankOshimai") {}
-  void giveDamage(double, double, double, double, double, Damage &);
+  void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -391,6 +418,11 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
 
   //permanent
   const static int trainingCamp;
@@ -415,12 +447,10 @@ class Cas : public TroopUnit
 {
 public:
   Cas(std::string id) : TroopUnit(id, "cas") {}
-  void giveDamage(double, double, double, double, double, Damage &);
+  void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -428,6 +458,11 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
 
   //permanent
   const static int trainingCamp;
@@ -452,12 +487,10 @@ class Fighter : public TroopUnit
 {
 public:
   Fighter(std::string id) : TroopUnit(id, "fighter") {}
-  void giveDamage(double, double, double, double, double, Damage &);
+  void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -465,6 +498,11 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
 
   //permanent
   const static int trainingCamp;
@@ -489,12 +527,10 @@ class Bomber : public TroopUnit
 {
 public:
   Bomber(std::string id) : TroopUnit(id, "bomber") {}
-  void giveDamage(double, double, double, double, double, Damage &);
+  void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -502,6 +538,11 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
 
   //permanent
   const static int trainingCamp;
@@ -526,14 +567,12 @@ class Kamikaze : public TroopUnit
 {
 public:
   Kamikaze(std::string id) : TroopUnit(id, "kamikaze") {}
-  void giveDamage(double, double, double, double, double, Damage &);
+  void giveDamage(double, double, double, double, double, double, Damage &);
 
   void takeDamage(double);
   // not used
   void increaseHealth(double){};
 
-  void setFood(double val) { food = val; }
-  void setEquipment(double val) { equipment = val; }
   double getHealth() { return hp; }
   double getFood() { return food; }
   double getEquipment() { return equipment; }
@@ -541,6 +580,11 @@ public:
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
   int getAirAttack() { return airAttack; }
+  int getSpeed() { return speed; }
+  int getDisruption() { return disruption; }
+  int getConspicuousness() { return conspicuousness; }
+  int getDefense() { return defense;}
+  int getArmor() { return armor; }
 
   //permanent
   const static int trainingCamp;

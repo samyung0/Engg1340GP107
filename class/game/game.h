@@ -452,7 +452,8 @@ private:
             std::unique_lock<std::mutex> lock(this->lgcv5b);
             terminateTimerCV.wait_for(lock, std::chrono::milliseconds(1000 / this->fps));
 
-            if(this->paused) continue;
+            if (this->paused)
+              continue;
             this->timeAcc += 1000 / this->fps;
             this->lg.lock();
             if (this->timeAcc >= time2)
@@ -468,6 +469,13 @@ private:
               break;
             }
             this->lg.unlock();
+            using namespace std::placeholders;
+            for (auto i : this->enemies->totalEnemies)
+              for (auto j : i->map)
+                for (auto k : j)
+                  if (k != NULL && k->battling)
+                    k->cycle(this->troop, this->resource, this->building, this->battle,
+                             [&](std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount) { this->buildBase(type, time, callBack, desc, land, amount); });
           }
         },
         time);

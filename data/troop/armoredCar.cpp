@@ -1,13 +1,12 @@
 #include <cmath>
 #include "troop.h"
 #include "../../class/damage/damage.h"
-void ArmoredCar::giveDamage(double foodS, double equipmentS, double disruption, double attackDebuff, double airSupremacy, Damage &damage)
+void ArmoredCar::giveDamage(double disruption, double airSupremacy, double mul1, double mul2, double mul3, double mul4, Damage &damage)
 {
-  double strength = ((foodS / food > 1 ? 1 : foodS / food) + (equipmentS / equipment > 1 ? 1 : equipmentS / equipment)) / 2 * 100;
-  double debuff = attackDebuff * (1 - speed / 10);
+  double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength;
 
-  double softAttackC = softAttack * (strength / 100) * (strength == 100 ? 1.1 : 1) * (1 - disruption / 100) * (1 - debuff / 100) * airSupremacy;
-  double hardAttackC = hardAttack * (strength / 100) * (strength == 100 ? 1.1 : 1) * (1 - disruption / 100 / 4) * (1 - debuff / 100) * airSupremacy;
+  double softAttackC = softAttack * (strength) * (strength == 1 ? 1.1 : 1) * (1 - disruption) * (1 - this->attackDebuff) * airSupremacy * (mul1 + mul3 - 1);
+  double hardAttackC = hardAttack * (strength) * (strength == 1 ? 1.1 : 1) * (1 - disruption / 4) * (1 - this->attackDebuff) * airSupremacy * (mul1 + mul3 - 1);
 
   damage.softAttack += softAttackC;
   damage.hardAttack += hardAttackC;
@@ -16,11 +15,9 @@ void ArmoredCar::giveDamage(double foodS, double equipmentS, double disruption, 
 void ArmoredCar::takeDamage(double damage)
 {
   hp -= damage;
-  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / ArmoredCar::baseHp) + std::log(0.2) + 1.5), 1 - (hp / ArmoredCar::baseHp));
 }
 
 void ArmoredCar::increaseHealth(double recovery)
 {
   hp += recovery;
-  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / ArmoredCar::baseHp) + std::log(0.2) + 1.5), 1 - (hp / ArmoredCar::baseHp));
 }

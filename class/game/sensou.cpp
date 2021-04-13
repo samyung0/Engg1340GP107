@@ -244,16 +244,8 @@ void Game::sensou(int &gamePhase, int prevPhase)
       }
       else
       {
-        bool inBattle = false;
-        std::string name;
-        for (auto i : this->enemies->totalEnemies)
-          if (i->battlingRegions > 0)
-          {
-            inBattle = true;
-            name = i->name;
-            break;
-          }
-        if (!inBattle || name == this->enemies->totalEnemies[currentCountry]->name)
+        Enemy *ptr = this->enemies->totalEnemies[currentCountry];
+        if ((!this->battle->inBattle || this->battle->countryBattling == ptr->name) && !ptr->map[phase0[0]][phase0[1]]->captured && ptr->map[phase0[0]][phase0[1]]->isAttackable && !ptr->capitulated)
           subMode = 1;
       }
     }
@@ -455,10 +447,17 @@ void Game::sensou(int &gamePhase, int prevPhase)
             if (heavilyInjured)
               iconType = "!";
           }
-          if (!iconLocation)
-            row3 += iconType + " ";
+          if (ptr->map[i][j]->captured)
+          {
+            row3 += "xx";
+          }
           else
-            row3 += ' ' + iconType;
+          {
+            if (!iconLocation)
+              row3 += iconType + " ";
+            else
+              row3 += ' ' + iconType;
+          }
           if (j == ptr->map[i].size() - 1 || ptr->map[i][j + 1] == NULL)
             row3 += '|';
           else
@@ -491,7 +490,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
 
     int maxLength2 = 20;
     std::vector<std::string> render2;
-    if ((!this->battle->inBattle || this->battle->countryBattling == ptr->name) && !ptr->map[phase0[0]][phase0[1]]->captured)
+    if ((!this->battle->inBattle || this->battle->countryBattling == ptr->name) && !ptr->map[phase0[0]][phase0[1]]->captured && ptr->map[phase0[0]][phase0[1]]->isAttackable && !ptr->capitulated)
       render2.push_back("   Send Troop (z)   ");
     if (ptr->map[phase0[0]][phase0[1]]->battling)
     {
@@ -1196,7 +1195,8 @@ void Game::sensou(int &gamePhase, int prevPhase)
     {
       if (mode == 0)
       {
-        if ((!this->battle->inBattle || this->battle->countryBattling == this->enemies->totalEnemies[currentCountry]->name) && !this->enemies->totalEnemies[currentCountry]->map[phase0[0]][phase0[1]]->captured)
+        Enemy *ptr = this->enemies->totalEnemies[currentCountry];
+        if ((!this->battle->inBattle || this->battle->countryBattling == ptr->name) && !ptr->map[phase0[0]][phase0[1]]->captured && ptr->map[phase0[0]][phase0[1]]->isAttackable && !ptr->capitulated)
         {
           mode = 1;
           subMode = 0;

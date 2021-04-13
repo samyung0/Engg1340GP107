@@ -78,12 +78,6 @@ F1 F2             F7
 G1                G7
 H1 H2             H7</pre>
 
-___Commands:___
-
-- __map__ : _show all countries' name_
-
-- __map [name]__: _show all regions (coordinate) with the terrain and amount of troops for the named country, and the percentage of winning (if in easy difficulty)
-
 ## <a name="a3"></a>Technical details
 - ### <a name="building"></a>Building
     There are a total of 5 buildings that you can build, each occupying different amount of land and requiring different number of manpower to work on with different time to finish, and having different upgrades:
@@ -97,15 +91,6 @@ ___Commands:___
     3. military factory (land: 2, manpower: 2, 15 days)
     4. training camps (land: 1, manpower: 1, 10 days)
     5. airport (land: 1, manpower: 4, 45 days)
-
-    ___Commands:___
-
-    - __build__ : _show all current buildings and upgradable buildings_
-    - __build --help__: _show all buildings and the resources it takes to build
-    - __build [name] (amount)__: build the named building type with amount defaulted to 1 if not provided
-    - __upgrade [name] (amount)__: upgrade the named building types with amount defaulted to 1 if not provided
-    - __remove [name] (amount)__: remove the named building type with amount defaulted to 1 if not provided
-    - __remove [name] all__: remove all the name building type
 
     ### __Farm:__
 
@@ -151,13 +136,6 @@ ___Commands:___
 
 - ### <a name="research"></a>Researching
   You can do research anytime during the game __but only one at a time__. Each research will give you different bonuses and unlocks upgrades but also require different time to finish. The following shows all research that you can do in all levels. It always follows the path of rudimentary (what you initally have) to intermediate to advanced.
-
-   ___Commands:___
-
-    - __research__ : _show all researches that can be researched and is researching_
-
-    - __research --help__: _show all researches and the time it takes to build_
-    - __research [type]__: _research the area specified by the type. For example, you are rudimentary level in farming and you choose to research farming, then it will research Intermediate Farming research and unlock level 2 upgrade of farms._
 
   __Farm:__
     - <a name="s1a"></a>Intermediate: 40 days (unlock level 2 farm)
@@ -218,31 +196,21 @@ ___Commands:___
   2. Fighter
   3. Bomber
   4. Kamikaze
-
-  ___Commands:___
-
-    - __troop__ : _show all trained troops (both land and air) and their status_
-
-    - __train [type] (amount)__: _train the type of troop specified with amount defaulted to 1_
-
-    - __remove [type] (amount)__: _remove the type of troops specified with amount defaulted to 1 (same command used to remove buildings)_
-
-    - __train --help__: _list all troops and their statuses_
    
   Details of each troop (1 unit):
   - __Infantry__: camp: 1, time: 10 days, soft attack: 10, hard attack: 2, defenses: 25, speed: 5, equipment: 2, food: 2, hp: 100
   - __Calvary__: camp: 1, time: 10 days, soft attack: 8, hard attack: 1, defenses: 20, speed: 10, equipment: 2, food: 2, hp: 150
   - __Suicide bomber__: camp: 2, time: 50 days, soft attack: 300, hard attack: 200, defenses: 0, speed: 30, equipment: 10, food: 2, disruption: 1 (_suicide bombers are a one-time use and They die immediately after dealing damage once. They ONLY deal damage when they are not taking ANY damage, meaning you must edit them into an army._), hp: N/A
   - __Artillery__: camp: 2, time: 20 days, soft attack: 3, hard attack: 12, defenses: 10, speed: 2, equipment: 2, food: 1, hp: 170
-  - __Logistic__: camp: 1, time: 20 days, equipment: 2, defenses: 15, food: 2 (_effect: increase all land troops within the same army's speed by 2 per unit and reduce food consumption by 1, including itself, max units per army: 2_), hp: 50
+  - __Logistic__: camp: 1, time: 20 days, equipment: 2, defenses: 15, food: 2 (_effect: increase all land troops within the same army's speed by 1 per unit and reduce food consumption by 1, including itself, max units per army: 2_), hp: 50
   - __Armored car__: camp: 2, time: 30 days, soft attack: 18, hard attack: 8, armor: 10, defenses: 30, speed: 15, equipment: 10, food: 6, hp: 160
   - __Tank 1__: camp: 3, time: 40 days, soft attack: 12, hard attack: 20, armor: 25, defenses: 10, speed: 6, equipment: 15, food: 6, hp: 230
   - __Tank 2__: camp: 5, time: 60 days, soft attack: 12, hard attack: 50, armor: 35, defenses: 12, speed: 8, equipment: 25, food: 8, hp: 300
   - __Tank oshimai__: camp: 20, time: 200 days, soft attack: 80, hard attack: 150, armor: 80, defenses: 40, speed: 1, equipment: 50, food: 25, disruption: 2,  hp: 1000
-  - __Close Air Support (cas)__: camp: 1, time: 30 days, soft attack: 15, hard attack: 15, air attack: 2, armor: 5, speed: 5, equipment: 10, food: 1, conspicuousness: 2 (_how much attack are spreaded to it_), hp: 50
-  - __Fighter__: camp: 1, time: 30 days, soft attack: 4, hard attack: 2, air attack: 8, armor: 12, equipment: 10, food: 1, conspicuousness: 10, hp: 130
-  - __Bomber__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 2, air attack: 2, armor: 8, equipment: 15, food: 2, conspicuousness: 6 , hp: 80
-  - __Kamikaze__: camp: 4, time: 70 days, soft attack: 500, hard attack: 500, disruption: 5, air attack: 150, armor: 0, equipment: 10, food: 1, conspicuousness: 0 (_similar to suicide bombers, they will not return from battle and only deals damage once given they are not taking damage. Kamikaze does not take any damage when any other planes belonging to you are present._), hp: N/A
+  - __Close Air Support (cas)__: camp: 1, time: 30 days, soft attack: 15, hard attack: 15, air attack: 2, equipment: 10, food: 1, conspicuousness: 2 (_how much attack are spreaded to it_), hp: 50
+  - __Fighter__: camp: 1, time: 30 days, soft attack: 4, hard attack: 2, air attack: 8, equipment: 10, food: 1, conspicuousness: 10, hp: 130
+  - __Bomber__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 2, air attack: 2, equipment: 15, food: 2, conspicuousness: 6 , hp: 80
+  - __Kamikaze__: camp: 4, time: 70 days, soft attack: 500, hard attack: 500, disruption: 5, air attack: 150, equipment: 10, food: 1, conspicuousness: 0 (_similar to suicide bombers, they will not return from battle and only deals damage once given they are not taking damage. Kamikaze does not take any damage when any other planes belonging to you are present._), hp: N/A
 - ### <a name="army"></a>Army Editing
   You are always encouraged to groups troops trained into army because not only can you use logistics (troop), you can also customize the layout and increase your attacking efficiency by battle plans. You can specify what troops you go first, then what troops stay behind. For example, it may be useful to put infantry/ tanks in the front and Artillery at the back. The formation of an army is shown as below.
 
@@ -268,51 +236,6 @@ ___Commands:___
 
   ___Note the army name must be unique and cannot coincide with the any troop's name. e.g. You cannot name the army to infrantry/ Infantry.___
 
-   ___Commands:___
-
-    - __army__ : _show all edited armies with their statuses_
-
-    - __army edit [name]__: _edit the army with [name] in __edit mode__. If the army does not exist, a new army will be created._
-
-    - __army remove [name]__: _disband the army with [name]. Note the troops will __not__ be lost._
-
-        _Within the edit mode:_
-
-    - __add [position] [type]__: _assign 1 unit of troop with type specfied to the position specfied (A1, A2...)_
-
-    - __minus [position]__: _unassign the troop at position specified_
-
-    - __reset__: _unassign all positions of the army_
-
-    - __exit__: _save the army template and exit the edit mode_
-- ### <a name="plan"></a>Battle planning
-    You can devise a battle plan as to specify the order of attacking: which region first, then second and so on. Once you activate the battle plan, the regions specified will be attacked automatically without any need of further actions.
-
-    _You can deactivate the battle plan or retreat the army anytime during the battle._
-
-    You __cannot__ assign battle plan to a single troop and can only assign __1__ battle plan for each army.
-
-    To edit a battle plan, you need to first provide the name of the country to be attacked, then the coordinate the region in order you want the army to attack, and the army name you want to assign the battle plan to.
-
-    ___Commands:___
-
-    - __plan__ : _show all battle plans and the associated armies_
-
-    - __plan edit [name]__: _edit the plan that is assigned to the army with [name] in __edit mode__. If the army does have a battle plan, a new plan will be created._
-
-    - __plan remove [name]__: _remove the plan that is assigned to the army with [name]._
-
-        _Within the edit mode:_
-
-    - __target [country]__: _specify the country to be attacking (required before you cna add or minus any region)_
-
-    - __add [region] (order)__: _add the region to be attacked in the order specified (defaulted to at the end of the queue) (__note you must take the land at region A before you can attack region B, refer to [Map design and coordinate system](#map) for more details__)
-
-    - __minus [region]__: _remove the region specified_
-
-    - __reset__: _remove all regions in the battle plan_
-
-    - __exit__: _save the plan and exit the edit mode_
 - ### <a name="battle"></a>Battling
 
     You can initiate a battle at any point in time by assigning armies or individual troops (for those not in an army). A battle is won once all troops on one side in the region die.
@@ -321,21 +244,7 @@ ___Commands:___
 
     You can add in more troops during a battle and withdraw the armies/ troops during the battle. If the army has a battle plan assigned to it, retreating means deactivating the plan. You can also manually deactivate the plan.
 
-    _You cannot, however, edit the army template or the battle plan during battle or retreat particular troops within the army (must retreat the entire army)._
-
-    ___Commands:___
-
-    - __battle status__ : _show all troops in war, available for war, regions currently in battle and their stats_
-
-    - __battle status [region]__ : _show all troops and armies in details, including the remaining troops in the army in different columns and the damage each troops are taking._
-
-    - __battle plan start [name]__: _start the battle plan assigned to the army with [name]_
-
-    - __battle plan stop [name]__: _stop the battle plan assigned to the army with [name] (equivalent to doing battle [region] remove [name])_
-
-    - __battle [country] [region] add (name, (name, ...)) (troop, amount, (troop, amount, ...))__: _attack/ add troops to the [region] in [country] specified with the armies and troops specified (at least 1 unit must be present)_
-
-    - __battle [country] [region] remove (name, (name, ...)) (troop, amount, (troop, amount, ...))__: _remove (retreat) troops from [region] in [country] specified with the armies and troops specified, defaulted to retreat all units if no troops are specified._
+    _You cannot, however, edit the army template during battle or retreat particular troops within the army (must retreat the entire army)._
 
   - More details on Attacking/ Defending:
   
@@ -362,13 +271,13 @@ ___Commands:___
 
     Subsequential strength = (supplied food/ food required + supplied equipment/ equipment required)/ 2 * 100% (if no food/ equipment is required, then the caluclation will not take the average, but rather 1 fraction or 100%) (equivalent for all troops within the same army)
 
-    Pivotal strength [![render.png](https://i.postimg.cc/g0xGGMPN/render.png)](https://postimg.cc/d7cbBj3y) (100% at full health, minimum ~30%, s-shaped, hp here = current health/ base health)
+    Pivotal strength [![render.png](https://i.postimg.cc/g0xGGMPN/render.png)](https://postimg.cc/d7cbBj3y) (100% at full health, minimum ~30%, exponential, hp here = current health/ base health)
 
     Strength of troop = Pivotal stength * 0.6 + Subsequential strength * 0.4
 
     (From the calculation, _all troops_ will suffer from low strength should any of the food or equipment supplied is insufficient.)
 
-    Disruption [![equation-1.png](https://i.postimg.cc/wBfXQFkf/equation-1.png)](https://postimg.cc/jWfnsHmP) (capped at 50%, start at 0%)
+    Total adjusted disruption [![equation-1.png](https://i.postimg.cc/wBfXQFkf/equation-1.png)](https://postimg.cc/jWfnsHmP) (capped at 50%, start at 0%)
 
     Attack debuff for different terrains (not applicable to planes):
 
@@ -383,13 +292,15 @@ ___Commands:___
 
     Air supremacy [![equation.png](https://i.postimg.cc/q7khYn7P/equation.png)](https://postimg.cc/PCR5vCYy) (reaches 90% when you have 1.3 times more air attack then the opponent) (100% if enemy doesn't have plane)
 
-    Air attack = base value (plane) * supplied equipment/ equipment needed
+    Normalized air supremacy effect = base value * 0.3 + 0.7 (0.0-1.0 -> 0.7-1.0)
 
-    Soft attack per troop = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption) * (1 - attack debuff) * Air supremacy
+    Air attack = base value (plane) * strength
 
-    Hard attack per troop = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption/ 4) * (1 - attack debuff) * Air supremacy
+    Soft attack per troop = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption) * (1 - attack debuff) * Normalized air supremacy effect
 
-    Decrease in hp from land attack per troop (non-armored) = (Total soft attack + air support) / (defending armies + singly defending troops) * (column percentage (in army)) * random value from 0 to 1 (exclusive) (sums up to 1 within the same column) - defenses
+    Hard attack per troop = base value (troop) * strength * (1.1 bonus damage when in full strength) * (1 - disruption/ 4) * (1 - attack debuff) * Normalized air supremacy effect
+
+    Decrease in hp from land attack per troop (non-armored) = Total soft attack / (defending armies + singly defending troops) * (column percentage (in army)) * random value from 0 to 1 (exclusive) (sums up to 1 within the same column) - defenses
 
     Decrease in hp from land attack per troop (armored) = Decrease in hp from attack per troop (non-armored)/4 + (Total hard attack/ number of armored land troops - armor) * 1.1
     
@@ -404,12 +315,6 @@ ___Commands:___
 ## <a name="a4"></a>Advice for beginner
 
 - Use the _auto battle_ feature where you designate a target country and the computer will automatically group up all the troops and armies available and try to capture 50% of the country's land (conquering it). Of course it will attack the regions will highest percentage of success but __you risk losing all your troops when all regions have low success rate__. <span style="color: tomato">__You cannot edit armies or battleplans or attack other regions when auto battle is active.__</span> It is automatically deactivated once all of your troops die or the country is captured.
-
-  ___Commands:___
-
-  - __battle [country] auto true__ : _let the computer take control over your troops in attacking the [country]_
-
-  - __battle [country] auto false__ : _take control over your troops_
   
 - Choose the easy difficulty as it shows the chance of you capturing a region.
 - Always try to make sure you have enough food supply because it affects both your troops' strength and their recovery rate.
@@ -452,78 +357,9 @@ ___Commands:___
   Yellow indicates you have beaten the level in easy mode.<br/>
   Green indicates syou have beaten the level in hard mode.
 
-## <a name="file"></a>Saving and Loading
-
-You can save the game at anytime using the command
-
-- __save (filename)__: _save the game files to [name].txt format if a filename is provided, save the game files to [level/ name (random levels)]-[yyyy]:[mm]:[dd]:[hh]:[mm]:[ss].txt otherwise_
-  
-You can also load each level form the files saved using the command
-
-- __load (filename)__: _load the level stored in [name].txt if a filename is provided, load last saved level if otherwise_
-
 ## <a name="random"></a>Random levels
 
 You can create a random levels with difficulty 1 to 5 with 1 being the easiest and 5 being the hardest. All maps and resources will be different. The time limit is capped to 30 mins.
-
-__Note there is no guarantee that you can beat the level.__
-
-___Commands:___
-
-- __create [name] (difficulty):__ _create a custom game with [name] (must be unique from other levels) with difficulty defaulted to 1 (easiest) if not provided_
-
-## <a name="commands"></a>Commands
-Here's a glossary of commands in random order.
-- __status__ : _show all statuses, including resources, buildings, troops and regions in battle_
-- __map__ : _show all countries' name_
-- __map [name]__: _show all regions (coordinate) with the terrain and amount of troops for the named country, and the percentage of winning (if in easy difficulty)
-- __build__ : _show all current buildings and upgradable buildings_
-- __build --help__: _show all buildings and the resources it takes to build
-- __build [name] (amount)__: build the named building type with amount defaulted to 1 if not provided
-- __upgrade [name] (amount)__: upgrade the named building types with amount defaulted to 1 if not provided
-- __remove [name] (amount)__: remove the named building type with amount defaulted to 1 if not provided
-- __remove [name] all__: remove all the name building type
-- __research__ : _show all researches that can be researched and is researching_
-- __research --help__: _show all researches and the time it takes to build_
-- __research [type]__: _research the area specified by the type._
-- __troop__ : _show all trained troops (both land and air) and their status_
-- __train [type] (amount)__: _train the type of troop specified with amount defaulted to 1_
-- __remove [type] (amount)__: _remove the type of troops specified with amount defaulted to 1 (same command used to remove buildings)_
-- __train --help__: _list all troops and their statuses_
-- __army__ : _show all edited armies with their statuses_
-- __army edit [name]__: _edit the army with [name] in __edit mode__. If the army does not exist, a new army will be created._
-- __army remove [name]__: _disband the army with [name]. Note the troops will __not__ be lost._
-  
-  _Within the army edit mode:_
-  - __add [position] [type]__: _assign 1 unit of troop with type specfied to the position specfied (A1, A2...)_
-  - __minus [position]__: _unassign the troop at position specified_
-  - __reset__: _unassign all positions of the army_
-  - __exit__: _save the army template and exit the edit mode_
-- __plan__ : _show all battle plans and the associated armies_
-- __plan edit [name]__: _edit the plan that is assigned to the army with [name] in __edit mode__. If the army does have a battle plan, a new plan will be created._
-- __plan remove [name]__: _remove the plan that is assigned to the army with [name]._
-  
-  _Within the plan edit mode:_
-  - __target [country]__: _specify the country to be attacking (required before you cna add or minus any region)_
-  - __add [region] (order)__: _add the region to be attacked in the order specified (defaulted to at the end of the queue) (__note you must take the land at region A before you can attack region B, refer to [Map design and coordinate system](#map) for more details__)
-  - __minus [region]__: _remove the region specified_
-  - __reset__: _remove all regions in the battle plan_
-  - __exit__: _save the plan and exit the edit mode_
-- __battle status__ : _show all troops in war, available for war, regions currently in battle and their stats_
-- __battle status [region]__ : _show all troops and armies in details, including the remaining troops in the army in different columns and the damage each troops are taking._
-- __battle plan start [name]__: _start the battle plan assigned to the army with [name]_
-- __battle plan stop [name]__: _stop the battle plan assigned to the army with [name] (equivalent to doing battle [region] remove [name])_
-- __battle [country] [region] add (name, (name, ...)) (troop, amount, (troop, amount, ...))__: _attack/ add troops to the [region] in [country] specified with the armies and troops specified (at least 1 unit must be present)_
-- __battle [country] [region] remove (name, (name, ...)) (troop, amount, (troop, amount, ...))__: _remove (retreat) troops from [region] in [country] specified with the armies and troops specified, defaulted to retreat all units if no troops are specified._
-- __battle [country] auto true__ : _let the computer take control over your troops in attacking the [country]_
-- __battle [country] auto false__ : _take control over your troops_
-- __speed (1 or 2 or 3)__: _how many days will pass when 1 second passes in real life, defaulted to 1_
-- __save (name)__: _save the game files to [name].txt format if a anme is provided, save the game files to [level]-[yyyy]:[mm]:[dd]:[hh]:[mm]:[ss].txt otherwise_
-- __load (name)__: _load the level stored in [name].txt if a name is provided, load last saved level if otherwise_
-- __create [name] (difficulty):__ _create a custom game with [name] (must be unique from other levels) with difficulty defaulted to 1 (easiest) if not provided_
-- __restart__: _restart the level and reset all stats_
-- __difficulty (easy or hard)__: _restart the level with difficulty easy/ hard_
-- __help__: _print out all commands_
 
 ## <a name="implementation"></a>Implementation
 

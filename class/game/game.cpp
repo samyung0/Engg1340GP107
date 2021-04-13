@@ -174,7 +174,7 @@ void Game::fetch()
     {
       std::string modifier = input.substr(index + 1, index2 - index - 1);
       if (modifier == "create")
-        this->enemies->totalEnemies.push_back(new Enemy(input.substr(index3 + 1)));
+        this->enemies->totalEnemies.push_back(new Enemy(input.substr(index3 + 1), this->enemies->defeated));
       std::cout << "Creating countries done" << std::endl;
     }
     else if (operand == "map")
@@ -219,7 +219,7 @@ void Game::fetch()
           else
           {
             totalLand++;
-            mapA.back().push_back(new Block(this->troop, this->resource, this->battle, this->enemies->totalEnemies.back()->capturedLand, this->enemies->totalEnemies.back()->capitulated, this->enemies->totalEnemies.back()->battlingRegions));
+            mapA.back().push_back(new Block(this->troop, this->resource, this->battle, this->enemies->totalEnemies.back()->capturedLand, this->enemies->totalEnemies.back()->capitulated, this->enemies->totalEnemies.back()->battlingRegions, this->enemies->totalEnemies[index]->totalLand, this->enemies->totalEnemies[index]->defeated, mapA, mapA.size()-1, mapA.back().size()));
             mapA.back().back()->country = country;
 
             std::vector<int> sep = {(int)map.find(",", i2)};
@@ -327,6 +327,7 @@ void Game::fetch()
               for (int i = 0; i < coord.size() / 2; i++)
                 mapA.back().back()->attackable.push_back(std::make_pair(coord[i * 2], coord[i * 2 + 1]));
             }
+            mapA.back().back()->isAttackable = mapA.back().back()->attackable.size() == 0;
 
             std::cout << "Block capturable done" << std::endl;
 
