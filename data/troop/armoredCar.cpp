@@ -20,4 +20,5 @@ void ArmoredCar::takeDamage(double damage)
 void ArmoredCar::increaseHealth(double recovery)
 {
   hp += recovery;
+  hp = std::min((double) this->baseHp, hp);
 }

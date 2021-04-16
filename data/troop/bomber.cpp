@@ -15,11 +15,10 @@ void Bomber::giveDamage(double disruption, double airSupremacy, double mul1, dou
 void Bomber::takeDamage(double damage)
 {
   hp -= damage;
-  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / Bomber::baseHp) + std::log(0.2) + 1.5), 1 - (hp / Bomber::baseHp));
 }
 
 void Bomber::increaseHealth(double recovery)
 {
   hp += recovery;
-  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / Bomber::baseHp) + std::log(0.2) + 1.5), 1 - (hp / Bomber::baseHp));
+  hp = std::min((double) this->baseHp, hp);
 }

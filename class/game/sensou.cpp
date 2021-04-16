@@ -140,12 +140,14 @@ void Game::sensou(int &gamePhase, int prevPhase)
   sendAll = [&]() {
     Enemy *ptr = this->enemies->totalEnemies[currentCountry];
     for (auto i : selectedTroop)
-      ptr->map[phase0[0]][phase0[1]]->reinforce(i);
+      if (!ptr->map[phase0[0]][phase0[1]]->captured)
+        ptr->map[phase0[0]][phase0[1]]->reinforce(i, this->resource, this->building, this->battle, [&](std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount) { this->buildBase(type, time, callBack, desc, land, amount); });
     for (auto i : selectedArmy)
-      ptr->map[phase0[0]][phase0[1]]->reinforce(i);
-    std::cout << "\033[2J\033[1;1H" << std::endl;
+      if (!ptr->map[phase0[0]][phase0[1]]->captured)
+        ptr->map[phase0[0]][phase0[1]]->reinforce(i, this->resource, this->building, this->battle, [&](std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount) { this->buildBase(type, time, callBack, desc, land, amount); });
     deselectAll();
     mode = 0;
+    std::cout << "\033[2J\033[1;1H" << std::endl;
     // avoid resource deadlock error
     std::thread temp([&]() {
       stopPrint();
@@ -285,6 +287,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (subPhase0Mode == 0)
     {
+
       if (scroll0[0] > phase0[0] * 3)
         scroll0[0] = phase0[0] * 3;
       if (scroll0[0] + screen[0] <= phase0[0] * 3 + 1)
@@ -383,7 +386,6 @@ void Game::sensou(int &gamePhase, int prevPhase)
 
     prePhase0[0] = phase0[0];
     prePhase0[1] = phase0[1];
-
     for (int i = 0; i < ptr->map.size(); i++)
     {
       std::string row1 = "";
@@ -471,6 +473,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
       render.push_back(row2);
       render.push_back(row3);
     }
+
     // a layer unnderneath to compensate for the bottom border of the last row
     std::string row1 = "";
     for (int j = 0; j < ptr->map.back().size(); j++)
@@ -556,7 +559,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     this->lg.unlock();
 
     std::cout << "Country: " << this->enemies->totalEnemies[currentCountry]->name
-              << " (" << (this->enemies->totalEnemies[currentCountry]->capitulated ? "defeated" : "not defeated") << "/" + std::to_string(selectedTroopMap["infantry"])
+              << " (" << (this->enemies->totalEnemies[currentCountry]->capitulated ? "defeated" : "not defeated") << ")"
               << "   Battling Regions: " << this->enemies->totalEnemies[currentCountry]->battlingRegions
               << std::endl;
 
@@ -753,7 +756,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
                 << std::endl;
       std::cout << std::setw(30 + 11) << color("Troops selected: ", "green") + std::to_string(selectedTroop.size()) << color(" Armies selected: ", "green") << selectedArmy.size() << std::endl
                 << std::endl;
-      std::cout << prefix[13][0] << underline("Confirm", "green") << " (i)" << prefix[13][1] << underline("Deselect all", "green") << " (o)" << std::endl
+      std::cout << prefix[13][0] << underline("Confirm", "green") << " (z)" << prefix[13][1] << underline("Deselect all", "green") << " (x)" << std::endl
                 << prefix[14][0] << underline("Back", "green") << " (spacebar)" << std::endl;
     }
     else if (subMode == 1)
@@ -839,18 +842,31 @@ void Game::sensou(int &gamePhase, int prevPhase)
   });
 
   printMode.push_back([&]() {
+    Block *ptr = this->enemies->totalEnemies[currentCountry]->map[phase0[0]][phase0[1]];
+    if (!ptr->battling)
+    {
+      std::cout << "\033[2J\033[1;1H" << std::endl;
+      mode = 0;
+      // avoid resource deadlock error
+      std::thread temp([&]() {
+        stopPrint();
+        loopPrint();
+      });
+      temp.detach();
+      return;
+    }
+
     int fillX = 150;
     int screenY = 27;
     std::vector<std::string> render;
 
-    Block *ptr = this->enemies->totalEnemies[currentCountry]->map[phase0[0]][phase0[1]];
     BattleUnit *ptr2 = ptr->battle.back();
     ptr2->lg.lock();
 
     render.push_back(std::string(fillX / 2 - 2, ' ') + "Stats");
     render.back() += std::string((int)(fillX - render.back().length()), ' ');
-    int deathFd = std::round(ptr2->totalFriendlyDeathCount / ptr2->totalFriendly * 20);
-    int deathFoe = std::round(ptr2->totalFoeDeathCount / ptr->totalFoe * 20);
+    int deathFd = (int)std::round(1.0 * ptr2->totalFriendlyDeathCount / ptr2->totalFriendly * 20);
+    int deathFoe = (int)std::round(1.0 * ptr2->totalFoeDeathCount / ptr->totalFoe * 20);
     render.push_back("Casualty Rate: " + std::string(20 - deathFd, '+') + std::string(deathFd, '-'));
     std::string temp = std::string(deathFoe, '-') + std::string(20 - deathFoe, '+') + " :Casualty Rate";
     render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
@@ -1202,6 +1218,20 @@ void Game::sensou(int &gamePhase, int prevPhase)
           subMode = 0;
         }
       }
+      else if (mode == 1 && subMode == 0)
+      {
+        sendAll();
+      }
+    }
+    else if (input == 'x')
+    {
+      if (mode == 0)
+      {
+      }
+      else if (mode == 1 && subMode == 0)
+      {
+        deselectAll();
+      }
     }
     else if (input == 'c')
     {
@@ -1218,16 +1248,6 @@ void Game::sensou(int &gamePhase, int prevPhase)
     {
       if (mode == 0)
         currentCountry = (currentCountry + 1) % this->enemies->totalEnemies.size();
-    }
-    else if (input == 'i')
-    {
-      if (mode == 1)
-        sendAll();
-    }
-    else if (input == 'o')
-    {
-      if (mode == 1)
-        deselectAll();
     }
     else if (input == 'p')
     {

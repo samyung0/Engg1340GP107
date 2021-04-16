@@ -15,10 +15,9 @@ void TankOshimai::giveDamage(double disruption, double airSupremacy, double mul1
 void TankOshimai::takeDamage(double damage)
 {
   hp -= damage;
-  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / TankOshimai::baseHp) + std::log(0.2) + 1.5), 1 - (hp / TankOshimai::baseHp));
 }
 void TankOshimai::increaseHealth(double recovery)
 {
   hp += recovery;
-  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / TankOshimai::baseHp) + std::log(0.2) + 1.5), 1 - (hp / TankOshimai::baseHp));
+  hp = std::min((double) this->baseHp, hp);
 }

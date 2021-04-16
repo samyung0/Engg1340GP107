@@ -15,11 +15,10 @@ void Fighter::giveDamage(double disruption, double airSupremacy, double mul1, do
 void Fighter::takeDamage(double damage)
 {
   hp -= damage;
-  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / Fighter::baseHp) + std::log(0.2) + 1.5), 1 - (hp / Fighter::baseHp));
 }
 
 void Fighter::increaseHealth(double recovery)
 {
   hp += recovery;
-  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / Fighter::baseHp) + std::log(0.2) + 1.5), 1 - (hp / Fighter::baseHp));
+  hp = std::min((double) this->baseHp, hp);
 }

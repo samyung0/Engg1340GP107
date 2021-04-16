@@ -6,5 +6,5 @@ void Logistic::takeDamage(double damage)
 
 void Logistic::increaseHealth(double recovery)
 {
-  hp += recovery;
+  hp = std::min((double) this->baseHp, hp);
 }

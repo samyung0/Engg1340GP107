@@ -460,6 +460,15 @@ private:
             {
               this->day++;
               this->timeAcc = 0;
+              this->lg.unlock();
+            for (auto i : this->enemies->totalEnemies)
+              for (auto j : i->map)
+                for (auto k : j)
+                  if (k != NULL && k->battling){
+                    k->cycle(this->troop, this->resource, this->building, this->battle,
+                             [&](std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount) { this->buildBase(type, time, callBack, desc, land, amount); });
+                  }
+            this->lg.lock();
             }
             if (this->day >= this->timeLimit)
             {
@@ -469,13 +478,6 @@ private:
               break;
             }
             this->lg.unlock();
-            using namespace std::placeholders;
-            for (auto i : this->enemies->totalEnemies)
-              for (auto j : i->map)
-                for (auto k : j)
-                  if (k != NULL && k->battling)
-                    k->cycle(this->troop, this->resource, this->building, this->battle,
-                             [&](std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount) { this->buildBase(type, time, callBack, desc, land, amount); });
           }
         },
         time);

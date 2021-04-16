@@ -70,6 +70,7 @@ void Game::fetch()
   std::fstream in(this->path, std::ios::in);
 
   std::vector<std::string> indexToTroop = {"infantry", "calvary", "artillery", "logistic", "armoredCar", "tank1", "tank2", "tankOshimai", "cas", "fighter", "bomber"};
+  std::vector<std::string> indexToTroop2 = {"infantry", "calvary", "suicideBomber", "artillery", "logistic", "armoredCar", "tank1", "tank2", "tankOshimai", "cas", "fighter", "bomber", "kamikaze"};
   std::unordered_map<std::string, std::function<TroopUnit *()>> troopToInstance = {
       {"infantry", [&]() { return new Infantry(this->uuid()); }},
       {"calvary", [&]() { return new Calvary(this->uuid()); }},
@@ -134,20 +135,20 @@ void Game::fetch()
       int brackettemp = input.find(")", armySep);
       if (brackettemp + 1 != sepArmy[0])
       {
-        temp->addTroop(0, 0, indexToTroop[std::atoi(input.substr(brackettemp + 1, sepArmy[0] - brackettemp - 1).c_str())], this->troop, this->resource);
+        temp->addTroop(0, 0, indexToTroop2[std::atoi(input.substr(brackettemp + 1, sepArmy[0] - brackettemp - 1).c_str())], this->troop, this->resource);
       }
       for (int i = 0; i < 14; i++)
       {
         brackettemp = input.find(")", sepArmy[i]);
         if (brackettemp + 1 != sepArmy[i + 1])
         {
-          temp->addTroop((i + 1) / 4, (i + 1) % 4, indexToTroop[std::atoi(input.substr(brackettemp + 1, sepArmy[i + 1] - brackettemp - 1).c_str())], this->troop, this->resource);
+          temp->addTroop((i + 1) / 4, (i + 1) % 4, indexToTroop2[std::atoi(input.substr(brackettemp + 1, sepArmy[i + 1] - brackettemp - 1).c_str())], this->troop, this->resource);
         }
       }
       brackettemp = input.find(")", sepArmy[14]);
       if (brackettemp + 1 != armyEnd)
       {
-        temp->addTroop(3, 3, indexToTroop[std::atoi(input.substr(brackettemp + 1, armyEnd - brackettemp - 1).c_str())], this->troop, this->resource);
+        temp->addTroop(3, 3, indexToTroop2[std::atoi(input.substr(brackettemp + 1, armyEnd - brackettemp - 1).c_str())], this->troop, this->resource);
       }
       this->army->total[name] = temp;
       std::cout << "Making army done" << std::endl;
@@ -219,7 +220,8 @@ void Game::fetch()
           else
           {
             totalLand++;
-            mapA.back().push_back(new Block(this->troop, this->resource, this->battle, this->enemies->totalEnemies.back()->capturedLand, this->enemies->totalEnemies.back()->capitulated, this->enemies->totalEnemies.back()->battlingRegions, this->enemies->totalEnemies[index]->totalLand, this->enemies->totalEnemies[index]->defeated, mapA, mapA.size()-1, mapA.back().size()));
+            std::cout << "Map size: " << mapA.size() << " " << mapA.back().size() << std::endl;
+            mapA.back().push_back(new Block(this->troop, this->resource, this->battle, this->enemies->totalEnemies.back()->capturedLand, this->enemies->totalEnemies.back()->capitulated, this->enemies->totalEnemies.back()->battlingRegions, this->enemies->totalEnemies[index]->totalLand, this->enemies->totalEnemies[index]->defeated, mapA.size() - 1, mapA.back().size()));
             mapA.back().back()->country = country;
 
             std::vector<int> sep = {(int)map.find(",", i2)};
@@ -262,7 +264,9 @@ void Game::fetch()
               if (brackettemp + 1 != sepArmy[0])
               {
                 mapA.back().back()->totalFoe++;
-                mapA.back().back()->totalFoeArmy.back()->addTroopM(0, 0, troopToInstance[indexToTroop[std::atoi(map.substr(brackettemp + 1, sepArmy[0] - brackettemp - 1).c_str())]]());
+                std::string type = indexToTroop[std::atoi(map.substr(brackettemp + 1, sepArmy[0] - brackettemp - 1).c_str())];
+                mapA.back().back()->totalFoeArmy.back()->addTroopM(0, 0, troopToInstance[type]());
+                mapA.back().back()->foeCount[type]++;
               }
               for (int i = 0; i < 14; i++)
               {
@@ -270,14 +274,18 @@ void Game::fetch()
                 if (brackettemp + 1 != sepArmy[i + 1])
                 {
                   mapA.back().back()->totalFoe++;
-                  mapA.back().back()->totalFoeArmy.back()->addTroopM((i + 1) / 4, (i + 1) % 4, troopToInstance[indexToTroop[std::atoi(map.substr(brackettemp + 1, sepArmy[i + 1] - brackettemp - 1).c_str())]]());
+                  std::string type = indexToTroop[std::atoi(map.substr(brackettemp + 1, sepArmy[i + 1] - brackettemp - 1).c_str())];
+                  mapA.back().back()->totalFoeArmy.back()->addTroopM((i + 1) / 4, (i + 1) % 4, troopToInstance[type]());
+                  mapA.back().back()->foeCount[type]++;
                 }
               }
               brackettemp = map.find(")", sepArmy[14]);
               if (brackettemp + 1 != armyEnd)
               {
                 mapA.back().back()->totalFoe++;
-                mapA.back().back()->totalFoeArmy.back()->addTroopM(3, 3, troopToInstance[indexToTroop[std::atoi(map.substr(brackettemp + 1, armyEnd - brackettemp - 1).c_str())]]());
+                std::string type = indexToTroop[std::atoi(map.substr(brackettemp + 1, armyEnd - brackettemp - 1).c_str())];
+                mapA.back().back()->totalFoeArmy.back()->addTroopM(3, 3, troopToInstance[type]());
+                mapA.back().back()->foeCount[type]++;
               }
               armySep = map.find("$", armyEnd + 1);
             }
@@ -358,19 +366,24 @@ void Game::fetch()
             int terrainStart = map.find("(", encircleEnd);
             int terrainEnd = map.find(")", terrainStart);
             mapA.back().back()->terrain = map.substr(terrainStart + 1, terrainEnd - terrainStart - 1);
-
             std::cout << "Block terrain done" << std::endl;
 
             assert(map[terrainEnd + 1] == ';');
           }
 
+          std::cout << "Block done" << std::endl;
           std::getline(in, map);
         }
 
+        for(auto i:mapA)
+          for(auto j:i)
+            if(j != NULL) j->map = mapA;
+
         this->enemies->totalEnemies[index]->map = mapA;
         this->enemies->totalEnemies[index]->totalLand = totalLand;
-
-        std::cout << "Block done" << std::endl;
+        std::cout << "Map done" << std::endl;
+        for(auto i: this->enemies->totalEnemies)
+          std::cout << i->name << " " << "Size: " << i->map.size() << " " << i->map[0].size() << std::endl;
       }
     }
     else if (operand == "time")
@@ -405,6 +418,7 @@ void Game::start()
   // possible data race for gameover
   while (1)
   {
+    this->lguser.lock();
     int prevGamePhase = this->gamePhase;
 
     // same method used in menuPhase
@@ -475,10 +489,10 @@ void Game::start()
     }
     else
     {
-      this->lguser.lock();
+
       (this->*this->action[-this->gamePhase])(this->gamePhase, prevGamePhase);
-      this->lguser.unlock();
     }
+    this->lguser.unlock();
   }
 
   // timer thread terminates itself and the main while loop

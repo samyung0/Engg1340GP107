@@ -15,11 +15,10 @@ void Tank1::giveDamage(double disruption, double airSupremacy, double mul1, doub
 void Tank1::takeDamage(double damage)
 {
   hp -= damage;
-  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / Tank1::baseHp) + std::log(0.2) + 1.5), 1 - (hp / Tank1::baseHp));
 }
 
 void Tank1::increaseHealth(double recovery)
 {
   hp += recovery;
-  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / Tank1::baseHp) + std::log(0.2) + 1.5), 1 - (hp / Tank1::baseHp));
+  hp = std::min((double) this->baseHp, hp);
 }

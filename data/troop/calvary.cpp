@@ -15,11 +15,10 @@ void Calvary::giveDamage(double disruption, double airSupremacy, double mul1, do
 void Calvary::takeDamage(double damage)
 {
   hp -= damage;
-  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / Calvary::baseHp) + std::log(0.2) + 1.5), 1 - (hp / Calvary::baseHp));
 }
 
 void Calvary::increaseHealth(double recovery)
 {
   hp += recovery;
-  pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (hp / Calvary::baseHp) + std::log(0.2) + 1.5), 1 - (hp / Calvary::baseHp));
+  hp = std::min((double) this->baseHp, hp);
 }

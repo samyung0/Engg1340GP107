@@ -304,7 +304,7 @@ H1 H2             H7</pre>
 
     Decrease in hp from land attack per troop (armored) = Decrease in hp from attack per troop (non-armored)/4 + (Total hard attack/ number of armored land troops - armor) * 1.1
     
-    Decrease in hp from air attack per troop (plane) = Total air attack * base conpicuousness/ total conpicuousness - armor
+    Decrease in hp from air attack per troop (plane) = Total air attack * base conpicuousness/ total conpicuousness
 
     Increase in hp from recovery per land troop = base value (research) * (1 - disruption/2) * (food supplied/ food required)^1.5
 
