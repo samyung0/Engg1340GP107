@@ -36,7 +36,7 @@ public:
   virtual int getBaseHealth() = 0;
   virtual int getSoftAttack() = 0;
   virtual int getHardAttack() = 0;
-  virtual int getAirAttack() = 0;
+  virtual double getAirAttack() = 0;
   virtual int getDisruption() = 0;
   virtual int getConspicuousness() = 0;
   virtual int getDefense() = 0; 
@@ -90,7 +90,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }
@@ -132,7 +132,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }
@@ -175,7 +175,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }
@@ -215,7 +215,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }
@@ -257,7 +257,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }
@@ -297,7 +297,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }
@@ -337,7 +337,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }
@@ -377,7 +377,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }
@@ -417,7 +417,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }
@@ -457,7 +457,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }
@@ -497,7 +497,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }
@@ -537,7 +537,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }
@@ -579,7 +579,7 @@ public:
   int getBaseHealth() { return baseHp; }
   int getSoftAttack() { return softAttack; }
   int getHardAttack() { return hardAttack; }
-  int getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return airAttack * strength; }
+  double getAirAttack() { double strength = 0.6 * this->pivotalStrength + 0.4 *this->subsequentialStrength; return 1.0 * airAttack * strength; }
   int getSpeed() { return speed; }
   int getDisruption() { return disruption; }
   int getConspicuousness() { return conspicuousness; }

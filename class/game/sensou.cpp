@@ -55,6 +55,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
   int subPhase1[2] = {0, 0};
   int subPhase1Mode = 0;
   int scroll2[2] = {0, 0};
+  int subPhase2Mode = 0;
   std::string subPhase1Type;
   TroopUnit *subPhase1TroopDetail;
   bool enter = false;
@@ -847,6 +848,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     {
       std::cout << "\033[2J\033[1;1H" << std::endl;
       mode = 0;
+      subPhase2Mode = 0;
       // avoid resource deadlock error
       std::thread temp([&]() {
         stopPrint();
@@ -855,6 +857,8 @@ void Game::sensou(int &gamePhase, int prevPhase)
       temp.detach();
       return;
     }
+
+    if(subPhase2Mode == 0){
 
     int fillX = 150;
     int screenY = 27;
@@ -998,7 +1002,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
 
     std::cout << "\033[1;1H";
     std::cout << color("View Battle", "magenta") << std::endl
-              << "Change Speed: q     Pause: p     Back: spacebar"
+              << "Change Speed: q     Pause: p     Battle log: l     Back: spacebar"
               << std::endl
               << std::endl;
 
@@ -1020,6 +1024,23 @@ void Game::sensou(int &gamePhase, int prevPhase)
     else
       std::cout << std::string(fillX, ' ') << std::endl;
     ptr2->lg.unlock();
+  }else {
+    std::cout << "\033[2J\033[1;1H";
+    std::cout << color("View Battle", "magenta") << std::endl
+              << "Change Speed: q     Pause: p     Back: spacebar"
+              << std::endl
+              << std::endl;
+
+    this->lg.lock();
+    std::stringstream speed;
+    speed << std::fixed << std::setprecision(1) << this->setting["speed"] / 1000.0;
+    std::cout << color("Day: ", "green") << this->day << "/" << this->timeLimit << " (" << speed.str() << "s)     " << (this->paused ? color("PAUSED", "red") : "") << std::endl
+              << std::endl;
+    this->lg.unlock();
+    BattleUnit *ptr = this->enemies->totalEnemies[currentCountry]->map[phase0[0]][phase0[1]]->battle.back();
+    for(int i=std::max(0, (int)ptr->log.size()-25);i<ptr->log.size();i++)
+      std::cout << ptr->log[i] << std::endl;
+  }
   });
 
   loopPrint = [&]() {
@@ -1252,6 +1273,10 @@ void Game::sensou(int &gamePhase, int prevPhase)
     else if (input == 'p')
     {
       this->paused = !this->paused;
+    }else if(input == 'l'){
+      if(mode == 2){
+        if(subPhase2Mode == 0) subPhase2Mode = 1;
+      }
     }
     else if (input == ' ')
     {
@@ -1276,8 +1301,10 @@ void Game::sensou(int &gamePhase, int prevPhase)
         else
           subMode = 0;
       }
-      else if (mode == 2)
-        mode = 0;
+      else if (mode == 2){
+        if(subPhase2Mode == 0) mode = 0;
+        else subPhase2Mode = 0;
+      }
     }
 
     std::cout << "\033[2J\033[1;1H";

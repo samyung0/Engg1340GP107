@@ -462,13 +462,16 @@ public:
         nonSpecialTroop++;
       else
         specialTroop++;
-      unitFd++;
       if (this->armorTroop.count(i->type) != 0)
         armorTroopFd++;
       if (this->airTroop.count(i->type) != 0)
       {
         totalConspicuousnessFd += i->getConspicuousness();
         airTroopFd++;
+      }
+      else
+      {
+        unitFd++;
       }
       totalTroopFd++;
       avgFoodRatio += this->foodRatio;
@@ -484,7 +487,6 @@ public:
       i->attackDebuff = 0;
       totalFoeAirAttack += i->getAirAttack();
       this->totalFoeDisruption += i->getDisruption();
-      unitFoe++;
       if (this->armorTroop.count(i->type) != 0)
         armorTroopFoe++;
       if (this->airTroop.count(i->type) != 0)
@@ -492,18 +494,21 @@ public:
         totalConspicuousnessFoe += i->getConspicuousness();
         airTroopFoe++;
       }
+      else
+      {
+        unitFoe++;
+      }
       totalTroopFoe++;
     }
     for (auto i : this->mikata->totalArmy)
     {
       double armyFoodRatio = i->totalFoodRequired == 0 ? 1 : std::min(1.0, (this->foodRatio * i->totalBaseFoodRequired) / i->totalFoodRequired);
       double armyEquipmentRatio = i->totalEquipmentRequired == 0 ? 1 : std::min(1.0, (this->equipmentRatio * i->totalBaseEquipmentRequired) / i->totalEquipmentRequired);
-      bool isEmpty = true;
+      bool hasLandTroop = false;
       for (auto j : i->formation)
         for (auto k : j)
           if (k != NULL)
           {
-            isEmpty = false;
             k->pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (k->getHealth() / k->getBaseHealth()) + std::log(0.2) + 1.5), 1 - k->getHealth() / k->getBaseHealth());
             k->subsequentialStrength = (armyFoodRatio + armyEquipmentRatio) / 2;
             k->attackDebuff = this->terrainDebuff * (std::max(0., 1 - std::min(1.0, (k->getSpeed() + i->speedBoostPerLand) / 10.0)));
@@ -521,24 +526,25 @@ public:
               totalConspicuousnessFd += k->getConspicuousness();
               airTroopFd++;
             }
-            totalTroopFd++;
+            else
+              hasLandTroop = true;
             avgFoodRatio += armyFoodRatio;
             avgEquipmentRatio += armyEquipmentRatio;
             avgAttackDebuff += k->attackDebuff;
             avgPivotalStrength += k->pivotalStrength;
             avgSubsequentialStrength += k->subsequentialStrength;
+            totalTroopFd++;
           }
-      if (!isEmpty)
+      if (hasLandTroop)
         unitFd++;
     }
     for (auto i : this->foe->totalArmy)
     {
-      bool isEmpty = true;
+      bool hasLandTroop = false;
       for (auto j : i->formation)
         for (auto k : j)
           if (k != NULL)
           {
-            isEmpty = false;
             k->pivotalStrength = std::pow(1.2 - std::exp(-1.5 * (k->getHealth() / k->getBaseHealth()) + std::log(0.2) + 1.5), 1 - k->getHealth() / k->getBaseHealth());
             k->subsequentialStrength = this->isEncircled ? 0.5 : 1;
             k->attackDebuff = 0;
@@ -551,9 +557,11 @@ public:
               totalConspicuousnessFoe += k->getConspicuousness();
               airTroopFoe++;
             }
+            else
+              hasLandTroop;
             totalTroopFoe++;
           }
-      if (!isEmpty)
+      if (hasLandTroop)
         unitFoe++;
     }
 
@@ -634,17 +642,28 @@ public:
       foe->softAttack += foe->hardAttack;
       foe->hardAttack = 0;
     }
+    int nonAirFd = totalTroopFd - airTroopFd;
+    int nonAirFoe = totalTroopFoe - airTroopFoe;
+    double dropoffFactorFd = (nonAirFd == 0 ? 1. : std::max(0., std::min(1., std::pow(1.5, airTroopFd / nonAirFd - 0.33) - 1.0)));
+    double dropoffFactorFoe = (nonAirFoe == 0 ? 1. : std::max(0., std::min(1., std::pow(1.5, airTroopFoe / nonAirFoe - 0.33) - 1.0)));
+    nakama->softAttack *= (1. - dropoffFactorFd);
+    nakama->hardAttack *= (1. - dropoffFactorFd);
+    nakama->airAttack *= (1. - dropoffFactorFd);
+    foe->softAttack *= (1. - dropoffFactorFoe);
+    foe->hardAttack *= (1. - dropoffFactorFoe);
+    foe->airAttack *= (1. - dropoffFactorFoe);
     this->damageDealt->softAttack += nakama->softAttack;
     this->damageDealt->hardAttack += nakama->hardAttack;
     this->damageDealt->airAttack += nakama->airAttack;
     this->totalSoftAttack = nakama->softAttack;
     this->totalHardAttack = nakama->hardAttack;
-    this->totalFoeAirAttack = nakama->airAttack;
+    this->totalAirAttack = nakama->airAttack;
     this->totalFoeSoftAttack = foe->softAttack;
     this->totalFoeHardAttack = foe->hardAttack;
     this->totalFoeAirAttack = foe->airAttack;
     if (dev)
     {
+      std::cout << ("Total droppoff factor: " + std::to_string((int)std::round(dropoffFactorFd * 100)) + "%") << std::endl;
       std::cout << ("Total conspicuousness: " + std::to_string((int)totalConspicuousnessFd)) << std::endl;
       std::cout << ("Food ratio (avg): " + std::to_string((int)std::round(avgFoodRatio / totalTroopFd * 100)) + "%") << std::endl;
       std::cout << ("Equipment ratio (avg): " + std::to_string((int)std::round(avgEquipmentRatio / totalTroopFd * 100)) + "%") << std::endl;
@@ -661,6 +680,7 @@ public:
     }
     else
     {
+      log.push_back("Total droppoff factor: " + std::to_string((int)std::round(dropoffFactorFd * 100)) + "%");
       log.push_back("Total conspicuousness: " + std::to_string((int)totalConspicuousnessFd));
       log.push_back("Food ratio (avg): " + std::to_string((int)std::round(avgFoodRatio / totalTroopFd * 100)) + "%");
       log.push_back("Equipment ratio (avg): " + std::to_string((int)std::round(avgEquipmentRatio / totalTroopFd * 100)) + "%");
@@ -917,7 +937,7 @@ public:
         assert(this->mikata->totalTroop[i]->reference.size() == 0);
 
         int index = -1;
-        for (int j = 0; j< troop->allTroop.size(); j++)
+        for (int j = 0; j < troop->allTroop.size(); j++)
           if (troop->allTroop[j] == this->mikata->totalTroop[i])
           {
             index = j;
@@ -1218,7 +1238,8 @@ public:
 
     this->battle.back()->mikata->totalTroop.erase(ptr);
     retreating->reference.pop_back();
-    retreating->isReferenced = retreating->reference.size() != 0;
+    assert(retreating->reference.size() == 0);
+    retreating->isReferenced = false;
     this->battle.back()->totalFriendly--;
     this->battle.back()->friendCount[retreating->type]--;
     if (userInitiated)
@@ -1255,10 +1276,10 @@ public:
   }
   void retreatAll(data::Battle *battle, bool userInitiated = true)
   {
-    for (auto i : this->battle.back()->mikata->totalTroop)
-      this->retreat(i, battle, userInitiated);
-    for (auto i : this->battle.back()->mikata->totalArmy)
-      this->retreat(i, battle, userInitiated);
+    for (int i = this->battle.back()->mikata->totalTroop.size() - 1; i >= 0; i--)
+      this->retreat(this->battle.back()->mikata->totalTroop[i], battle, userInitiated);
+    for (int i = this->battle.back()->mikata->totalArmy.size() - 1; i >= 0; i--)
+      this->retreat(this->battle.back()->mikata->totalArmy[i], battle, userInitiated);
   }
 
   void cycle(data::Troop *troop, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
@@ -1556,10 +1577,10 @@ namespace data
           }}},
         {"recovery",
          {[&](Resource &a, Building &b, Troop &c, Army &d) {
-            a.baseRecoveryDiff = 6;
+            a.baseRecoveryDiff = 2;
           },
           [&](Resource &a, Building &b, Troop &c, Army &d) {
-            a.baseRecoveryDiff = 8;
+            a.baseRecoveryDiff = 2.5;
           }}},
     };
 

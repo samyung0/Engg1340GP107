@@ -21,7 +21,7 @@ void Game::printResearch(int x, int y)
         {" (50 days) +10% land available for building", " (70 days) +30% (total) land available for building"},
         {" (20 days) +5% damage dealt by each unit of tank", " (70 days) +10% (total) damage dealt by each unit of tank and plane"},
         {" (30 days) -10% training time required to train any unit of land troop", " (50 days) -20% (total) trianing time required to train any unit of land troop"},
-        {" (30 days) Recovery rate increased to 6 everyday", " (50 days) Recovery rate increased to 8 everyday"},
+        {" (30 days) Recovery rate increased to 2 everyday", " (50 days) Recovery rate increased to 2.5 everyday"},
     };
     std::vector<int> dataMatch = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     std::vector<bool> shouldPrint = {1, 1, 1, 1, 1, 1, 1, 1, 1};
