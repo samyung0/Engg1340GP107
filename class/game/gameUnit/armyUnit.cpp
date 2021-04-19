@@ -71,6 +71,7 @@ void ArmyUnit::removeTroop(int x, int y, data::Troop *troop, data::Resource *res
   troop->helper2[type](1, -1);
 
   this->troopCount--;
+  this->historicTroopCount--;
   this->totalBaseFoodRequired -= this->formation[x][y]->getFood();
   this->totalBaseEquipmentRequired -= this->formation[x][y]->getEquipment();
 
@@ -94,7 +95,7 @@ void ArmyUnit::removeTroop(int x, int y, data::Troop *troop, data::Resource *res
   this->formation[x][y] = NULL;
 }
 
-void ArmyUnit::addTroopM(int x, int y, TroopUnit* instance)
+void ArmyUnit::addTroopM(int x, int y, TroopUnit *instance)
 {
 
   this->formation[x][y] = instance;

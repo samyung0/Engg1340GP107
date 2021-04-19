@@ -199,7 +199,7 @@ public:
 private:
   double equipment = 2;
   double food = 1;
-  double hp = 0;
+  double hp = 1;
 };
 class Artillery : public TroopUnit
 {
@@ -603,7 +603,7 @@ public:
 private:
   double equipment = 10;
   double food = 1;
-  double hp = 0;
+  double hp = 1;
 };
 
 #endif

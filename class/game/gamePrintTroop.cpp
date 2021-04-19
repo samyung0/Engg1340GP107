@@ -151,8 +151,8 @@ void Game::printTroop(int x, int y)
             << "   Land: " << (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand) << "/" << this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand
             << "   Troop: " << this->troop->totalTroops
             << "   Armies: " << this->army->total.size() << "/10"
-            << "   Camps: " << this->resource->campUsed << "/"<<this->resource->camp
-            << "   Airports: " << this->resource->airportUsed << "/"<<this->resource->airport
+            << "   Camps: " << (this->resource->camp-this->resource->campUsed) << "/"<<this->resource->camp
+            << "   Airports: " << (this->resource->airport - this->resource->airportUsed) << "/"<<this->resource->airport
             << "   Enemies: " << (this->enemies->totalEnemies.size() -this->enemies->defeated)  << "/"<<this->enemies->totalEnemies.size()
             << std::endl
             << std::endl;

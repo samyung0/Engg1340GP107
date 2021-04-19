@@ -1,6 +1,7 @@
 #include <termios.h>
 #include <iostream>
 #include <unistd.h>
+#include <climits>
 
 struct termios prev, current;
 
@@ -13,6 +14,10 @@ void init(bool echo = false)
   // set no buffer
   current.c_lflag &= ~ICANON;
 
+  // reads data immediately
+  current.c_cc[VMIN] = 1;
+  current.c_cc[VTIME] = 0;
+
   // no echo
   if (!echo)
     current.c_lflag &= ~ECHO;
@@ -22,6 +27,14 @@ void init(bool echo = false)
 void reset()
 {
   tcsetattr(0, TCSANOW, &prev);
+}
+
+void clean_stdin()
+{
+  init();
+tcdrain(0);
+  tcflush(0, TCIOFLUSH);
+  reset();
 }
 
 char getch()

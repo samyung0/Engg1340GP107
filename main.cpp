@@ -23,29 +23,20 @@ int SCREENX = 160;
 int SCREENY = 38;
 int FPS = 10;
 
-
 int init(MenuWrapper &gameStats, std::string &error);
 
 int main()
 {
   // reset terminal
   std::cout << "\033c";
+  std::cout << "\033[2J\033[1;1H";
 
   // map to index of functions for displaying menus
   std::vector<std::vector<std::vector<int>>> map{
-      // play, settings, show version -> action 1, quit program -> action 999 (special case)
       {{1}, {2}, {-1}, {-999}},
-
-      // (play): level, random game, -> action 16, go back to phase 0
       {{3}, {4}, {-16}, {0}},
-
-      // (settings): on 30s show status -> action 17, off -> action 18, back to phase 0
       {{-17, -18}, {0}},
-
-      // (levels) -> action 2 to 10 // 9 levels, go back to phase 1
       {{-2, -3, -4}, {-5, -6, -7}, {-8, -9, -10}, {1}},
-
-      // (random games) -> action 11 to 15 // 5 levels of difficulty
       {{-11, -12, -13, -14, -15}}};
 
   // functions for displaying menus
@@ -73,11 +64,13 @@ int main()
   // vector of pointers to objects of all games played and playing (allow the use of dynamic memory)
   std::vector<Game *> allGames;
 
+  //  std::future<void> temp = std::async(std::launch::async, [&]() {while(1){clean_stdin();std::this_thread::sleep_for(std::chrono::milliseconds(500));} });
+
   char input;
   int menuPhase = 0;
   int menuPhaseSelect[2] = {0, 0};
 
-  std::string path; 
+  std::string path;
 
   (*select[menuPhase])(menuPhaseSelect[0], menuPhaseSelect[1], gameStats);
   while (1)

@@ -339,7 +339,7 @@ class BattleUnit
 {
 public:
   // country, region, your side troop, enemy side troop
-  BattleUnit(std::vector<TroopUnit *> &totalFoeTroop_, std::vector<ArmyUnit *> &totalFoeArmy_, std::unordered_map<std::string, int> &foeCount_, std::mutex &lg_, std::string country_, std::string region_, BattleTroopWrapper *mikata_, BattleTroopWrapper *foe_, double terrainDebuff_, bool &isEncircled_) : terrainDebuff(terrainDebuff_), country(country_), region(region_), mikata(mikata_), foe(foe_), lg(lg_), isEncircled(isEncircled_), foeCount(foeCount_), totalFoeArmy(totalFoeArmy_), totalFoeTroop(totalFoeTroop_){};
+  BattleUnit(std::function<void(ArmyUnit *)> retreatArmy_, std::vector<TroopUnit *> &totalFoeTroop_, std::vector<ArmyUnit *> &totalFoeArmy_, std::unordered_map<std::string, int> &foeCount_, std::mutex &lg_, std::string country_, std::string region_, BattleTroopWrapper *mikata_, BattleTroopWrapper *foe_, double terrainDebuff_, bool &isEncircled_) : terrainDebuff(terrainDebuff_), country(country_), region(region_), mikata(mikata_), foe(foe_), lg(lg_), isEncircled(isEncircled_), foeCount(foeCount_), totalFoeArmy(totalFoeArmy_), totalFoeTroop(totalFoeTroop_), retreatArmy(retreatArmy_){};
 
   std::string country;
   std::string region;
@@ -360,6 +360,7 @@ public:
       [](std::random_device &) -> std::vector<double> { return {1}; }, &randArmy2, &randArmy3, &randArmy4};
 
   std::mutex &lg;
+  std::function<void(ArmyUnit *)> retreatArmy;
 
   // stats
   int duration = 0;
@@ -564,7 +565,8 @@ public:
       if (hasLandTroop)
         unitFoe++;
     }
-
+    totalConspicuousnessFd = std::max(1, totalConspicuousnessFd);
+    totalConspicuousnessFoe = std::max(1, totalConspicuousnessFoe);
     this->totalFriendlyDisruption = 0.5 - std::exp(-0.1 * (this->totalFriendlyDisruption - 10 * std::log(0.5)));
     this->totalFoeDisruption = 0.5 - std::exp(-0.1 * (this->totalFoeDisruption - 10 * std::log(0.5)));
     airSupremacy = (totalFoeAirAttack == 0 && totalAirAttack == 0 ? 0 : totalAirAttack == 0  ? 0
@@ -576,6 +578,7 @@ public:
 
     if (dev)
     {
+      std::cout << (std::string("----- Enemy encircled: ") + (this->isEncircled ? "true" : "false") + " -----") << std::endl;
       std::cout << ("Total friendly troops: " + std::to_string(totalTroopFd)) << std::endl;
       std::cout << ("Total friendly armored troops: " + std::to_string(armorTroopFd)) << std::endl;
       std::cout << ("Total friendly planes: " + std::to_string(airTroopFd)) << std::endl;
@@ -587,6 +590,7 @@ public:
     }
     else
     {
+      log.push_back(std::string("----- Enemy encircled: ") + (this->isEncircled ? "true" : "false") + " -----");
       log.push_back("Total friendly troops: " + std::to_string(totalTroopFd));
       log.push_back("Total friendly armored troops: " + std::to_string(armorTroopFd));
       log.push_back("Total friendly planes: " + std::to_string(airTroopFd));
@@ -954,7 +958,6 @@ public:
         this->totalFriendlyDeathCount++;
 
         troop->helper2[this->mikata->totalTroop[i]->type](3, -1);
-        troop->helper2[this->mikata->totalTroop[i]->type](0, -1);
         delete this->mikata->totalTroop[i];
         this->mikata->totalTroop.erase(this->mikata->totalTroop.begin() + i);
         troop->allTroop.erase(troop->allTroop.begin() + index);
@@ -1026,7 +1029,6 @@ public:
 
             troop->helper2[k->type](3, -1);
             troop->helper2[k->type](1, -1);
-            troop->helper2[k->type](0, -1);
             delete k;
             i->formation[x][y] = NULL;
             troop->allTroop.erase(troop->allTroop.begin() + index);
@@ -1079,6 +1081,17 @@ public:
         this->totalFoeArmy.erase(this->totalFoeArmy.begin() + index);
         delete i;
         this->foe->totalArmy.erase(this->foe->totalArmy.begin() + j);
+      }
+    }
+    for (int j = this->mikata->totalArmy.size() - 1; j >= 0; j--)
+    {
+      auto i = this->mikata->totalArmy[j];
+      if (i->troopCount == 0)
+      {
+        i->historicCasualtyCount = 0;
+        i->historicTroopCount = 0;
+        i->casualtyPercentage = 0;
+        this->retreatArmy(i);
       }
     }
   }
@@ -1154,20 +1167,72 @@ public:
   std::mutex lg;
 
   int totalFoe = 0;
-  void reinforce(TroopUnit *reinforcement, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
+  void regen(data::Resource *resource)
+  {
+    for (auto i : this->totalFoeTroop)
+      i->increaseHealth(resource->baseRecovery);
+
+    for (auto i : this->totalFoeArmy)
+      for (auto j : i->formation)
+        for (auto k : j)
+          if (k != NULL)
+            k->increaseHealth(resource->baseRecovery);
+  }
+  void reinforce(std::function<void()> endGame, bool &gameOver, int enemySize, TroopUnit *reinforcement, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
   {
     assert(reinforcement != NULL);
+    assert(reinforcement->reference.size() == 0);
 
     this->lg.lock();
     if (this->totalFoe == 0)
     {
-      this->endBattle(resource, building, battle, buildBase);
+     this->capturedLand++;
+      if (1.0 * this->capturedLand / this->totalLand >= 0.7)
+      {
+        this->capitulated = true;
+        this->defeated++;
+        battle->inBattle = false;
+        battle->countryBattling = "";
+        for (auto i : this->map)
+          for (auto j : i)
+            if (j != NULL)
+              j->endBattle(resource, building, battle, buildBase);
+        if (this->defeated == enemySize)
+        {
+          gameOver = true;
+          endGame();
+        }
+      }
+      else
+      {
+        this->endBattle(resource, building, battle, buildBase);
+        for (auto i : this->map)
+          for (auto j : i)
+            if (j != NULL)
+            {
+              j->isAttackable = j->isAttackable || std::find(j->attackable.begin(), j->attackable.end(), std::make_pair(this->coordX, this->coordY)) != j->attackable.end();
+              if (!j->isEncircled)
+              {
+                bool allCaptured = true;
+                for (auto k : j->encircled)
+                {
+                  if (!this->map[k.first][k.second]->captured)
+                  {
+                    allCaptured = false;
+                    break;
+                  }
+                }
+                if (allCaptured)
+                  j->isEncircled = true;
+              }
+            }
+      }
       this->lg.unlock();
       return;
     }
     if (!this->battling)
     {
-      this->battle.push_back(new BattleUnit(totalFoeTroop, totalFoeArmy, foeCount, this->lg, this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop), this->terrainToDebuff[this->terrain], this->isEncircled));
+      this->battle.push_back(new BattleUnit([&](ArmyUnit *army) { this->retreat(army, battle, false); }, totalFoeTroop, totalFoeArmy, foeCount, this->lg, this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop), this->terrainToDebuff[this->terrain], this->isEncircled));
       this->battling = true;
       battler->inBattle = true;
       battler->countryBattling = country;
@@ -1178,6 +1243,7 @@ public:
     troop->helper2[reinforcement->type](3, 1);
 
     reinforcement->state["battle"] = true;
+    reinforcement->state["free"] = false;
     reinforcement->reference.push_back(true);
     reinforcement->isReferenced = true;
 
@@ -1187,19 +1253,59 @@ public:
 
     this->lg.unlock();
   }
-  void reinforce(ArmyUnit *reinforcement, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
+  void reinforce(std::function<void()> endGame, bool &gameOver, int enemySize, ArmyUnit *reinforcement, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
   {
     assert(reinforcement != NULL);
     this->lg.lock();
     if (this->totalFoe == 0)
     {
-      this->endBattle(resource, building, battle, buildBase);
+     this->capturedLand++;
+      if (1.0 * this->capturedLand / this->totalLand >= 0.7)
+      {
+        this->capitulated = true;
+        this->defeated++;
+        battle->inBattle = false;
+        battle->countryBattling = "";
+        for (auto i : this->map)
+          for (auto j : i)
+            if (j != NULL)
+              j->endBattle(resource, building, battle, buildBase);
+        if (this->defeated == enemySize)
+        {
+          gameOver = true;
+          endGame();
+        }
+      }
+      else
+      {
+        this->endBattle(resource, building, battle, buildBase);
+        for (auto i : this->map)
+          for (auto j : i)
+            if (j != NULL)
+            {
+              j->isAttackable = j->isAttackable || std::find(j->attackable.begin(), j->attackable.end(), std::make_pair(this->coordX, this->coordY)) != j->attackable.end();
+              if (!j->isEncircled)
+              {
+                bool allCaptured = true;
+                for (auto k : j->encircled)
+                {
+                  if (!this->map[k.first][k.second]->captured)
+                  {
+                    allCaptured = false;
+                    break;
+                  }
+                }
+                if (allCaptured)
+                  j->isEncircled = true;
+              }
+            }
+      }
       this->lg.unlock();
       return;
     }
     if (!this->battling)
     {
-      this->battle.push_back(new BattleUnit(totalFoeTroop, totalFoeArmy, foeCount, this->lg, this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop), this->terrainToDebuff[this->terrain], this->isEncircled));
+      this->battle.push_back(new BattleUnit([&](ArmyUnit *army) { this->retreat(army, battle, false); }, totalFoeTroop, totalFoeArmy, foeCount, this->lg, this->country, this->name, new BattleTroopWrapper({}, {}), new BattleTroopWrapper(this->totalFoeArmy, this->totalFoeTroop), this->terrainToDebuff[this->terrain], this->isEncircled));
       this->battling = true;
       battler->inBattle = true;
       battler->countryBattling = country;
@@ -1212,6 +1318,7 @@ public:
       {
         if (j != NULL)
         {
+          assert(j->reference.size() == 1);
           this->battle.back()->friendCount[j->type]++;
           this->battle.back()->totalFriendly++;
           troop->helper2[j->type](3, 1);
@@ -1276,17 +1383,28 @@ public:
   }
   void retreatAll(data::Battle *battle, bool userInitiated = true)
   {
-    for (int i = this->battle.back()->mikata->totalTroop.size() - 1; i >= 0; i--)
-      this->retreat(this->battle.back()->mikata->totalTroop[i], battle, userInitiated);
-    for (int i = this->battle.back()->mikata->totalArmy.size() - 1; i >= 0; i--)
-      this->retreat(this->battle.back()->mikata->totalArmy[i], battle, userInitiated);
+    int c = this->battle.back()->mikata->totalTroop.size() - 1;
+    while (this->battle.back()->mikata != NULL && c >= 0)
+    {
+      this->retreat(this->battle.back()->mikata->totalTroop[c], battle, userInitiated);
+      c--;
+    }
+    if (this->battle.back()->mikata)
+    {
+      c = this->battle.back()->mikata->totalArmy.size() - 1;
+      while (this->battle.back()->mikata != NULL && c >= 0)
+      {
+        this->retreat(this->battle.back()->mikata->totalArmy[c], battle, userInitiated);
+        c--;
+      }
+    }
   }
 
-  void cycle(data::Troop *troop, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
+  void cycle(std::function<void()> endGame, bool &gameOver, int enemySize, data::Troop *troop, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
   {
     this->battle.back()->fight(troop, resource);
     this->battle.back()->clean(troop, resource);
-    this->checkEndBattle(resource, building, battle, buildBase);
+    this->checkEndBattle(endGame, gameOver, enemySize, resource, building, battle, buildBase);
     if (this->battling)
       this->battle.back()->regen(resource);
   }
@@ -1345,13 +1463,13 @@ private:
     nakamaShinda = ptr->mikata->totalTroop.size() == 0 && !nonEmptyarmynakama;
     if (nakamaShinda)
     {
-      retreatAll(battle, false);
       BattleUnit *ptr = this->battle.back();
       delete ptr->foe;
       ptr->foe = NULL;
       delete ptr->mikata;
       ptr->mikata = NULL;
       this->battling = false;
+      this->battlingRegions--;
       bool remainingBattling = false;
       for (auto i : this->map)
         for (auto j : i)
@@ -1368,7 +1486,7 @@ private:
       }
     }
   }
-  void checkEndBattle(data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
+  void checkEndBattle(std::function<void()> endGame, bool &gameOver, int enemySize, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
   {
     BattleUnit *ptr = this->battle.back();
     bool nakamaShinda = false;
@@ -1389,7 +1507,7 @@ private:
     if (tekiShinda)
     {
       this->capturedLand++;
-      if (this->capturedLand / this->totalLand >= 0.7)
+      if (1.0 * this->capturedLand / this->totalLand >= 0.7)
       {
         this->capitulated = true;
         this->defeated++;
@@ -1399,6 +1517,11 @@ private:
           for (auto j : i)
             if (j != NULL)
               j->endBattle(resource, building, battle, buildBase);
+        if (this->defeated == enemySize)
+        {
+          gameOver = true;
+          endGame();
+        }
       }
       else
       {
@@ -1412,11 +1535,13 @@ private:
               {
                 bool allCaptured = true;
                 for (auto k : j->encircled)
+                {
                   if (!this->map[k.first][k.second]->captured)
                   {
                     allCaptured = false;
                     break;
                   }
+                }
                 if (allCaptured)
                   j->isEncircled = true;
               }
@@ -1425,14 +1550,13 @@ private:
     }
     else if (nakamaShinda)
     {
-      retreatAll(battle, false);
       BattleUnit *ptr = this->battle.back();
       delete ptr->foe;
       ptr->foe = NULL;
       delete ptr->mikata;
       ptr->mikata = NULL;
       this->battling = false;
-
+      this->battlingRegions--;
       bool remainingBattling = false;
       for (auto i : this->map)
         for (auto j : i)

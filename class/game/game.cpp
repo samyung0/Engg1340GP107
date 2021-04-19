@@ -300,7 +300,7 @@ void Game::fetch()
 
             std::vector<int> rewardSep = {(int)map.find(",", rewardStart)};
             for (int i = 0; i < 4; i++)
-              rewardSep.push_back(map.find(",", rewardSep.back()));
+              rewardSep.push_back(map.find(",", rewardSep.back() + 1));
             for (int i = 0; i < 5; i++)
               assert(rewardSep[i] != std::string::npos);
 
@@ -375,15 +375,17 @@ void Game::fetch()
           std::getline(in, map);
         }
 
-        for(auto i:mapA)
-          for(auto j:i)
-            if(j != NULL) j->map = mapA;
+        for (auto i : mapA)
+          for (auto j : i)
+            if (j != NULL)
+              j->map = mapA;
 
         this->enemies->totalEnemies[index]->map = mapA;
         this->enemies->totalEnemies[index]->totalLand = totalLand;
         std::cout << "Map done" << std::endl;
-        for(auto i: this->enemies->totalEnemies)
-          std::cout << i->name << " " << "Size: " << i->map.size() << " " << i->map[0].size() << std::endl;
+        for (auto i : this->enemies->totalEnemies)
+          std::cout << i->name << " "
+                    << "Size: " << i->map.size() << " " << i->map[0].size() << std::endl;
       }
     }
     else if (operand == "time")
@@ -418,14 +420,23 @@ void Game::start()
   // possible data race for gameover
   while (1)
   {
-    this->lguser.lock();
     int prevGamePhase = this->gamePhase;
 
     // same method used in menuPhase
-    input = getch();
 
     if (gameOver)
+    {
       break;
+    }
+    input = getch();
+     if (gameOver)
+    {
+      break;
+    }
+    this->stopLoopPrintStatus();
+    this->stopLoopPrintBuild();
+    this->stopLoopPrintResearch();
+    this->stopLoopPrintTroop();
 
     if (input == '\033')
     {
@@ -448,7 +459,22 @@ void Game::start()
         this->gamePhaseSelect[0] = (this->gamePhaseSelect[0]) % this->map[this->gamePhase].size();
         this->gamePhaseSelect[1] = (this->gamePhaseSelect[1] + -1 + this->map[this->gamePhase][this->gamePhaseSelect[0]].size()) % this->map[this->gamePhase][this->gamePhaseSelect[0]].size();
         break;
+      case '1':
+        getch();
+        getch();
+        getch();
       }
+    }
+    else if (input == 'p')
+    {
+      this->paused = !this->paused;
+    }
+    else if (input == 'q')
+    {
+      this->stopTimer();
+      timeChosen = (timeChosen + 1) % this->timeRange.size();
+      this->setting["speed"] = this->timeRange[this->timeChosen];
+      this->timer(this->setting["speed"]);
     }
     // progress game phase
     else if (input == '\n')
@@ -478,22 +504,14 @@ void Game::start()
       }
     }
 
-    this->stopLoopPrintStatus();
-    this->stopLoopPrintBuild();
-    this->stopLoopPrintResearch();
-    this->stopLoopPrintTroop();
-
     if (this->gamePhase >= 0)
     {
       (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
     }
     else
     {
-
       (this->*this->action[-this->gamePhase])(this->gamePhase, prevGamePhase);
     }
-    this->lguser.unlock();
+    clean_stdin();
   }
-
-  // timer thread terminates itself and the main while loop
 }

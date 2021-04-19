@@ -223,15 +223,14 @@ void Game::printBuild(int x, int y)
             << std::endl
             << std::endl;
   std::cout << color("Resources:", "green") << "\n"
-            << "Food: " << this->troop->totalFoodRequired << "/" <<  this->resource->food
+            << "Food: " << this->troop->totalFoodRequired << "/" << this->resource->food
             << "   Equipment: " << this->troop->totalEquipmentRequired << "/" << this->resource->equipment
             << "   Manpower: " << (this->resource->manpower - this->resource->manpowerInUse) << "/" << this->resource->manpower
             << "   Land: " << (this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand - this->resource->usedLand) << "/" << this->resource->baseLand * this->resource->baseLandMul + this->resource->capturedLand
             << "   Troop: " << this->troop->totalTroops
             << "   Armies: " << this->army->total.size() << "/10"
-            << "   Camps: " << this->resource->campUsed << "/"<<this->resource->camp
-            << "   Airports: " << this->resource->airportUsed << "/"<<this->resource->airport
-            << "   Enemies: " << (this->enemies->totalEnemies.size() -this->enemies->defeated)  << "/"<<this->enemies->totalEnemies.size()
+            << "   Camps: " << (this->resource->camp - this->resource->campUsed) << "/" << this->resource->camp
+            << "   Airports: " << (this->resource->airport - this->resource->airportUsed) << "/" << this->resource->airport << "   Enemies: " << (this->enemies->totalEnemies.size() - this->enemies->defeated) << "/" << this->enemies->totalEnemies.size()
             << std::endl
             << std::endl;
   std::cout << std::setw(50 + 11) << color("Build: ", "green")
