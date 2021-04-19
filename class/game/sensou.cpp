@@ -1090,11 +1090,10 @@ void Game::sensou(int &gamePhase, int prevPhase)
   std::cout << "\033[2J\033[1;1H";
   loopPrint();
   char input;
-  // std::future<void> temp = std::async(std::launch::async, [&]() {while(1){clean_stdin();std::this_thread::sleep_for(std::chrono::milliseconds(500));} });
+  // std::future<void> temp = std::async(std::launch::async, [&]() {while(std::this_thread::sleep_for(std::chrono::milliseconds(500));} });
   while (1)
   {
 
-    clean_stdin();
     input = getch();
     stopPrint();
 
@@ -1185,16 +1184,16 @@ void Game::sensou(int &gamePhase, int prevPhase)
         getch();
         getch();
       }
-      clean_stdin();
+
     }
     else if (input == '\n')
     {
-      clean_stdin();
+
       enter = true;
     }
     else if (input == 'w')
     {
-      clean_stdin();
+
       if (mode == 0)
       {
         subPhase0Mode = 1;
@@ -1210,7 +1209,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == 'a')
     {
-      clean_stdin();
+
       if (mode == 0)
       {
         subPhase0Mode = 1;
@@ -1226,7 +1225,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == 's')
     {
-      clean_stdin();
+
       if (mode == 0)
       {
         scroll0[0]++;
@@ -1242,7 +1241,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == 'd')
     {
-      clean_stdin();
+
       if (mode == 0)
       {
         subPhase0Mode = 1;
@@ -1258,7 +1257,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == 'q')
     {
-      clean_stdin();
+
       this->stopTimer();
       timeChosen = (timeChosen + 1) % this->timeRange.size();
       this->setting["speed"] = this->timeRange[this->timeChosen];
@@ -1266,7 +1265,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == 'z')
     {
-      clean_stdin();
+
       if (mode == 0)
       {
         Enemy *ptr = this->enemies->totalEnemies[currentCountry];
@@ -1284,7 +1283,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == 'r')
     {
-      clean_stdin();
+
       if (mode == 0)
         retreatAll();
       else if (mode == 1 && subMode == 0)
@@ -1296,7 +1295,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == 'v')
     {
-      clean_stdin();
+
       if (mode == 0)
       {
         if (this->enemies->totalEnemies[currentCountry]->map[phase0[0]][phase0[1]]->battling)
@@ -1308,7 +1307,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == 'e')
     {
-      clean_stdin();
+
       if (mode == 0)
       {
         currentCountry = (currentCountry + 1) % this->enemies->totalEnemies.size();
@@ -1317,12 +1316,12 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == 'p')
     {
-      clean_stdin();
+
       this->paused = !this->paused;
     }
     else if (input == 'l')
     {
-      clean_stdin();
+
       if (mode == 2)
       {
         if (subPhase2Mode == 0)
@@ -1331,7 +1330,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == ' ')
     {
-      clean_stdin();
+
       if (mode == 0)
       {
         if (subMode == 0)
@@ -1363,8 +1362,8 @@ void Game::sensou(int &gamePhase, int prevPhase)
           subPhase2Mode = 0;
       }
     }
-    clean_stdin();
     std::cout << "\033[2J\033[1;1H";
     loopPrint();
+    clean_stdin();
   }
 }

@@ -32,7 +32,7 @@ void reset()
 void clean_stdin()
 {
   init();
-tcdrain(0);
+// tcdrain(0);
   tcflush(0, TCIOFLUSH);
   reset();
 }
