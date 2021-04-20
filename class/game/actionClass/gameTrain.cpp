@@ -21,17 +21,14 @@ void Game::trainBase(std::string type, std::function<void(data::Resource &, data
     idStore.push_back(this->uuid());
     this->troop->progressTrack.push_back(std::make_tuple(type, idStore.back()));
   }
-  std::cout << "start troop " << this->troop->progressAsync.size() << " " << this->troop->progressAsync.count(idStore[0]) << std::endl;
 
   this->troop->progressAsync[idStore[0]] = std::async(std::launch::async, [this, idStore, time, callBack, type, camp]() {
-    std::cout << "troop inner" << std::endl;
     this->troop->progress[idStore[0]] = new Progress(time, this->setting["speed"], this->fps, this->paused);
     for (int i = 1; i < idStore.size(); i++)
       this->troop->progress[idStore[i]] = this->troop->progress[idStore[0]];
 
     this->lg3.unlock();
     this->troop->progress[idStore[0]]->start(this->lg3);
-    std::cout << "troop mid" << std::endl;
     this->lg3.lock();
 
     for (int i = 0; i < idStore.size(); i++)
@@ -50,10 +47,8 @@ void Game::trainBase(std::string type, std::function<void(data::Resource &, data
     }
     this->resource->campUsed -= camp * idStore.size();
 
-std::cout << "troop back" << std::endl;
-    std::thread temp([this, idStore]() { this->lg3.lock(); this->troop->progressAsync.erase(idStore[0]); std::cout <<  this->troop->progressAsync.size() << std::endl; this->lg3.unlock();});
+    std::thread temp([this, idStore]() { this->lg3.lock(); this->troop->progressAsync.erase(idStore[0]);this->lg3.unlock(); });
     temp.detach();
-std::cout << "troop final" << std::endl;
     this->lg3.unlock();
   });
 }

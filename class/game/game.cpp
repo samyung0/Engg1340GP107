@@ -503,18 +503,10 @@ int Game::fetch()
     }
     else if (operand == "troop")
     {
-      std::cout << this->uuid() << std::endl;
-      std::cout << this->uuid() << std::endl;
-      std::cout << this->uuid() << std::endl;
-      std::cout << this->uuid() << std::endl;
-      std::cout << this->uuid() << std::endl;
-      std::cout << this->uuid() << std::endl;
-      std::cout << this->uuid() << std::endl;
       std::string type = input.substr(index + 1, index2 - index - 1);
       int num = std::atoi(input.substr(index3 + 1).c_str());
       for (int i = 0; i < num; i++)
       {
-        // auto ptr = troopToInstance[type]();
         this->trainBase(
             type, [&troopToInstance, type](data::Resource &resource, data::Troop &troop) {
               troop.allTroop.push_back(troopToInstance[type]());
@@ -526,7 +518,6 @@ int Game::fetch()
             0, troopToAirport[type], 0, 1);
       }
       std::cout << "Creating " << type << " done" << std::endl;
-      // assert(0);
     }
     else if (operand == "enemy")
     {
@@ -791,6 +782,7 @@ int Game::start()
   this->timer(this->setting["speed"]);
 
   char input;
+  this->lguser.lock();
   (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
 
   // possible data race for gameover
