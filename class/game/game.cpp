@@ -56,9 +56,24 @@ Game::Game(std::unordered_map<std::string, int> setting_, const int screenX_, co
 
 void Game::endGame(bool restart)
 {
+  if (this->hasEnded)
+  {
+    std::cout << "\033c" << std::endl;
+    std::cout << "Game ended. Press spacebar to continue..." << std::endl
+              << std::endl;
+    return;
+  }
+  this->hasEnded = true;
   this->lguser.lock();
   this->lg3.lock();
   this->lg.lock();
+  if (this->hasEnded)
+  {
+    std::cout << "\033c" << std::endl;
+    std::cout << "Game ended. Press spacebar to continue..." << std::endl
+              << std::endl;
+    return;
+  }
   this->stopLoopPrintStatus();
   this->stopLoopPrintBuild();
   this->stopLoopPrintResearch();

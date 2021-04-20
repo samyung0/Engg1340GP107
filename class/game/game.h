@@ -30,6 +30,7 @@ private:
   std::string path;
   int timeLimit = 0;
   bool gameOver = false;
+  bool hasEnded = false;
   bool successAction = false;
   std::vector<int> success = {};
 
@@ -453,7 +454,7 @@ private:
     this->timerThread = std::async(
         std::launch::async, [&](int time2) {
           this->terminateTimer = false;
-          while (!terminateTimer)
+          while (!terminateTimer && !this->gameOver)
           {
             std::unique_lock<std::mutex> lock(this->lgcv5b);
             terminateTimerCV.wait_for(lock, std::chrono::milliseconds(1000 / this->fps));
@@ -483,6 +484,11 @@ private:
                         k->regen(this->resource);
                       }
                     }
+              if (this->gameOver)
+              {
+                this->endGame();
+                break;
+              }
               this->lg.lock();
             }
             if (this->day >= this->timeLimit)

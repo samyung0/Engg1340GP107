@@ -1516,7 +1516,6 @@ private:
         if (this->defeated == enemySize)
         {
           gameOver = true;
-          endGame();
         }
       }
       else

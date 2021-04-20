@@ -686,11 +686,6 @@ void Game::sensou(int &gamePhase, int prevPhase)
           if (phase1[1] == 0)
           {
             sendAll();
-            if (this->gameOver)
-            {
-              this->stopTimer();
-              this->endGame();
-            }
             return;
           }
           else
@@ -1104,7 +1099,6 @@ void Game::sensou(int &gamePhase, int prevPhase)
       printFuture.get();
     }
   };
-
   std::cout << "\033[2J\033[1;1H";
   user.lock();
   loopPrint();
@@ -1112,13 +1106,24 @@ void Game::sensou(int &gamePhase, int prevPhase)
   // std::future<void> temp = std::async(std::launch::async, [&]() {while(1){clean_stdin();std::this_thread::sleep_for(std::chrono::milliseconds(500));} });
   while (1)
   {
-    input = getch();
     if (this->gameOver)
     {
+      this->stopTimer();
+      this->endGame();
       while (input != ' ')
         input = getch();
       break;
     }
+    input = getch();
+    if (this->gameOver)
+    {
+      this->stopTimer();
+      this->endGame();
+      while (input != ' ')
+        input = getch();
+      break;
+    }
+
     user.lock();
     stopPrint();
     user.unlock();
@@ -1297,11 +1302,6 @@ void Game::sensou(int &gamePhase, int prevPhase)
       else if (mode == 1 && subMode == 0)
       {
         sendAll();
-        if (this->gameOver)
-        {
-          this->stopTimer();
-          this->endGame();
-        }
         continue;
       }
     }
