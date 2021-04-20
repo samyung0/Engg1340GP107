@@ -1,6 +1,6 @@
 success:0-0=1
 time:0-1=1000
-troop:infantry-=50000
+troop:infantry-=5
 troop:calvary-=50
 troop:suicideBomber-=50
 troop:artillery-=50
