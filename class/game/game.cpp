@@ -526,7 +526,7 @@ int Game::fetch()
             0, troopToAirport[type], 0, 1);
       }
       std::cout << "Creating " << type << " done" << std::endl;
-      assert(0);
+      // assert(0);
     }
     else if (operand == "enemy")
     {
