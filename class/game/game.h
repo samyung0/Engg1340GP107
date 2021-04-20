@@ -22,15 +22,16 @@ class Game
 public:
   ~Game();
   Game(std::unordered_map<std::string, int>, const int, const int, const int, const std::string);
-  void start();
-  void fetch();
-  void fetchRandom(int difficulty);
+  int start();
+  int fetch();
+  int fetchRandom(int difficulty);
 
 private:
   std::string path;
   int timeLimit = 0;
   bool gameOver = false;
-  bool levelPassed = false;
+  bool successAction = false;
+  std::vector<int> success = {};
 
   // similar to how menu phase works, we progress the phase number according to use actions
   std::vector<std::vector<std::vector<int>>> map{
@@ -94,7 +95,7 @@ private:
   // function to be executed according to gamePhase (modifying)
   // length: 165 (index 0: NULL)
   std::vector<void (Game::*)(int &, int)> action = {
-      NULL, &Game::pause, &Game::save, NULL, NULL,
+      NULL, &Game::pause, &Game::save, &Game::restart, &Game::quit,
       &Game::buildfarm1, &Game::buildfarm5, &Game::buildfarm10, &Game::buildfarmmax, &Game::upgradefarm1, &Game::upgradefarm5, &Game::upgradefarm10, &Game::upgradefarmmax,
       NULL,
       &Game::buildcivilianFactory1, &Game::buildcivilianFactory5, &Game::buildcivilianFactory10, &Game::buildcivilianFactorymax, &Game::upgradefarm21, &Game::upgradefarm25, &Game::upgradefarm210, &Game::upgradefarm2max,
@@ -434,10 +435,10 @@ private:
   void speed(int &, int);
   void pause(int &, int);
   void save(int &, int);
-  void restart();
-  void quit();
+  void restart(int &, int);
+  void quit(int &, int);
 
-  void endGame();
+  void endGame(bool restart = false);
 
   std::vector<int> timeRange = {500, 1000, 2000};
   int timeChosen;
@@ -487,8 +488,8 @@ private:
             if (this->day >= this->timeLimit)
             {
               this->gameOver = true;
-              this->endGame();
               this->lg.unlock();
+              this->endGame();
               break;
             }
             this->lg.unlock();
@@ -518,7 +519,7 @@ private:
   std::condition_variable terminateTroopCV;
   std::condition_variable terminateTimerCV;
 
-  int day = 1;
+  int day = 0;
   bool paused = false;
 
   // key: speed
@@ -552,11 +553,9 @@ private:
   // for timer cv
   std::mutex lgcv5a;
   std::mutex lgcv5b;
-  // for loop thread
   std::mutex lg2;
   // for any mutation of data
   std::mutex lg3;
-  // for any mutation of battle
   std::mutex lg4;
   // user action lock (prevent spamming)
   std::mutex lguser;

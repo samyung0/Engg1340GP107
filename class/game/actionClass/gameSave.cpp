@@ -23,6 +23,10 @@ void Game::save(int &gamePhase, int prevPhase)
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   std::cout << std::endl
             << std::endl;
+  
+  if(this->successAction)
+    file << "success:" << this->success[0] << "-" << this->success[1] << "=" << this->success[2] << std::endl;
+  
   std::cout << "データの保存..." << std::endl;
 
   file << "time:" << this->timeAcc << "-" << this->day << "=" << this->timeLimit << std::endl;

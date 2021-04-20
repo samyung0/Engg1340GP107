@@ -141,11 +141,4 @@ Future TODO:
 - generate buildings and capturable land at each block
 - generate terrain for each block
 
-- save and load progress
-- windows version of game
-- add game speed to settings
-- check and save games
-- removeArmy() in gameArmy, after doing battleplan, need to also remove battleplan
-- retreatArmy() in gameArmy
-- check unsaved games
-- update progress text files when completing a level
+- windows version of game (no way)

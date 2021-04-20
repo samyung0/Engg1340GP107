@@ -1104,6 +1104,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     user.unlock();
     if (this->gameOver)
     {
+      while(input != ' ') input = getch();
       break;
     }
 

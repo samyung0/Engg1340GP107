@@ -36,7 +36,7 @@ int main()
   std::vector<std::vector<std::vector<int>>> map{
       {{1}, {2}, {-1}, {-999}},
       {{3}, {4}, {-16}, {0}},
-      {{-17, -18}, {0}},
+      {{-17, -18, -19}, {0}},
       {{-2, -3, -4}, {-5, -6, -7}, {-8, -9, -10}, {1}},
       {{-11, -12, -13, -14, -15}}};
 
@@ -47,25 +47,26 @@ int main()
   // functions for actions
   // passing menuPhase and settings by reference
   std::vector<void (*)(int &menuPhase, int prevMenuPhase, MenuWrapper &)> action = {
-  NULL,
-  &statf,
-  &level1f,
-  &level2f,
-  &level3f,
-  &level4f,
-  &level5f,
-  &level6f,
-  &level7f,
-  &level8f,
-  &level9f,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  &load,
-  &setting1af,
-  &setting1bf};
+      NULL,
+      &statf,
+      &level1f,
+      &level2f,
+      &level3f,
+      &level4f,
+      &level5f,
+      &level6f,
+      &level7f,
+      &level8f,
+      &level9f,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      &load,
+      &setting1af,
+      &setting1bf,
+      &setting1cf};
 
   // game settings
   MenuWrapper gameStats(TOTAL_LEVELS, TOTAL_DIFFICULTY, SCREENX, SCREENY, FPS);
@@ -77,7 +78,7 @@ int main()
   if (hasError)
   {
     std::cout << "An error occured:\n"
-              << error << std::endl;
+              << error << " Try recloing the repo." << std::endl;
     return 0;
   }
 
@@ -89,83 +90,118 @@ int main()
   char input;
   int menuPhase = 0;
   int menuPhaseSelect[2] = {0, 0};
+  bool restartGame = false;
 
   std::string path;
 
   (*select[menuPhase])(menuPhaseSelect[0], menuPhaseSelect[1], gameStats);
   while (1)
   {
-    input = getch();
     int prevMenuPhase = menuPhase;
-
-    // detection for arrowkeys
-    // https://stackoverflow.com/questions/10463201/getch-and-arrow-codes
-    if (input == '\033')
+    if (!restartGame)
     {
-      getch();
-      switch (getch())
-      {
-      case 'A':
-        menuPhaseSelect[0] = (menuPhaseSelect[0] + -1 + map[menuPhase].size()) % map[menuPhase].size();
-        menuPhaseSelect[1] = (menuPhaseSelect[1]) % map[menuPhase][menuPhaseSelect[0]].size();
-        break;
-      case 'B':
-        menuPhaseSelect[0] = (menuPhaseSelect[0] + 1) % map[menuPhase].size();
-        menuPhaseSelect[1] = (menuPhaseSelect[1]) % map[menuPhase][menuPhaseSelect[0]].size();
-        break;
-      case 'C':
-        menuPhaseSelect[0] = (menuPhaseSelect[0]) % map[menuPhase].size();
-        menuPhaseSelect[1] = (menuPhaseSelect[1] + 1) % map[menuPhase][menuPhaseSelect[0]].size();
-        break;
-      case 'D':
-        menuPhaseSelect[0] = (menuPhaseSelect[0]) % map[menuPhase].size();
-        menuPhaseSelect[1] = (menuPhaseSelect[1] + -1 + map[menuPhase][menuPhaseSelect[0]].size()) % map[menuPhase][menuPhaseSelect[0]].size();
-        break;
-      }
-    }
-    // progress menu phase
-    else if (input == '\n')
-    {
-      menuPhase = map[menuPhase][menuPhaseSelect[0]][menuPhaseSelect[1]];
-      menuPhaseSelect[0] = 0;
-      menuPhaseSelect[1] = 0;
-    }
+      input = getch();
 
-    // menu phase
-    if (menuPhase >= 0)
-      (*select[menuPhase])(menuPhaseSelect[0], menuPhaseSelect[1], gameStats);
-    else
-    // action phase
-    {
-      if (menuPhase == -999)
+      // detection for arrowkeys
+      // https://stackoverflow.com/questions/10463201/getch-and-arrow-codes
+      if (input == '\033')
       {
-        /////////////////////
-        // TODO: check for unsaved games
-        //////////////////////
-
-        break;
-      }
-      else
-      {
-        // allocate thread to action
-        // using ref to call by reference to thread
-        std::thread actionThread((*action[-menuPhase]), std::ref(menuPhase), prevMenuPhase, std::ref(gameStats));
-        actionThread.join();
-
-        if (menuPhase == 999)
+        getch();
+        switch (getch())
         {
-          allGames.push_back(new Game(gameStats.setting, gameStats.width, gameStats.height, gameStats.fps, gameStats.levelpath));
+        case 'A':
+          menuPhaseSelect[0] = (menuPhaseSelect[0] + -1 + map[menuPhase].size()) % map[menuPhase].size();
+          menuPhaseSelect[1] = (menuPhaseSelect[1]) % map[menuPhase][menuPhaseSelect[0]].size();
+          break;
+        case 'B':
+          menuPhaseSelect[0] = (menuPhaseSelect[0] + 1) % map[menuPhase].size();
+          menuPhaseSelect[1] = (menuPhaseSelect[1]) % map[menuPhase][menuPhaseSelect[0]].size();
+          break;
+        case 'C':
+          menuPhaseSelect[0] = (menuPhaseSelect[0]) % map[menuPhase].size();
+          menuPhaseSelect[1] = (menuPhaseSelect[1] + 1) % map[menuPhase][menuPhaseSelect[0]].size();
+          break;
+        case 'D':
+          menuPhaseSelect[0] = (menuPhaseSelect[0]) % map[menuPhase].size();
+          menuPhaseSelect[1] = (menuPhaseSelect[1] + -1 + map[menuPhase][menuPhaseSelect[0]].size()) % map[menuPhase][menuPhaseSelect[0]].size();
+          break;
+        }
+      }
+      // progress menu phase
+      else if (input == '\n')
+      {
+        menuPhase = map[menuPhase][menuPhaseSelect[0]][menuPhaseSelect[1]];
+        menuPhaseSelect[0] = 0;
+        menuPhaseSelect[1] = 0;
+      }
 
-          // start game
-          std::thread actionThread(&Game::fetch, std::ref(allGames.back()));
+      // menu phase
+      if (menuPhase >= 0)
+        (*select[menuPhase])(menuPhaseSelect[0], menuPhaseSelect[1], gameStats);
+      else
+      // action phase
+      {
+        if (menuPhase == -999)
+        {
+          break;
+        }
+        else
+        {
+          // allocate thread to action
+          // using ref to call by reference to thread
+          std::thread actionThread((*action[-menuPhase]), std::ref(menuPhase), prevMenuPhase, std::ref(gameStats));
           actionThread.join();
 
-          delete allGames.back();
-          allGames.pop_back();
+          if (menuPhase == 999)
+          {
+            restartGame = false;
+            allGames.push_back(new Game(gameStats.setting, gameStats.width, gameStats.height, gameStats.fps, gameStats.levelpath));
 
-          menuPhase = 0;
+            // start game
+            std::future<int> game = std::async(std::launch::async, &Game::fetch, std::ref(allGames.back()));
+            int r = game.get();
+
+            delete allGames.back();
+            allGames.pop_back();
+            if (r == 0)
+            {
+              // normal exit
+              menuPhase = 0;
+            }
+            else if (r == -999)
+            {
+              // restart game
+              restartGame = true;
+              menuPhase = -999;
+              continue;
+            }
+          }
+          (*select[menuPhase])(menuPhaseSelect[0], menuPhaseSelect[1], gameStats);
         }
+      }
+    }
+    else
+    {
+      restartGame = false;
+      allGames.push_back(new Game(gameStats.setting, gameStats.width, gameStats.height, gameStats.fps, gameStats.levelpath));
+
+      // start game
+      std::future<int> game = std::async(std::launch::async, &Game::fetch, std::ref(allGames.back()));
+      int r = game.get();
+
+      delete allGames.back();
+      allGames.pop_back();
+      if (r == 0)
+      {
+        // normal exit
+        menuPhase = 0;
         (*select[menuPhase])(menuPhaseSelect[0], menuPhaseSelect[1], gameStats);
+      }
+      else if (r == -999)
+      {
+        // restart game
+        restartGame = true;
+        menuPhase = -999;
       }
     }
   }
@@ -205,6 +241,8 @@ int init(MenuWrapper &gameStats, std::string &error)
   int lineCount = 0;
   while (std::getline(progressStream, input))
   {
+    if (input == "")
+      continue;
     std::stringstream parse(input);
     int val1, val2;
     parse >> val1 >> val2;

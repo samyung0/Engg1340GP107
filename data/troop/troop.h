@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <iostream>
 #include "../../class/damage/damage.h"
 
 // structure:

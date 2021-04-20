@@ -42,29 +42,150 @@ void Progress::start(std::mutex &lg3)
 
 Game::~Game()
 {
-  std::cout << "destroy" << std::endl;
-  assert(0);
 }
 Game::Game(std::unordered_map<std::string, int> setting_, const int screenX_, const int screenY_, const int fps_, const std::string path_) : setting(setting_), screenWidth(screenX_), screenHeight(screenY_), fps(fps_), path(path_)
 {
-  resource = new data::Resource();
-  building = new data::Building();
-  troop = new data::Troop();
-  army = new data::Army();
-  research = new data::Research();
-  battle = new data::Battle();
-  enemies = new data::Enemies();
+  this->resource = new data::Resource();
+  this->building = new data::Building();
+  this->troop = new data::Troop();
+  this->army = new data::Army();
+  this->research = new data::Research();
+  this->battle = new data::Battle();
+  this->enemies = new data::Enemies();
 }
 
-void Game::endGame()
+void Game::endGame(bool restart)
 {
+  this->lguser.lock();
+  this->lg3.lock();
+  this->lg.lock();
   this->stopLoopPrintStatus();
   this->stopLoopPrintBuild();
   this->stopLoopPrintResearch();
   this->stopLoopPrintTroop();
+  for (auto i : this->enemies->totalEnemies)
+  {
+    for (auto j : i->map)
+    {
+      for (auto k : j)
+      {
+        if (k != NULL)
+        {
+          k->lg.lock();
+          for (auto m : k->battle)
+          {
+            delete m;
+            m = NULL;
+          }
+          for (auto m : k->totalFoeTroop)
+            if (m != NULL)
+            {
+              delete m;
+              m = NULL;
+            }
+          for (auto m : k->totalFoeArmy)
+          {
+            if (m != NULL)
+            {
+              for (auto n : m->formation)
+                for (auto p : n)
+                  if (p != NULL)
+                  {
+                    delete p;
+                    p = NULL;
+                  }
+              delete m;
+              m = NULL;
+            }
+          }
+          k->lg.unlock();
+        }
+        delete k;
+        k = NULL;
+      }
+    }
+    delete i;
+    i = NULL;
+  }
+  for (auto i : this->troop->allTroop)
+  {
+    if (i != NULL)
+    {
+      delete i;
+      i = NULL;
+    }
+  }
+  for (auto i : this->army->total)
+  {
+    if (i.second != NULL)
+    {
+      delete i.second;
+      i.second = NULL;
+    }
+  }
+  for (auto i : this->building->progress)
+    if (i.second != NULL)
+    {
+      delete i.second;
+      i.second = NULL;
+    }
+  for (auto i : this->troop->progress)
+    if (i.second != NULL)
+    {
+      delete i.second;
+      i.second = NULL;
+    }
+  for (auto i : this->research->progress)
+    if (i.second != NULL)
+    {
+      delete i.second;
+      i.second = NULL;
+    }
+
+  bool levelPassed = true || this->enemies->totalEnemies.size() == this->enemies->defeated;
+
+  delete this->resource;
+  delete this->building;
+  delete this->troop;
+  delete this->army;
+  delete this->research;
+  delete this->battle;
+  delete this->enemies;
+  this->lg.unlock();
+  this->lg3.unlock();
+  this->lguser.unlock();
+
+  if (restart)
+    return;
 
   std::cout << "\033c" << std::endl;
-  std::cout << "Game ended. Press any key to continue..." << std::endl;
+  std::cout << "Game ended. Press spacebar to continue..." << std::endl
+            << std::endl;
+
+  if (this->successAction && levelPassed)
+  {
+    std::ifstream file("save/progress.txt", std::ios::in);
+
+    std::vector<std::string> content;
+    if (file.fail())
+    {
+      std::cout << "Cannot save progress to save/progress.txt! Try cloning the repo again." << std::endl;
+    }
+    else
+    {
+      std::string temp;
+      while (std::getline(file, temp))
+        content.push_back(temp);
+      content[this->success[0]][this->success[1]] = std::to_string(this->success[2])[0];
+      file.close();
+
+      std::ofstream out("save/progress.txt", std::ios::out | std::ios::trunc);
+      for (int i = 0; i < content.size() - 1; i++)
+        out << content[i] << std::endl;
+      out << content.back();
+      out.close();
+    }
+  }
 }
 
 void Game::speed(int &gamePhase, int prevPhase)
@@ -84,8 +205,24 @@ void Game::pause(int &gamePhase, int prevPhase)
   (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
 }
 
+void Game::restart(int &gamePhase, int prevPhase)
+{
+  this->stopTimer();
+  this->gameOver = true;
+  this->endGame(true);
+  gamePhase = -999;
+}
+
+void Game::quit(int &gamePhase, int prevPhase)
+{
+  this->stopTimer();
+  this->gameOver = true;
+  this->endGame(true);
+  gamePhase = -998;
+}
+
 // fetch level data from .dat files
-void Game::fetch()
+int Game::fetch()
 {
   std::cout << "\033[2J\033[1;1H" << std::endl;
   std::fstream in(this->path, std::ios::in);
@@ -322,6 +459,13 @@ void Game::fetch()
         this->research->recovery[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
       std::cout << "Setting " << operand2 << " done" << std::endl;
+    }
+    else if (operand == "success")
+    {
+      this->successAction = true;
+      this->success.push_back(std::atoi(input.substr(index + 1, index2 - index - 1).c_str()));
+      this->success.push_back(std::atoi(input.substr(index2 + 1, index3 - index2 - 1).c_str()));
+      this->success.push_back(std::atoi(input.substr(index3 + 1).c_str()));
     }
     else if (operand == "army")
     {
@@ -628,10 +772,10 @@ void Game::fetch()
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   std::cout << "\033c" << std::endl;
-  this->start();
+  return this->start();
 }
 
-void Game::start()
+int Game::start()
 {
   this->timeChosen = timeRange[0] == this->setting["time"] ? 0 : timeRange[1] == this->setting["time"] ? 1
                                                                                                        : 2;
@@ -655,6 +799,8 @@ void Game::start()
     input = getch();
     if (gameOver)
     {
+      while (input != ' ')
+        input = getch();
       break;
     }
     this->lguser.lock();
@@ -771,7 +917,19 @@ void Game::start()
     {
       this->lguser.unlock();
       (this->*this->action[-this->gamePhase])(this->gamePhase, prevGamePhase);
+      if (this->gamePhase == -999)
+      {
+        // restart game
+        return -999;
+      }
+      else if (this->gamePhase == -998)
+      {
+        // quit game
+        return 0;
+      }
     }
     // clean_stdin();
   }
+
+  return 0;
 }

@@ -52,4 +52,8 @@ void print_levelSelect(int y, int x, MenuWrapper &gameStats)
     std::cout << std::endl;
   }
   std::cout << level::menuOptions[3][0] << std::endl;
+
+  for (int i = 0; i < 4; i++)
+    delete [] level::menuOptions[i];
+  delete [] level::menuOptions;
 }

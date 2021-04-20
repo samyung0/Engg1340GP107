@@ -363,6 +363,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
 
     int c = 0;
     std::string input = "";
+    this->paused = true;
     while (1)
     {
       std::string temp;
@@ -396,6 +397,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
 
       this->lg3.unlock();
     }
+    this->paused = false;
 
     this->lg3.lock();
     this->army->total[input] = new ArmyUnit(input);
@@ -540,6 +542,11 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   (*armyPhaseF[armyPhase])();
   while (1)
   {
+    if (this->gameOver)
+    {
+      break;
+    }
+
     input = getch();
 
     user.lock();
@@ -549,6 +556,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
 
     if (this->gameOver)
     {
+      while(input != ' ') input = getch();
       break;
     }
 

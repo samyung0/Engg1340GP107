@@ -363,7 +363,6 @@ public:
 
   // stats
   int duration = 0;
-  Damage *damageDealt = new Damage();
   std::unordered_map<std::string, int> &foeCount;
   std::unordered_map<std::string, int> friendCount = {
       {"infantry", 0},
@@ -627,9 +626,6 @@ public:
     foe->softAttack *= (1. - dropoffFactorFoe);
     foe->hardAttack *= (1. - dropoffFactorFoe);
     foe->airAttack *= (1. - dropoffFactorFoe);
-    this->damageDealt->softAttack += nakama->softAttack;
-    this->damageDealt->hardAttack += nakama->hardAttack;
-    this->damageDealt->airAttack += nakama->airAttack;
     this->totalSoftAttack = nakama->softAttack;
     this->totalHardAttack = nakama->hardAttack;
     this->totalAirAttack = nakama->airAttack;
@@ -879,6 +875,10 @@ public:
       log.push_back("Friendly health decreased (avg): " + std::to_string((int)std::round(avgFd / totalTroopFd)));
       log.push_back("Enemy health decreased (avg): " + std::to_string((int)std::round(avgFoe / totalTroopFoe)));
     }
+    delete foe;
+    foe = NULL;
+    delete nakama;
+    nakama = NULL;
     this->duration++;
     this->lg.unlock();
   }
@@ -931,6 +931,7 @@ public:
 
         troop->helper2[this->mikata->totalTroop[i]->type](3, -1);
         delete this->mikata->totalTroop[i];
+        this->mikata->totalTroop[i] = NULL;
         this->mikata->totalTroop.erase(this->mikata->totalTroop.begin() + i);
         troop->allTroop.erase(troop->allTroop.begin() + index);
       }
@@ -955,6 +956,7 @@ public:
         this->totalFoeTroop.erase(this->totalFoeTroop.begin() + index);
 
         delete this->foe->totalTroop[i];
+        this->foe->totalTroop[i] = NULL;
         this->foe->totalTroop.erase(this->foe->totalTroop.begin() + i);
       }
     }
@@ -1048,6 +1050,7 @@ public:
         assert(index != -1);
         this->totalFoeArmy.erase(this->totalFoeArmy.begin() + index);
         delete i;
+        i = NULL;
         this->foe->totalArmy.erase(this->foe->totalArmy.begin() + j);
       }
     }
@@ -1418,14 +1421,19 @@ private:
       this->battlingRegions--;
       this->retreatAll(battle, false);
       BattleUnit *ptr = this->battle.back();
-      for (auto i : ptr->foe->totalTroop)
+      for (auto i : ptr->foe->totalTroop){
         delete i;
+        i = NULL;
+      }
       for (auto i : ptr->foe->totalArmy)
       {
         for (auto j : i->formation)
-          for (auto k : j)
+          for (auto k : j){
             delete k;
+            k = NULL;
+          }
         delete i;
+        i = NULL;
       }
       delete ptr->foe;
       ptr->foe = NULL;

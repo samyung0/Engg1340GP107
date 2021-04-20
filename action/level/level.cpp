@@ -40,19 +40,19 @@ void levelBasef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats, std::
       {
       case 'A':
         levelf::activeIndex[0] = (levelf::activeIndex[0] + -1 + levelf::print.size()) % levelf::print.size();
-        levelf::activeIndex[1] = (levelf::activeIndex[1]) % levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]].size();
+        levelf::activeIndex[1] = (levelf::activeIndex[1]) % levelf::print[levelf::activeIndex[0]].size();
         break;
       case 'B':
         levelf::activeIndex[0] = (levelf::activeIndex[0] + 1) % levelf::print.size();
-        levelf::activeIndex[1] = (levelf::activeIndex[1]) % levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]].size();
+        levelf::activeIndex[1] = (levelf::activeIndex[1]) % levelf::print[levelf::activeIndex[0]].size();
         break;
       case 'C':
         levelf::activeIndex[0] = (levelf::activeIndex[0]) % levelf::print.size();
-        levelf::activeIndex[1] = (levelf::activeIndex[1] + 1) % levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]].size();
+        levelf::activeIndex[1] = (levelf::activeIndex[1] + 1) % levelf::print[levelf::activeIndex[0]].size();
         break;
       case 'D':
         levelf::activeIndex[0] = (levelf::activeIndex[0]) % levelf::print.size();
-        levelf::activeIndex[1] = (levelf::activeIndex[1] + -1 + levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]].size()) % levelf::print[levelf::activeIndex[1]].size();
+        levelf::activeIndex[1] = (levelf::activeIndex[1] + -1 + levelf::print[levelf::activeIndex[0]].size()) % levelf::print[levelf::activeIndex[0]].size();
         break;
       }
       levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]] = levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]].insert(0, "> ");

@@ -23,10 +23,15 @@ void settingBasef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats, std
 
 void setting1af(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
-  settingBasef(menuPhase, prevMenuPhase, gameStats, "speed", 1000);
+  settingBasef(menuPhase, prevMenuPhase, gameStats, "speed", 500);
 }
 
 void setting1bf(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
-  settingBasef(menuPhase, prevMenuPhase, gameStats, "speed", 500);
+  settingBasef(menuPhase, prevMenuPhase, gameStats, "speed", 1000);
+}
+
+void setting1cf(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
+{
+  settingBasef(menuPhase, prevMenuPhase, gameStats, "speed", 2000);
 }
