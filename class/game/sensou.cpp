@@ -168,7 +168,6 @@ void Game::sensou(int &gamePhase, int prevPhase)
       loopPrint();
     });
     temp.detach();
-    user.unlock();
   };
 
   troopIreru = [&](std::string type) {
@@ -249,6 +248,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
           retreatAll();
         subMode = 0;
 
+        user.lock();
         std::cout << "\033[2J\033[1;1H" << std::endl;
         // avoid resource deadlock error
         std::thread temp([&]() {
@@ -676,13 +676,16 @@ void Game::sensou(int &gamePhase, int prevPhase)
         }
         else if (phase1[0] == 13)
         {
-          if (phase1[1] == 0)
+          if (phase1[1] == 0){
             sendAll();
+            return;
+          }
           else
             deselectAll();
         }
         else
         {
+          user.lock();
           std::cout << "\033[2J\033[1;1H" << std::endl;
           deselectAll();
           mode = 0;
@@ -866,6 +869,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     Block *ptr = this->enemies->totalEnemies[currentCountry]->map[phase0[0]][phase0[1]];
     if (!ptr->battling)
     {
+      user.lock();
       std::cout << "\033[2J\033[1;1H" << std::endl;
       mode = 0;
       subPhase2Mode = 0;
@@ -1089,6 +1093,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
   };
 
   std::cout << "\033[2J\033[1;1H";
+  user.lock();
   loopPrint();
   char input;
   // std::future<void> temp = std::async(std::launch::async, [&]() {while(1){clean_stdin();std::this_thread::sleep_for(std::chrono::milliseconds(500));} });
@@ -1098,6 +1103,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     {
       break;
     }
+    std::cout << "yoyo" << std::endl;
     input = getch();
     user.lock();
     stopPrint();
@@ -1263,7 +1269,6 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     else if (input == 'q')
     {
-
       this->stopTimer();
       timeChosen = (timeChosen + 1) % this->timeRange.size();
       this->setting["speed"] = this->timeRange[this->timeChosen];
@@ -1283,8 +1288,8 @@ void Game::sensou(int &gamePhase, int prevPhase)
       }
       else if (mode == 1 && subMode == 0)
       {
-
         sendAll();
+        continue;
       }
     }
     else if (input == 'r')

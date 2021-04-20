@@ -31,9 +31,12 @@ void print_settingSelect(int y, int x, MenuWrapper &gameStats)
   std::cout << "\033[2J\033[1;1H";
   std::cout << "Settings" << std::endl;
   std::cout << "Game Speed";
-  std::cout << std::setw(40) << menuOptions[0][0];
-  std::cout << std::setw(18) << menuOptions[0][1];
-  std::cout << std::setw(18) << menuOptions[0][2] << std::endl;
+  std::cout << std::string(30, ' ');
+  std::cout << menuOptions[0][0];
+  std::cout << std::string(5, ' ');
+  std::cout << menuOptions[0][1];
+  std::cout << std::string(5, ' ');
+  std::cout << menuOptions[0][2] << std::endl;
   std::cout << '\n'
             << menuOptions[1][0] << std::endl;
 }
