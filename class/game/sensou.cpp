@@ -155,12 +155,19 @@ void Game::sensou(int &gamePhase, int prevPhase)
     Enemy *ptr = this->enemies->totalEnemies[currentCountry];
     for (auto i : selectedTroop)
       if (!ptr->map[phase0[0]][phase0[1]]->captured)
-        ptr->map[phase0[0]][phase0[1]]->reinforce([&]() { this->endGame(); }, this->gameOver, this->enemies->totalEnemies.size(), i, this->resource, this->building, this->battle, [&](std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount) { this->buildBase(type, time, callBack, desc, land, amount); });
+        ptr->map[phase0[0]][phase0[1]]->reinforce(
+            user, [&]() { this->endGame(); }, this->gameOver, this->enemies->totalEnemies.size(), i, this->resource, this->building, this->battle, [&](std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount) { this->buildBase(type, time, callBack, desc, land, amount); });
     for (auto i : selectedArmy)
       if (!ptr->map[phase0[0]][phase0[1]]->captured)
-        ptr->map[phase0[0]][phase0[1]]->reinforce([&]() { this->endGame(); }, this->gameOver, this->enemies->totalEnemies.size(), i, this->resource, this->building, this->battle, [&](std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount) { this->buildBase(type, time, callBack, desc, land, amount); });
+        ptr->map[phase0[0]][phase0[1]]->reinforce(
+            user, [&]() { this->endGame(); }, this->gameOver, this->enemies->totalEnemies.size(), i, this->resource, this->building, this->battle, [&](std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount) { this->buildBase(type, time, callBack, desc, land, amount); });
     deselectAll();
     mode = 0;
+    if (this->gameOver)
+    {
+      user.unlock();
+      return;
+    }
     std::cout << "\033[2J\033[1;1H" << std::endl;
     // avoid resource deadlock error
     std::thread temp([&]() {
@@ -676,8 +683,14 @@ void Game::sensou(int &gamePhase, int prevPhase)
         }
         else if (phase1[0] == 13)
         {
-          if (phase1[1] == 0){
+          if (phase1[1] == 0)
+          {
             sendAll();
+            if (this->gameOver)
+            {
+              this->stopTimer();
+              this->endGame();
+            }
             return;
           }
           else
@@ -1099,20 +1112,16 @@ void Game::sensou(int &gamePhase, int prevPhase)
   // std::future<void> temp = std::async(std::launch::async, [&]() {while(1){clean_stdin();std::this_thread::sleep_for(std::chrono::milliseconds(500));} });
   while (1)
   {
+    input = getch();
     if (this->gameOver)
     {
+      while (input != ' ')
+        input = getch();
       break;
     }
-    std::cout << "yoyo" << std::endl;
-    input = getch();
     user.lock();
     stopPrint();
     user.unlock();
-    if (this->gameOver)
-    {
-      while(input != ' ') input = getch();
-      break;
-    }
 
     if (input == '\033')
     {
@@ -1196,7 +1205,6 @@ void Game::sensou(int &gamePhase, int prevPhase)
         getch();
         getch();
       }
-
     }
     else if (input == '\n')
     {
@@ -1289,6 +1297,11 @@ void Game::sensou(int &gamePhase, int prevPhase)
       else if (mode == 1 && subMode == 0)
       {
         sendAll();
+        if (this->gameOver)
+        {
+          this->stopTimer();
+          this->endGame();
+        }
         continue;
       }
     }

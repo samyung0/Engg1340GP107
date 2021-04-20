@@ -142,7 +142,7 @@ void Game::endGame(bool restart)
       i.second = NULL;
     }
 
-  bool levelPassed = true || this->enemies->totalEnemies.size() == this->enemies->defeated;
+  bool levelPassed = this->enemies->totalEnemies.size() == this->enemies->defeated;
 
   delete this->resource;
   delete this->building;
@@ -793,12 +793,12 @@ int Game::start()
 
     // same method used in menuPhase
 
-    if (gameOver)
+    if (this->gameOver)
     {
       break;
     }
     input = getch();
-    if (gameOver)
+    if (this->gameOver)
     {
       while (input != ' ')
         input = getch();

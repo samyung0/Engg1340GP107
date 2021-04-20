@@ -1149,7 +1149,7 @@ public:
           if (k != NULL)
             k->increaseHealth(resource->baseRecovery);
   }
-  void reinforce(std::function<void()> endGame, bool &gameOver, int enemySize, TroopUnit *reinforcement, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
+  void reinforce(std::mutex &lguser, std::function<void()> endGame, bool &gameOver, int enemySize, TroopUnit *reinforcement, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
   {
     assert(reinforcement != NULL);
     assert(reinforcement->reference.size() == 0);
@@ -1173,7 +1173,6 @@ public:
         if (this->defeated == enemySize)
         {
           gameOver = true;
-          endGame();
         }
       }
       else
@@ -1234,7 +1233,7 @@ public:
 
     this->lg.unlock();
   }
-  void reinforce(std::function<void()> endGame, bool &gameOver, int enemySize, ArmyUnit *reinforcement, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
+  void reinforce(std::mutex &lguser, std::function<void()> endGame, bool &gameOver, int enemySize, ArmyUnit *reinforcement, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
   {
     assert(reinforcement != NULL);
     if (this->captured)
@@ -1256,7 +1255,6 @@ public:
         if (this->defeated == enemySize)
         {
           gameOver = true;
-          endGame();
         }
       }
       else
@@ -1421,14 +1419,16 @@ private:
       this->battlingRegions--;
       this->retreatAll(battle, false);
       BattleUnit *ptr = this->battle.back();
-      for (auto i : ptr->foe->totalTroop){
+      for (auto i : ptr->foe->totalTroop)
+      {
         delete i;
         i = NULL;
       }
       for (auto i : ptr->foe->totalArmy)
       {
         for (auto j : i->formation)
-          for (auto k : j){
+          for (auto k : j)
+          {
             delete k;
             k = NULL;
           }
