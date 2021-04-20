@@ -503,6 +503,13 @@ int Game::fetch()
     }
     else if (operand == "troop")
     {
+      std::cout << this->uuid() << std::endl;
+      std::cout << this->uuid() << std::endl;
+      std::cout << this->uuid() << std::endl;
+      std::cout << this->uuid() << std::endl;
+      std::cout << this->uuid() << std::endl;
+      std::cout << this->uuid() << std::endl;
+      std::cout << this->uuid() << std::endl;
       std::string type = input.substr(index + 1, index2 - index - 1);
       int num = std::atoi(input.substr(index3 + 1).c_str());
       for (int i = 0; i < num; i++)
@@ -519,6 +526,7 @@ int Game::fetch()
             0, troopToAirport[type], 0, 1);
       }
       std::cout << "Creating " << type << " done" << std::endl;
+      assert(0);
     }
     else if (operand == "enemy")
     {
