@@ -21,6 +21,7 @@ class TroopUnit
 public:
   // Each troop is uniquely identified with a uuid
   TroopUnit(std::string id, std::string type_) : uuid(id), type(type_) {}
+  virtual ~TroopUnit(){}
 
   // disruption, air supremacy, land multiplier, air multiplier, tank multiplier, air multiplier 2, accumulate to Damage struct
   virtual void giveDamage(double, double, double, double, double, double, Damage &) = 0;
@@ -76,6 +77,7 @@ class Infantry : public TroopUnit
 {
 public:
   Infantry(std::string id) : TroopUnit(id, "infantry") {}
+  ~Infantry(){}
 
   // adjusted disruption, air supremacy, mul 1-4, accumulate to Damage struct
   void giveDamage(double, double, double, double, double, double, Damage &);
@@ -122,6 +124,7 @@ class Calvary : public TroopUnit
 
 public:
   Calvary(std::string id) : TroopUnit(id, "calvary") {}
+  ~Calvary(){}
   void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
@@ -162,6 +165,7 @@ class SuicideBomber : public TroopUnit
 {
 public:
   SuicideBomber(std::string id) : TroopUnit(id, "suicideBomber") {}
+  ~SuicideBomber(){}
   void giveDamage(double, double, double, double, double, double, Damage &);
 
   void takeDamage(double);
@@ -205,6 +209,7 @@ class Artillery : public TroopUnit
 {
 public:
   Artillery(std::string id) : TroopUnit(id, "artillery") {}
+  ~Artillery(){}
   void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
@@ -245,6 +250,7 @@ class Logistic : public TroopUnit
 {
 public:
   Logistic(std::string id) : TroopUnit(id, "logistic") {}
+  ~Logistic(){}
   void takeDamage(double);
   void increaseHealth(double);
 
@@ -287,6 +293,7 @@ class ArmoredCar : public TroopUnit
 {
 public:
   ArmoredCar(std::string id) : TroopUnit(id, "armoredCar") {}
+  ~ArmoredCar(){}
   void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
@@ -327,6 +334,7 @@ class Tank1 : public TroopUnit
 {
 public:
   Tank1(std::string id) : TroopUnit(id, "tank1") {}
+  ~Tank1(){}
   void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
@@ -367,6 +375,7 @@ class Tank2 : public TroopUnit
 {
 public:
   Tank2(std::string id) : TroopUnit(id, "tank2") {}
+  ~Tank2(){}
   void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
@@ -407,6 +416,7 @@ class TankOshimai : public TroopUnit
 {
 public:
   TankOshimai(std::string id) : TroopUnit(id, "tankOshimai") {}
+  ~TankOshimai(){}
   void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
@@ -447,6 +457,7 @@ class Cas : public TroopUnit
 {
 public:
   Cas(std::string id) : TroopUnit(id, "cas") {}
+  ~Cas(){}
   void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
@@ -487,6 +498,7 @@ class Fighter : public TroopUnit
 {
 public:
   Fighter(std::string id) : TroopUnit(id, "fighter") {}
+  ~Fighter(){}
   void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
@@ -527,6 +539,7 @@ class Bomber : public TroopUnit
 {
 public:
   Bomber(std::string id) : TroopUnit(id, "bomber") {}
+  ~Bomber(){}
   void giveDamage(double, double, double, double, double, double, Damage &);
   void takeDamage(double);
   void increaseHealth(double);
@@ -567,6 +580,7 @@ class Kamikaze : public TroopUnit
 {
 public:
   Kamikaze(std::string id) : TroopUnit(id, "kamikaze") {}
+  ~Kamikaze(){}
   void giveDamage(double, double, double, double, double, double, Damage &);
 
   void takeDamage(double);

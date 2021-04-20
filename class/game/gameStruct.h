@@ -16,6 +16,7 @@
 
 #include "../../data/troop/troop.h"
 #include "../../random/random.h"
+#include "../../io/io.h"
 
 const bool dev = false;
 
@@ -29,9 +30,7 @@ public:
   Progress(int, int &, int, bool &);
   Progress(double, int &, int, bool &);
   void start(std::mutex &);
-
-private:
-  double milliRemain = 0;
+  int milliRemain = 0;
 };
 
 namespace data
@@ -380,34 +379,6 @@ public:
       {"fighter", 0},
       {"Bomber", 0},
       {"Kamikaze", 0},
-  };
-  std::unordered_map<std::string, int> killCount = {
-      {"infantry", 0},
-      {"calvary", 0},
-      {"artillery", 0},
-      {"logistic", 0},
-      {"armoredCar", 0},
-      {"tank1", 0},
-      {"tank2", 0},
-      {"tankOshimai", 0},
-      {"cas", 0},
-      {"fighter", 0},
-      {"Bomber", 0},
-  };
-  std::unordered_map<std::string, int> deathCount = {
-      {"infantry", 0},
-      {"calvary", 0},
-      {"suicideBomber", 0},
-      {"artillery", 0},
-      {"logistic", 0},
-      {"armoredCar", 0},
-      {"tank1", 0},
-      {"tank2", 0},
-      {"tankOshimai", 0},
-      {"cas", 0},
-      {"fighter", 0},
-      {"Bomber", 0},
-      {"kamikaze", 0},
   };
   int totalFriendlyDeathCount = 0;
   int totalFoeDeathCount = 0;
@@ -913,6 +884,7 @@ public:
   }
   void regen(data::Resource *resource)
   {
+    this->lg.lock();
     for (auto i : this->mikata->totalTroop)
       i->increaseHealth((resource->baseRecovery + resource->baseRecoveryDiff) * (1 - this->totalFoeDisruption / 2) * std::pow(this->foodRatio, 1.5));
 
@@ -930,6 +902,7 @@ public:
         for (auto k : j)
           if (k != NULL)
             k->increaseHealth(resource->baseRecovery * (1 - this->totalFriendlyDisruption / 2) * (this->isEncircled ? 0 : 1));
+    this->lg.unlock();
   }
   void clean(data::Troop *troop, data::Resource *resource)
   {
@@ -954,7 +927,6 @@ public:
         troop->totalTroops--;
 
         this->friendCount[this->mikata->totalTroop[i]->type]--;
-        this->deathCount[this->mikata->totalTroop[i]->type]++;
         this->totalFriendlyDeathCount++;
 
         troop->helper2[this->mikata->totalTroop[i]->type](3, -1);
@@ -969,7 +941,6 @@ public:
       {
         assert(this->foe->totalTroop[i]->reference.size() == 0);
 
-        this->killCount[this->foe->totalTroop[i]->type]++;
         this->totalFoeDeathCount++;
         this->foeCount[this->foe->totalTroop[i]->type]--;
 
@@ -1024,7 +995,6 @@ public:
             i->casualtyPercentage = i->historicCasualtyCount / i->historicTroopCount;
 
             this->friendCount[k->type]--;
-            this->deathCount[k->type]++;
             this->totalFriendlyDeathCount++;
 
             troop->helper2[k->type](3, -1);
@@ -1055,8 +1025,6 @@ public:
             }
             i->totalFoodRequired = i->totalBaseFoodRequired - i->foodReductionPer * i->troopCount;
             i->totalEquipmentRequired = i->totalBaseEquipmentRequired - i->equipmentReductionPer * i->troopCount;
-
-            this->killCount[k->type]--;
             this->totalFoeDeathCount++;
             this->foeCount[k->type]--;
 
@@ -1183,10 +1151,12 @@ public:
     assert(reinforcement != NULL);
     assert(reinforcement->reference.size() == 0);
 
+    if (this->captured)
+      return;
     this->lg.lock();
     if (this->totalFoe == 0)
     {
-     this->capturedLand++;
+      this->capturedLand++;
       if (1.0 * this->capturedLand / this->totalLand >= 0.7)
       {
         this->capitulated = true;
@@ -1195,7 +1165,7 @@ public:
         battle->countryBattling = "";
         for (auto i : this->map)
           for (auto j : i)
-            if (j != NULL)
+            if (j != NULL && !j->captured)
               j->endBattle(resource, building, battle, buildBase);
         if (this->defeated == enemySize)
         {
@@ -1205,11 +1175,14 @@ public:
       }
       else
       {
+        bool stillInBattle = false;
         this->endBattle(resource, building, battle, buildBase);
         for (auto i : this->map)
           for (auto j : i)
             if (j != NULL)
             {
+              if (j->battling)
+                stillInBattle = true;
               j->isAttackable = j->isAttackable || std::find(j->attackable.begin(), j->attackable.end(), std::make_pair(this->coordX, this->coordY)) != j->attackable.end();
               if (!j->isEncircled)
               {
@@ -1226,6 +1199,11 @@ public:
                   j->isEncircled = true;
               }
             }
+        if (!stillInBattle)
+        {
+          battle->inBattle = false;
+          battle->countryBattling = "";
+        }
       }
       this->lg.unlock();
       return;
@@ -1256,10 +1234,12 @@ public:
   void reinforce(std::function<void()> endGame, bool &gameOver, int enemySize, ArmyUnit *reinforcement, data::Resource *resource, data::Building *building, data::Battle *battle, std::function<void(std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount)> buildBase)
   {
     assert(reinforcement != NULL);
+    if (this->captured)
+      return;
     this->lg.lock();
     if (this->totalFoe == 0)
     {
-     this->capturedLand++;
+      this->capturedLand++;
       if (1.0 * this->capturedLand / this->totalLand >= 0.7)
       {
         this->capitulated = true;
@@ -1268,7 +1248,7 @@ public:
         battle->countryBattling = "";
         for (auto i : this->map)
           for (auto j : i)
-            if (j != NULL)
+            if (j != NULL && !j->captured)
               j->endBattle(resource, building, battle, buildBase);
         if (this->defeated == enemySize)
         {
@@ -1278,11 +1258,14 @@ public:
       }
       else
       {
+        bool stillInBattle = false;
         this->endBattle(resource, building, battle, buildBase);
         for (auto i : this->map)
           for (auto j : i)
             if (j != NULL)
             {
+              if (j->battling)
+                stillInBattle = true;
               j->isAttackable = j->isAttackable || std::find(j->attackable.begin(), j->attackable.end(), std::make_pair(this->coordX, this->coordY)) != j->attackable.end();
               if (!j->isEncircled)
               {
@@ -1299,6 +1282,11 @@ public:
                   j->isEncircled = true;
               }
             }
+        if (!stillInBattle)
+        {
+          battle->inBattle = false;
+          battle->countryBattling = "";
+        }
       }
       this->lg.unlock();
       return;
@@ -1515,7 +1503,7 @@ private:
         battle->countryBattling = "";
         for (auto i : this->map)
           for (auto j : i)
-            if (j != NULL)
+            if (j != NULL && !j->captured)
               j->endBattle(resource, building, battle, buildBase);
         if (this->defeated == enemySize)
         {
@@ -1525,11 +1513,14 @@ private:
       }
       else
       {
+        bool stillInBattle = false;
         this->endBattle(resource, building, battle, buildBase);
         for (auto i : this->map)
           for (auto j : i)
             if (j != NULL)
             {
+              if (j->battling)
+                stillInBattle = true;
               j->isAttackable = j->isAttackable || std::find(j->attackable.begin(), j->attackable.end(), std::make_pair(this->coordX, this->coordY)) != j->attackable.end();
               if (!j->isEncircled)
               {
@@ -1546,6 +1537,11 @@ private:
                   j->isEncircled = true;
               }
             }
+        if (!stillInBattle)
+        {
+          battle->inBattle = false;
+          battle->countryBattling = "";
+        }
       }
     }
     else if (nakamaShinda)
@@ -1677,7 +1673,7 @@ namespace data
             urbanization[1] = true;
           },
           [&](Resource &a, Building &b, Troop &c, Army &d) {
-            a.baseAirTroopMul = 1.3;
+            a.baseLandMul = 1.3;
             urbanization[2] = true;
           }}},
         {"weapon",

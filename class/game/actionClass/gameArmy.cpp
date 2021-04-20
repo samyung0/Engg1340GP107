@@ -32,7 +32,7 @@
 // every frame I will output the char vector and print cover the old one
 void Game::gameArmy(int &currentPhase, int prevPhase)
 {
-      int displayRange[2] = {this->screenHeight - 9, this->screenWidth};
+  int displayRange[2] = {this->screenHeight - 9, this->screenWidth};
 
   std::unordered_map<std::string, std::string> typeToDisplay = {
       {"infantry", "Infantry"},
@@ -84,6 +84,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   std::condition_variable terminatePhase2Cond;
   std::mutex phase2a;
   std::mutex phase2b;
+  std::mutex user;
 
   std::function<void()> loopArmyPhase0;
   std::function<void()> stopLoopArmyPhase0;
@@ -136,6 +137,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
 
   loopArmyPhase0 = [&]() { phase0 = std::async(std::launch::async, [&]() {
                              terminatePhase0 = false;
+                             user.unlock();
                              while (!terminatePhase0 && !this->gameOver)
                              {
                                armyPhase0();
@@ -156,6 +158,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   };
   loopArmyPhase2 = [&]() { phase2 = std::async(std::launch::async, [&]() {
                              terminatePhase2 = false;
+                             user.unlock();
                              while (!terminatePhase2 && !this->gameOver)
                              {
                                armyPhase2();
@@ -352,6 +355,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   };
 
   armyPhase1 = [&]() {
+    user.unlock();
     bool unique = false;
 
     std::cout << "\033[" << 1 << ";" << 1 << "H";
@@ -538,8 +542,10 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
   {
     input = getch();
 
+    user.lock();
     stopLoopArmyPhase0();
     stopLoopArmyPhase2();
+    user.unlock();
 
     if (this->gameOver)
     {
@@ -710,6 +716,7 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
     std::cout << "\033[2J\033[1;1H";
     if (armyPhase == -999)
     {
+
       gamePhase = prevPhase;
 
       this->gamePhaseSelect[0] = 0;
@@ -719,8 +726,8 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
     }
     else
     {
+      user.lock();
       (*armyPhaseF[armyPhase])();
     }
-    clean_stdin();
   }
 }

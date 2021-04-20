@@ -151,6 +151,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
   };
 
   sendAll = [&]() {
+    user.lock();
     Enemy *ptr = this->enemies->totalEnemies[currentCountry];
     for (auto i : selectedTroop)
       if (!ptr->map[phase0[0]][phase0[1]]->captured)
@@ -167,6 +168,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
       loopPrint();
     });
     temp.detach();
+    user.unlock();
   };
 
   troopIreru = [&](std::string type) {
@@ -1071,7 +1073,6 @@ void Game::sensou(int &gamePhase, int prevPhase)
       while (!terminatePrint && !this->gameOver)
       {
         printMode[mode]();
-        // user.unlock();
         std::unique_lock<std::mutex> lock(printa);
         printCond.wait_for(lock, std::chrono::milliseconds(1000 / this->fps));
       }
@@ -1090,13 +1091,17 @@ void Game::sensou(int &gamePhase, int prevPhase)
   std::cout << "\033[2J\033[1;1H";
   loopPrint();
   char input;
-  // std::future<void> temp = std::async(std::launch::async, [&]() {while(std::this_thread::sleep_for(std::chrono::milliseconds(500));} });
+  // std::future<void> temp = std::async(std::launch::async, [&]() {while(1){clean_stdin();std::this_thread::sleep_for(std::chrono::milliseconds(500));} });
   while (1)
   {
-
+    if (this->gameOver)
+    {
+      break;
+    }
     input = getch();
+    user.lock();
     stopPrint();
-
+    user.unlock();
     if (this->gameOver)
     {
       break;
@@ -1362,8 +1367,8 @@ void Game::sensou(int &gamePhase, int prevPhase)
           subPhase2Mode = 0;
       }
     }
+    user.lock();
     std::cout << "\033[2J\033[1;1H";
     loopPrint();
-    clean_stdin();
   }
 }

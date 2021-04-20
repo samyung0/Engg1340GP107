@@ -13,6 +13,7 @@
 #include "action/stat/stat.h"
 #include "action/setting/setting.h"
 #include "action/level/level.h"
+#include "action/load/load.h"
 
 #include "class/game/game.h"
 #include "class/menuWrapper/menuWrapper.h"
@@ -45,7 +46,26 @@ int main()
 
   // functions for actions
   // passing menuPhase and settings by reference
-  std::vector<void (*)(int &menuPhase, int prevMenuPhase, MenuWrapper &)> action = {NULL, &statf, &level1f, &level2f, &level3f, &level4f, &level5f, &level6f, &level7f, &level8f, &level9f, NULL, NULL, NULL, NULL, NULL, NULL, &setting1af, &setting1bf};
+  std::vector<void (*)(int &menuPhase, int prevMenuPhase, MenuWrapper &)> action = {
+  NULL,
+  &statf,
+  &level1f,
+  &level2f,
+  &level3f,
+  &level4f,
+  &level5f,
+  &level6f,
+  &level7f,
+  &level8f,
+  &level9f,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  &load,
+  &setting1af,
+  &setting1bf};
 
   // game settings
   MenuWrapper gameStats(TOTAL_LEVELS, TOTAL_DIFFICULTY, SCREENX, SCREENY, FPS);
@@ -140,7 +160,9 @@ int main()
           std::thread actionThread(&Game::fetch, std::ref(allGames.back()));
           actionThread.join();
 
-          // DOES NOT DELETE GAME when still unsaved
+          delete allGames.back();
+          allGames.pop_back();
+
           menuPhase = 0;
         }
         (*select[menuPhase])(menuPhaseSelect[0], menuPhaseSelect[1], gameStats);

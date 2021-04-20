@@ -21,7 +21,7 @@ void levelBasef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats, std::
   {
     // clear screen
     std::cout << "\033[2J\033[1;1H";
-    std::cout << "Please choose the difficulty." << std::endl
+    std::cout << "Difficulty" << std::endl
               << std::endl;
     std::cout << std::setw(10) << levelf::print[0][0] << std::setw(10) << levelf::print[0][1] << std::endl
               << std::endl;
@@ -40,19 +40,19 @@ void levelBasef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats, std::
       {
       case 'A':
         levelf::activeIndex[0] = (levelf::activeIndex[0] + -1 + levelf::print.size()) % levelf::print.size();
-        levelf::activeIndex[1] = (levelf::activeIndex[1]) % levelf::print[levelf::activeIndex[1]].size();
+        levelf::activeIndex[1] = (levelf::activeIndex[1]) % levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]].size();
         break;
       case 'B':
         levelf::activeIndex[0] = (levelf::activeIndex[0] + 1) % levelf::print.size();
-        levelf::activeIndex[1] = (levelf::activeIndex[1]) % levelf::print[levelf::activeIndex[1]].size();
+        levelf::activeIndex[1] = (levelf::activeIndex[1]) % levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]].size();
         break;
       case 'C':
         levelf::activeIndex[0] = (levelf::activeIndex[0]) % levelf::print.size();
-        levelf::activeIndex[1] = (levelf::activeIndex[1] + 1) % levelf::print[levelf::activeIndex[1]].size();
+        levelf::activeIndex[1] = (levelf::activeIndex[1] + 1) % levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]].size();
         break;
       case 'D':
         levelf::activeIndex[0] = (levelf::activeIndex[0]) % levelf::print.size();
-        levelf::activeIndex[1] = (levelf::activeIndex[1] + -1 + levelf::print[levelf::activeIndex[1]].size()) % levelf::print[levelf::activeIndex[1]].size();
+        levelf::activeIndex[1] = (levelf::activeIndex[1] + -1 + levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]].size()) % levelf::print[levelf::activeIndex[1]].size();
         break;
       }
       levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]] = levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]].insert(0, "> ");

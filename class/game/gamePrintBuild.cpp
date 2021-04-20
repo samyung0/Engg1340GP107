@@ -218,7 +218,6 @@ void Game::printBuild(int x, int y)
   actionPrefix[x][y].insert(1, color(">", "cyan"));
 
   std::cout << "\033[2J\033[1;1H";
-  std::cout << "(cannot directly build level 2/3 buildings)" << std::endl;
   std::cout << color("Building: ", "magenta")
             << std::endl
             << std::endl;

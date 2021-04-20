@@ -104,9 +104,9 @@ void Game::printStatus(int x, int y)
             << std::setw(41) << "\nTraining: " + this->helper(this->research->training)
             << color("Actions: ", "red")
             << std::setw(41) << "\nRecovery: " + this->helper(this->research->recovery)
-            << actionPrefix[0][0] + underline("Build      ", "green") + actionPrefix[0][1] + underline("Research   ", "green") + actionPrefix[0][2] +  underline("Train      ", "green") + actionPrefix[0][3] +  underline("Army       ", "green") + actionPrefix[0][4] +  underline("Battle     ", "magenta")
+            << actionPrefix[0][0] + underline("Build    (1) ", "green") + actionPrefix[0][1] + underline("Research (2) ", "green") + actionPrefix[0][2] +  underline("Train    (3) ", "green") + actionPrefix[0][3] +  underline("Army     (4) ", "green") + actionPrefix[0][4] +  underline("Battle   (5) ", "magenta")
             << std::endl
-            << std::setw(40) << "" << actionPrefix[1][0] + underline("Speed      ", "green") + actionPrefix[1][1] + underline("Pause      ", "green") + actionPrefix[1][2] + underline("Save As    ", "green") + actionPrefix[1][3] + underline("Restart    ", "green") + actionPrefix[1][4] + underline("Quit       ", "green")
+            << std::setw(40) << "" << actionPrefix[1][0] + underline("Speed    (q) ", "green") + actionPrefix[1][1] + underline("Pause    (p) ", "green") + actionPrefix[1][2] + underline("Save     (s) ", "green") + actionPrefix[1][3] + underline("Restart  (r) ", "green") + actionPrefix[1][4] + underline("Quit       ", "green")
             << std::endl;
   this->lg3.unlock();
 }

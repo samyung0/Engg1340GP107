@@ -38,8 +38,8 @@ private:
       // building, researching, troops training, army editing, battling
       {{1, 2, 3, -162, -163},
 
-       // set speed, pause (action), save as (action), restart (action), quit (action)
-       {7, -1, -2, -3, -4}},
+       // set speed, pause (action), save (action), restart (action), quit (action)
+       {-164, -1, -2, -3, -4}},
 
       // build (1-4), upgrade (5-8)
       // delete (1-2), upgraed (3 - 6)
@@ -92,9 +92,9 @@ private:
       &Game::loopPrintStatus, &Game::loopPrintBuild, &Game::loopPrintResearch, &Game::loopPrintTroop};
 
   // function to be executed according to gamePhase (modifying)
-  // length: 164 (index 0: NULL)
+  // length: 165 (index 0: NULL)
   std::vector<void (Game::*)(int &, int)> action = {
-      NULL, NULL, NULL, NULL, NULL,
+      NULL, &Game::pause, &Game::save, NULL, NULL,
       &Game::buildfarm1, &Game::buildfarm5, &Game::buildfarm10, &Game::buildfarmmax, &Game::upgradefarm1, &Game::upgradefarm5, &Game::upgradefarm10, &Game::upgradefarmmax,
       NULL,
       &Game::buildcivilianFactory1, &Game::buildcivilianFactory5, &Game::buildcivilianFactory10, &Game::buildcivilianFactorymax, &Game::upgradefarm21, &Game::upgradefarm25, &Game::upgradefarm210, &Game::upgradefarm2max,
@@ -133,7 +133,7 @@ private:
       &Game::trainBomber, &Game::trainBomber5, &Game::trainBomber10, &Game::trainBombermax, &Game::removeBomber, &Game::removeBombermax,
       &Game::trainKamikaze, &Game::trainKamikaze5, &Game::trainKamikaze10, &Game::trainKamikazemax, &Game::removeKamikaze, &Game::removeKamikazemax,
       &Game::gameArmy,
-      &Game::sensou};
+      &Game::sensou, &Game::speed};
 
   std::future<void> timerThread;
   std::future<void> loopPrintStatusThread;
@@ -150,6 +150,7 @@ private:
     this->loopPrintStatusThread = std::async(
         std::launch::async, [&](int x, int y) {
           this->terminatePrint = false;
+          this->lguser.unlock();
           while (!terminatePrint)
           {
             this->printStatus(x, y);
@@ -175,6 +176,7 @@ private:
     this->loopPrintBuildThread = std::async(
         std::launch::async, [&](int x, int y) {
           this->terminateBuild = false;
+          this->lguser.unlock();
           while (!terminateBuild)
           {
             this->printBuild(x, y);
@@ -200,6 +202,7 @@ private:
     this->loopPrintResearchThread = std::async(
         std::launch::async, [&](int x, int y) {
           this->terminateResearch = false;
+          this->lguser.unlock();
           while (!terminateResearch)
           {
             this->printResearch(x, y);
@@ -225,6 +228,7 @@ private:
     this->loopPrintTroopThread = std::async(
         std::launch::async, [&](int x, int y) {
           this->terminateTroop = false;
+          this->lguser.unlock();
           while (!terminateTroop)
           {
             this->printTroop(x, y);
@@ -427,8 +431,9 @@ private:
 
   void sensou(int &, int);
 
-  void pause();
-  void saveAs();
+  void speed(int &, int);
+  void pause(int &, int);
+  void save(int &, int);
   void restart();
   void quit();
 
@@ -470,7 +475,7 @@ private:
                     if (k != NULL)
                     {
                       if (k->battling)
-                        k->cycle([&](){this->endGame();}, this->gameOver, this->enemies->totalEnemies.size(), this->troop, this->resource, this->building, this->battle,
+                        k->cycle([&]() { this->endGame(); }, this->gameOver, this->enemies->totalEnemies.size(), this->troop, this->resource, this->building, this->battle,
                                  [&](std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount) { this->buildBase(type, time, callBack, desc, land, amount); });
                       else
                       {

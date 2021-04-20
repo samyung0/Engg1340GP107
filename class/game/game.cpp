@@ -17,7 +17,7 @@
 
 // decrement remain by 1 every interval until 0
 Progress::Progress(int time, int &interval_, int fps_, bool &paused_)
-    : remain(time), milliRemain(time * 1000.0), interval(interval_), fps(fps_), paused(paused_)
+    : remain(time), milliRemain(time * 1000), interval(interval_), fps(fps_), paused(paused_)
 {
 }
 Progress::Progress(double time, int &interval_, int fps_, bool &paused_)
@@ -35,12 +35,16 @@ void Progress::start(std::mutex &lg3)
       continue;
     this->milliRemain -= 1000 * 1000 / this->fps / this->interval;
     lg3.lock();
-    this->remain = std::max((int)std::ceil(this->milliRemain / 1000.0), 0);
+    this->remain = std::max((int)std::ceil(1.0 * this->milliRemain / 1000), 0);
     lg3.unlock();
   }
 }
 
-Game::~Game() {}
+Game::~Game()
+{
+  std::cout << "destroy" << std::endl;
+  assert(0);
+}
 Game::Game(std::unordered_map<std::string, int> setting_, const int screenX_, const int screenY_, const int fps_, const std::string path_) : setting(setting_), screenWidth(screenX_), screenHeight(screenY_), fps(fps_), path(path_)
 {
   resource = new data::Resource();
@@ -61,6 +65,23 @@ void Game::endGame()
 
   std::cout << "\033c" << std::endl;
   std::cout << "Game ended. Press any key to continue..." << std::endl;
+}
+
+void Game::speed(int &gamePhase, int prevPhase)
+{
+  this->stopTimer();
+  this->timeChosen = (this->timeChosen + 1) % this->timeRange.size();
+  this->setting["speed"] = this->timeRange[this->timeChosen];
+  this->timer(this->setting["speed"]);
+  gamePhase = prevPhase;
+  (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+}
+
+void Game::pause(int &gamePhase, int prevPhase)
+{
+  this->paused = !this->paused;
+  gamePhase = prevPhase;
+  (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
 }
 
 // fetch level data from .dat files
@@ -111,13 +132,196 @@ void Game::fetch()
     assert(index3 != std::string::npos);
 
     std::string operand = input.substr(0, index);
-    if (operand == "building")
+    if (operand == "set")
     {
-      std::string type = input.substr(index + 1, index2 - index - 1);
-      int level = std::atoi(input.substr(index2 + 1, index3 - index2 - 1).c_str());
-      int num = std::atoi(input.substr(index3 + 1).c_str());
-      this->buildBase(type, 0, this->building->effect[type][level], "", this->building->helper[type](0), num);
-      std::cout << "Making buildings done" << std::endl;
+      std::string operand2 = input.substr(index + 1, index2 - index - 1);
+      if (operand2 == "food")
+        this->resource->food = std::stod(input.substr(index3 + 1).c_str());
+      else if (operand2 == "equipment")
+        this->resource->equipment = std::stod(input.substr(index3 + 1).c_str());
+      else if (operand2 == "manpower")
+        this->resource->manpower = std::atoi(input.substr(index3 + 1).c_str());
+      else if (operand2 == "baseLand")
+        this->resource->baseLand = std::stod(input.substr(index3 + 1).c_str());
+      else if (operand2 == "usedLand")
+        this->resource->usedLand = std::stod(input.substr(index3 + 1).c_str());
+      else if (operand2 == "capturedLand")
+        this->resource->capturedLand = std::stod(input.substr(index3 + 1).c_str());
+      else if (operand2 == "camp")
+        this->resource->camp = std::atoi(input.substr(index3 + 1).c_str());
+      else if (operand2 == "airport1")
+        this->resource->airport = std::atoi(input.substr(index3 + 1).c_str());
+      else if (operand2 == "baseLandMul")
+        this->resource->baseLandMul = std::stod(input.substr(index3 + 1));
+      else if (operand2 == "baseLandTroopMul")
+        this->resource->baseLandTroopMul = std::stod(input.substr(index3 + 1));
+      else if (operand2 == "baseAirTroopMul")
+        this->resource->baseAirTroopMul = std::stod(input.substr(index3 + 1));
+      else if (operand2 == "baseTankMul")
+        this->resource->baseTankMul = std::stod(input.substr(index3 + 1));
+      else if (operand2 == "baseAirToopMul2")
+        this->resource->baseAirToopMul2 = std::stod(input.substr(index3 + 1));
+      else if (operand2 == "baseTrainingTimeMul")
+        this->resource->baseTrainingTimeMul = std::stod(input.substr(index3 + 1));
+      else if (operand2 == "baseRecovery")
+        this->resource->baseRecovery = std::stod(input.substr(index3 + 1));
+      else if (operand2 == "baseRecoveryDiff")
+        this->resource->baseRecoveryDiff = std::stod(input.substr(index3 + 1));
+      else if (operand2 == "farm")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->building->farm[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->building->farm[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->building->farm[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "militaryFactory")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->building->militaryFactory[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->building->militaryFactory[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->building->militaryFactory[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "civilianFactory")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->building->civilianFactory[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->building->civilianFactory[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->building->civilianFactory[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "trainingCamp")
+        this->building->trainingCamp[0] = std::atoi(input.substr(index3 + 1).c_str());
+      else if (operand2 == "airport2")
+        this->building->airport[0] = std::atoi(input.substr(index3 + 1).c_str());
+      else if (operand2 == "farmU")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->building->farmU[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->building->farmU[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->building->farmU[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "civilianFactoryU")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->building->civilianFactoryU[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->building->civilianFactoryU[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->building->civilianFactoryU[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "militaryFactoryU")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->building->militaryFactoryU[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->building->militaryFactoryU[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->building->militaryFactoryU[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "farmR")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->research->farm[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->research->farm[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->research->farm[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "divisionOfLaborR")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->research->divisionOfLabor[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->research->divisionOfLabor[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->research->divisionOfLabor[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "productionLineR")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->research->productionLine[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->research->productionLine[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->research->productionLine[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "landDoctrineR")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->research->landDoctrine[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->research->landDoctrine[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->research->landDoctrine[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "airDoctrineR")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->research->airDoctrine[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->research->airDoctrine[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->research->airDoctrine[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "urbanizationR")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->research->urbanization[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->research->urbanization[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->research->urbanization[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "weaponR")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->research->weapon[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->research->weapon[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->research->weapon[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "trainingR")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->research->training[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->research->training[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->research->training[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      else if (operand2 == "recoveryR")
+      {
+        int sep1 = input.find(',', index3);
+        int sep2 = input.find(',', sep1 + 1);
+        assert(sep1 != std::string::npos);
+        assert(sep2 != std::string::npos);
+        this->research->recovery[0] = std::atoi(input.substr(index3 + 1, sep1 - index3 - 1).c_str());
+        this->research->recovery[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+        this->research->recovery[2] = std::atoi(input.substr(sep2 + 1).c_str());
+      }
+      std::cout << "Setting " << operand2 << " done" << std::endl;
     }
     else if (operand == "army")
     {
@@ -176,6 +380,12 @@ void Game::fetch()
       std::string modifier = input.substr(index + 1, index2 - index - 1);
       if (modifier == "create")
         this->enemies->totalEnemies.push_back(new Enemy(input.substr(index3 + 1), this->enemies->defeated));
+      bool defeated = std::atoi(input.substr(index2 + 1, index3 - index2 - 1).c_str());
+      if (defeated)
+      {
+        this->enemies->defeated++;
+        this->enemies->totalEnemies.back()->capitulated = true;
+      }
       std::cout << "Creating countries done" << std::endl;
     }
     else if (operand == "map")
@@ -335,7 +545,6 @@ void Game::fetch()
               for (int i = 0; i < coord.size() / 2; i++)
                 mapA.back().back()->attackable.push_back(std::make_pair(coord[i * 2], coord[i * 2 + 1]));
             }
-            mapA.back().back()->isAttackable = mapA.back().back()->attackable.size() == 0;
 
             std::cout << "Block capturable done" << std::endl;
 
@@ -368,7 +577,23 @@ void Game::fetch()
             mapA.back().back()->terrain = map.substr(terrainStart + 1, terrainEnd - terrainStart - 1);
             std::cout << "Block terrain done" << std::endl;
 
-            assert(map[terrainEnd + 1] == ';');
+            int capturedStart = map.find("&", terrainEnd);
+            int sep1 = map.find(",", capturedStart);
+            int sep2 = map.find(",", sep1 + 1);
+            int capturedEnd = map.find("&", sep2);
+            bool captured = std::atoi(map.substr(capturedStart + 1, sep1 - capturedStart - 1).c_str());
+            bool attackable = std::atoi(map.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
+            bool encircled = std::atoi(map.substr(sep2 + 1, capturedEnd - sep2 - 1).c_str());
+            if (captured)
+            {
+              this->enemies->totalEnemies[index]->capturedLand++;
+              mapA.back().back()->captured = true;
+            }
+            mapA.back().back()->isAttackable = attackable;
+            mapA.back().back()->isEncircled = encircled;
+            std::cout << "Block terrain done" << std::endl;
+
+            assert(map[capturedEnd + 1] == ';');
           }
 
           std::cout << "Block done" << std::endl;
@@ -390,15 +615,11 @@ void Game::fetch()
     }
     else if (operand == "time")
     {
+      this->timeAcc = std::atoi(input.substr(index + 1, index2 - index - 1).c_str());
+      this->day = std::atoi(input.substr(index2 + 1, index3 - index2 - 1).c_str());
       this->timeLimit = std::atoi(input.substr(index3 + 1).c_str());
 
       std::cout << "Set time done" << std::endl;
-    }
-    else if (operand == "baseLand")
-    {
-      this->resource->baseLand = std::atoi(input.substr(index3 + 1).c_str());
-
-      std::cout << "Set land done" << std::endl;
     }
   }
 
@@ -422,6 +643,7 @@ void Game::start()
   // possible data race for gameover
   while (1)
   {
+    // clean_stdin();
     int prevGamePhase = this->gamePhase;
 
     // same method used in menuPhase
@@ -431,14 +653,16 @@ void Game::start()
       break;
     }
     input = getch();
-     if (gameOver)
+    if (gameOver)
     {
       break;
     }
+    this->lguser.lock();
     this->stopLoopPrintStatus();
     this->stopLoopPrintBuild();
     this->stopLoopPrintResearch();
     this->stopLoopPrintTroop();
+    this->lguser.unlock();
 
     if (input == '\033')
     {
@@ -478,6 +702,39 @@ void Game::start()
       this->setting["speed"] = this->timeRange[this->timeChosen];
       this->timer(this->setting["speed"]);
     }
+    else if (input == '1')
+    {
+      this->gamePhase = 1;
+      this->prevGamePhase.push_back(prevGamePhase);
+      this->gamePhaseSelect[0] = 0;
+      this->gamePhaseSelect[1] = 0;
+    }
+    else if (input == '2')
+    {
+      this->gamePhase = 2;
+      this->prevGamePhase.push_back(prevGamePhase);
+      this->gamePhaseSelect[0] = 0;
+      this->gamePhaseSelect[1] = 0;
+    }
+    else if (input == '3')
+    {
+      this->gamePhase = 3;
+      this->prevGamePhase.push_back(prevGamePhase);
+      this->gamePhaseSelect[0] = 0;
+      this->gamePhaseSelect[1] = 0;
+    }
+    else if (input == '4')
+    {
+      this->gamePhase = -162;
+    }
+    else if (input == '5')
+    {
+      this->gamePhase = -163;
+    }
+    else if (input == 's')
+    {
+      this->gamePhase = -2;
+    }
     // progress game phase
     else if (input == '\n')
     {
@@ -505,15 +762,16 @@ void Game::start()
         this->gamePhaseSelect[1] = 0;
       }
     }
-
+    this->lguser.lock();
     if (this->gamePhase >= 0)
     {
       (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
     }
     else
     {
+      this->lguser.unlock();
       (this->*this->action[-this->gamePhase])(this->gamePhase, prevGamePhase);
     }
-    clean_stdin();
+    // clean_stdin();
   }
 }

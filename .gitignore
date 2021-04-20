@@ -3,6 +3,7 @@ test2.*
 /objectFiles/*.o
 /TESTING
 /TESTING2
+/SAVEGAME/*
 main
 .vscode
 test

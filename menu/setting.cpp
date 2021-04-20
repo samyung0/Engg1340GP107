@@ -40,7 +40,7 @@ void print_settingSelect(int y, int x, MenuWrapper &gameStats)
 
   // clear screen
   std::cout << "\033[2J\033[1;1H";
-  std::cout << "Settings." << std::endl;
+  std::cout << "Settings" << std::endl;
   std::cout << "Game Speed";
   std::cout << std::setw(50) << setting::menuOptions[0][0];
   std::cout << std::setw(18) << setting::menuOptions[0][1] << std::endl;
