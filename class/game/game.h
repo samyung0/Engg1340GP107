@@ -560,7 +560,7 @@ private:
   // user action lock (prevent spamming)
   std::mutex lguser;
 
-  std::function<std::string()> uuid = [&]() -> std::string { sole::uuid A = sole::uuid1(); return A.str(); };
+  std::function<std::string()> uuid = [&]() -> std::string { sole::uuid A = sole::uuid4(); return A.str(); };
 
   // format researches when printing, return string
   std::string helper(std::vector<bool> &level)
