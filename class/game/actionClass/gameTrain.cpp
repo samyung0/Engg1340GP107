@@ -11,6 +11,7 @@
 void Game::trainBase(std::string type, std::function<void(data::Resource &, data::Troop &)> callBack, int camp, int airport, int time, int amount)
 {
   this->lg3.lock();
+  std::cout << "start troop" << std::endl;
 
   this->resource->campUsed += camp * amount;
   this->resource->airportUsed += airport * amount;
@@ -29,6 +30,7 @@ void Game::trainBase(std::string type, std::function<void(data::Resource &, data
 
     this->lg3.unlock();
     this->troop->progress[idStore[0]]->start(this->lg3);
+    std::cout << "start troop mid" << std::endl;
     this->lg3.lock();
 
     for (int i = 0; i < idStore.size(); i++)
@@ -47,9 +49,10 @@ void Game::trainBase(std::string type, std::function<void(data::Resource &, data
     }
     this->resource->campUsed -= camp * idStore.size();
 
+std::cout << "start troop back" << std::endl;
     std::thread temp([this, idStore]() { this->troop->progressAsync.erase(idStore[0]); });
     temp.detach();
-
+std::cout << "start troop final" << std::endl;
     this->lg3.unlock();
   });
 }
