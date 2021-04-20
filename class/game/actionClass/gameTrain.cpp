@@ -21,7 +21,7 @@ void Game::trainBase(std::string type, std::function<void(data::Resource &, data
     idStore.push_back(this->uuid());
     this->troop->progressTrack.push_back(std::make_tuple(type, idStore.back()));
   }
-  std::cout << "start troop" << std::endl;
+  std::cout << "start troop " << this->troop->progressAsync.count(idStore[0]) << std::endl;
 
   this->troop->progressAsync[idStore[0]] = std::async(std::launch::async, [this, idStore, time, callBack, type, camp]() {
     std::cout << "start troop 2" << std::endl;
