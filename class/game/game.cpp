@@ -507,10 +507,10 @@ int Game::fetch()
       int num = std::atoi(input.substr(index3 + 1).c_str());
       for (int i = 0; i < num; i++)
       {
-        auto ptr = troopToInstance[type]();
+        // auto ptr = troopToInstance[type]();
         this->trainBase(
-            type, [troopToInstance, type, ptr](data::Resource &resource, data::Troop &troop) {
-              troop.allTroop.push_back(ptr);
+            type, [&troopToInstance, type](data::Resource &resource, data::Troop &troop) {
+              troop.allTroop.push_back(troopToInstance[type]());
               troop.totalTroops++;
               troop.totalFoodRequired += troop.allTroop.back()->getFood();
               troop.totalEquipmentRequired += troop.allTroop.back()->getEquipment();
