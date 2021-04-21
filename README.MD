@@ -15,7 +15,6 @@ Wu Ziliang Louis 3035787061
   - [Other details and tips](#a5)
   - [Saving and Loading](#file)
   - [Random levels](#random)
-  - [Commands](#commands)
   - [Implementation](#implementation)
   - [Flow](#flow) ( read this before going to the codes )
   - [Testing and development](#development) ( read this before going to the codes )
