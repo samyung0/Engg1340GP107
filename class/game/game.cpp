@@ -272,7 +272,7 @@ int Game::fetch()
       {"fighter", 1},
       {"bomber", 1},
       {"kamikaze", 1}};
-
+  bool pausedForTroop = false;
   std::string input;
   while (std::getline(in, input))
   {
@@ -484,6 +484,15 @@ int Game::fetch()
     }
     else if (operand == "army")
     {
+      if (!pausedForTroop)
+      {
+        std::cout << std::endl;
+        std::cout << "Pausing 3 seconds for troops to finish..." << std::endl;
+        std::cout << "NOTE: If you pc is slow, the program may crash!" << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+        pausedForTroop = true;
+      }
+
       std::string name = input.substr(index + 1, index2 - index - 1);
       ArmyUnit *temp = new ArmyUnit(name);
       int armySep = input.find("$");

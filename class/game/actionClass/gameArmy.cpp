@@ -487,20 +487,20 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
       std::cout << std::endl;
     }
     std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[4][0] + typeToDisplay[posToTroop[4]] << " (" + std::to_string(this->troop->helper[posToTroop[4]](0)) + ")"
-              << " (shortcut: 4)" << std::endl;
-    std::cout << std::setw(25 * 4 + 11 + 15) << prefixPhase2Pick[4][0] + underline("Back", "green") + " (Or spacebar)" << std::setw(18) << prefixPhase2Troop[5][0] + typeToDisplay[posToTroop[5]] << " (" + std::to_string(this->troop->helper[posToTroop[5]](0)) + ")"
               << " (shortcut: 5)" << std::endl;
+    std::cout << std::setw(25 * 4 + 11 + 15) << prefixPhase2Pick[4][0] + underline("Back", "green") + " (Or spacebar)" << std::setw(18) << prefixPhase2Troop[5][0] + typeToDisplay[posToTroop[5]] << " (" + std::to_string(this->troop->helper[posToTroop[5]](0)) + ")"
+              << " (shortcut: 6)" << std::endl;
     for (int i = 6; i < 9; i++)
       std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[i][0] + typeToDisplay[posToTroop[i]] << " (" + std::to_string(this->troop->helper[posToTroop[i]](0)) + ")"
                 << " (shortcut: " + std::to_string(i + 1) + ")" << std::endl;
     std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[9][0] + typeToDisplay[posToTroop[9]] << " (" + std::to_string(this->troop->helper[posToTroop[9]](0)) + ")"
-              << " (shortcut: q)" << std::endl;
+              << " (shortcut: z)" << std::endl;
     std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[10][0] + typeToDisplay[posToTroop[10]] << " (" + std::to_string(this->troop->helper[posToTroop[10]](0)) + ")"
-              << " (shortcut: w)" << std::endl;
+              << " (shortcut: x)" << std::endl;
     std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[11][0] + typeToDisplay[posToTroop[11]] << " (" + std::to_string(this->troop->helper[posToTroop[11]](0)) + ")"
-              << " (shortcut: e)" << std::endl;
+              << " (shortcut: c)" << std::endl;
     std::cout << std::string(25 * 4 + 15, ' ') << std::setw(18) << prefixPhase2Troop[12][0] + typeToDisplay[posToTroop[12]] << " (" + std::to_string(this->troop->helper[posToTroop[12]](0)) + ")"
-              << " (shortcut: r)" << std::endl;
+              << " (shortcut: v)" << std::endl;
 
     std::cout << std::endl;
     std::cout << std::string(23 * 4 + 15, ' ') << prefixPhase2Troop[13][0] << underline("Back to Army", "green") << std::endl;
@@ -705,16 +705,16 @@ void Game::gameArmy(int &currentPhase, int prevPhase)
         case '9':
           actionPhase2Pick[8][0]();
           break;
-        case 'q':
+        case 'z':
           actionPhase2Pick[9][0]();
           break;
-        case 'w':
+        case 'x':
           actionPhase2Pick[10][0]();
           break;
-        case 'e':
+        case 'c':
           actionPhase2Pick[11][0]();
           break;
-        case 'r':
+        case 'v':
           actionPhase2Pick[12][0]();
           break;
         };

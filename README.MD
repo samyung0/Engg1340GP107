@@ -48,12 +48,6 @@ You can initiate an attack at anytime by either assigning individual troops or a
 
 When you successfully captured 50% of the country's land, you will conquer the country and receives all its buildings only.
 
-___To view your country's status/ resources:___
-
-  ___Commands:___
-
-  - __status__ : _show all statuses, including resources, buildings, troops and regions in battle_
-
 ## <a name="map"></a>Map design and coordinate system
 
 For __other countries__, you will see the different regions of the other countries represented in coordinates, from A1, A2, to Z10, with A representing the border of the country and B, C,... being the land deeper into the country. __You must attack the country layer by layer (form A to B to C, etc).__ You can choose which land to attack by specifying the coordinate of the land. Same rule applies to battle planning, using the coordinates to specify the attacking order.
@@ -200,17 +194,17 @@ H1 H2             H7</pre>
   Details of each troop (1 unit):
   - __Infantry__: camp: 1, time: 10 days, soft attack: 10, hard attack: 2, defenses: 25, speed: 5, equipment: 2, food: 2, hp: 100
   - __Calvary__: camp: 1, time: 10 days, soft attack: 8, hard attack: 1, defenses: 20, speed: 10, equipment: 2, food: 2, hp: 150
-  - __Suicide bomber__: camp: 2, time: 50 days, soft attack: 300, hard attack: 200, defenses: 0, speed: 30, equipment: 10, food: 2, disruption: 1 (_suicide bombers are a one-time use and They die immediately after dealing damage once. They ONLY deal damage when they are not taking ANY damage, meaning you must edit them into an army._), hp: N/A
+  - __Suicide bomber__: camp: 2, time: 50 days, soft attack: 300, hard attack: 200, defenses: 0, speed: 30, equipment: 30, food: 15, disruption: 1 (_suicide bombers are a one-time use and They die immediately after dealing damage once. They ONLY deal damage when they are not taking ANY damage, meaning you must edit them into an army._), hp: N/A
   - __Artillery__: camp: 2, time: 20 days, soft attack: 3, hard attack: 12, defenses: 10, speed: 2, equipment: 2, food: 1, hp: 170
   - __Logistic__: camp: 1, time: 20 days, equipment: 2, defenses: 15, food: 2 (_effect: increase all land troops within the same army's speed by 1 per unit and reduce food consumption by 1, including itself, max units per army: 2_), hp: 50
   - __Armored car__: camp: 2, time: 30 days, soft attack: 18, hard attack: 8, armor: 10, defenses: 30, speed: 15, equipment: 10, food: 6, hp: 160
   - __Tank 1__: camp: 3, time: 40 days, soft attack: 12, hard attack: 20, armor: 25, defenses: 10, speed: 6, equipment: 15, food: 6, hp: 230
   - __Tank 2__: camp: 5, time: 60 days, soft attack: 12, hard attack: 50, armor: 35, defenses: 12, speed: 8, equipment: 25, food: 8, hp: 300
-  - __Tank oshimai__: camp: 20, time: 200 days, soft attack: 80, hard attack: 150, armor: 80, defenses: 40, speed: 1, equipment: 50, food: 25, disruption: 2,  hp: 1000
-  - __Close Air Support (cas)__: camp: 1, time: 30 days, soft attack: 15, hard attack: 15, air attack: 2, equipment: 10, food: 1, conspicuousness: 2 (_how much attack are spreaded to it_), hp: 50
-  - __Fighter__: camp: 1, time: 30 days, soft attack: 4, hard attack: 2, air attack: 8, equipment: 10, food: 1, conspicuousness: 10, hp: 130
-  - __Bomber__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 2, air attack: 2, equipment: 15, food: 2, conspicuousness: 6 , hp: 80
-  - __Kamikaze__: camp: 4, time: 70 days, soft attack: 500, hard attack: 500, disruption: 5, air attack: 150, equipment: 10, food: 1, conspicuousness: 0 (_similar to suicide bombers, they will not return from battle and only deals damage once given they are not taking damage. Kamikaze does not take any damage when any other planes belonging to you are present._), hp: N/A
+  - __Tank oshimai__: camp: 20, time: 200 days, soft attack: 80, hard attack: 150, armor: 80, defenses: 40, speed: 1, equipment: 150, food: 40, disruption: 2,  hp: 1000
+  - __Close Air Support (cas)__: camp: 1, time: 30 days, soft attack: 15, hard attack: 15, air attack: 2, equipment: 10, food: 2, conspicuousness: 2 (_how much attack are spreaded to it_), hp: 50
+  - __Fighter__: camp: 1, time: 30 days, soft attack: 4, hard attack: 2, air attack: 8, equipment: 10, food: 5, conspicuousness: 10, hp: 130
+  - __Bomber__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 2, air attack: 2, equipment: 15, food: 3, conspicuousness: 6 , hp: 80
+  - __Kamikaze__: camp: 4, time: 70 days, soft attack: 500, hard attack: 500, disruption: 5, air attack: 150, equipment: 50, food: 20, conspicuousness: 0 (_similar to suicide bombers, they will not return from battle and only deals damage once given they are not taking damage. Kamikaze does not take any damage when any other planes belonging to you are present._), hp: N/A
 - ### <a name="army"></a>Army Editing
   You are always encouraged to groups troops trained into army because not only can you use logistics (troop), you can also customize the layout and increase your attacking efficiency by battle plans. You can specify what troops you go first, then what troops stay behind. For example, it may be useful to put infantry/ tanks in the front and Artillery at the back. The formation of an army is shown as below.
 

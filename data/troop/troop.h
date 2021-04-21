@@ -202,8 +202,8 @@ public:
 
   // mutable
 private:
-  double equipment = 2;
-  double food = 1;
+  double equipment = 30;
+  double food = 15;
   double hp = 1;
 };
 class Artillery : public TroopUnit
@@ -450,8 +450,8 @@ public:
 
   // mutable
 private:
-  double equipment = 50;
-  double food = 25;
+  double equipment = 150;
+  double food = 40;
   double hp = 1000;
 };
 class Cas : public TroopUnit
@@ -492,7 +492,7 @@ public:
   // mutable
 private:
   double equipment = 10;
-  double food = 1;
+  double food = 2;
   double hp = 50;
 };
 class Fighter : public TroopUnit
@@ -533,7 +533,7 @@ public:
   // mutable
 private:
   double equipment = 10;
-  double food = 1;
+  double food = 5;
   double hp = 130;
 };
 class Bomber : public TroopUnit
@@ -574,7 +574,7 @@ public:
   // mutable
 private:
   double equipment = 15;
-  double food = 2;
+  double food = 3;
   double hp = 80;
 };
 class Kamikaze : public TroopUnit
@@ -616,8 +616,8 @@ public:
 
   // mutable
 private:
-  double equipment = 10;
-  double food = 1;
+  double equipment = 50;
+  double food = 20;
   double hp = 1;
 };
 

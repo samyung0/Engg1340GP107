@@ -766,22 +766,33 @@ public:
         else if (landPresent[1] != 0)
           columnDistribution[1] += acc;
       }
+      // for (auto i : landPresent)
+      //   std::cout << "land present: " << i << std::endl;
       for (int j = 0; j < 4; j++)
       {
         std::vector<double> distribution = {};
-        if (columnDistribution[j] != 0)
-          distribution = this->randArmy[landPresent[j] - 1](this->rd);
+        if(landPresent[j] > 0)
+        distribution = this->randArmy[landPresent[j] - 1](this->rd);
         int count = 0;
         for (int k = 0; k < 4; k++)
           if (i->formation[j][k] != NULL)
           {
+
             double damage = 0;
             if (this->airTroop.count(i->formation[j][k]->type) != 0)
               damage = foe->airAttack * i->formation[j][k]->getConspicuousness() / totalConspicuousnessFd;
             else
             {
               if (this->armorTroop.count(i->formation[j][k]->type) != 0)
+              {
+                // for (auto i : columnDistribution)
+                //   std::cout << "column: " << i << std::endl;
+                // for (auto i : distribution)
+                //   std::cout << "distribution: " << i << std::endl;
+                // std::cout << perUnit << std::endl;
+                // std::cout << perArmor << std::endl;
                 damage = std::max(0., (perUnit * columnDistribution[j] * distribution[count] - i->formation[j][k]->getDefense()) / 4) + std::max(0., (perArmor - i->formation[j][k]->getArmor()) * 1.1);
+              }
               else
                 damage = perUnit * columnDistribution[j] * distribution[count] - i->formation[j][k]->getDefense();
               count++;
@@ -1705,9 +1716,11 @@ namespace data
         {"recovery",
          {[&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseRecoveryDiff = 2;
+            recovery[1] = true;
           },
           [&](Resource &a, Building &b, Troop &c, Army &d) {
             a.baseRecoveryDiff = 2.5;
+            recovery[2] = true;
           }}},
     };
 

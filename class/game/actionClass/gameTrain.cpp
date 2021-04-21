@@ -45,6 +45,7 @@ void Game::trainBase(std::string type, std::function<void(data::Resource &, data
         this->troop->progressTrack.erase(this->troop->progressTrack.begin() + j);
       }
     }
+    std::cout << "finish " << type << std::endl;
     this->resource->campUsed -= camp * idStore.size();
 
     std::thread temp([this, idStore]() { this->lg3.lock(); this->troop->progressAsync.erase(idStore[0]);this->lg3.unlock(); });

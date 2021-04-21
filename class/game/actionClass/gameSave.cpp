@@ -12,7 +12,7 @@ void Game::save(int &gamePhase, int prevPhase)
 
   time_t t = std::time(NULL);
   tm *ttime = localtime(&t);
-  std::string path = std::string("SAVEGAME/") + std::to_string(1900 + ttime->tm_year) + "-" + std::to_string(1 + ttime->tm_mon) + "-" + std::to_string(ttime->tm_mday) + "-" + std::to_string(1 + ttime->tm_hour) + "-" + std::to_string(1 + ttime->tm_min) + "-" + std::to_string(1 + ttime->tm_sec);
+  std::string path = std::string("SAVEGAME/") + std::to_string(1900 + ttime->tm_year) + "-" + std::to_string(1 + ttime->tm_mon) + "-" + std::to_string(ttime->tm_mday) + "-" + std::to_string(ttime->tm_hour) + "-" + std::to_string(1 + ttime->tm_min) + "-" + std::to_string(1 + ttime->tm_sec);
   std::ofstream file(path, std::ios::out | std::ios::trunc);
 
   std::cout << "\033[2J\033[1;1H";
@@ -85,9 +85,9 @@ void Game::save(int &gamePhase, int prevPhase)
     for (int j = 0; j < 4; j++)
       for (int k = 0; k < 4; k++)
         if (i.second->formation[j][k] != NULL)
-          temp += std::string("(") + std::to_string(j) + "," + std::to_string(k) + ")" + std::to_string(indexToTroop2[i.second->formation[j][k]->type]) + ",";
+          temp += std::string("(") + std::to_string(j) + ":" + std::to_string(k) + ")" + std::to_string(indexToTroop2[i.second->formation[j][k]->type]) + ",";
         else
-          temp += std::string("(") + std::to_string(j) + "," + std::to_string(k) + "),";
+          temp += std::string("(") + std::to_string(j) + ":" + std::to_string(k) + "),";
     file << temp.substr(0, temp.length() - 1) << "$" << std::endl;
   }
   std::cout << "軍隊と兵士の保存完了" << std::endl;
@@ -178,9 +178,9 @@ void Game::save(int &gamePhase, int prevPhase)
             for (int y = 0; y < 4; y++)
               for (int z = 0; z < 4; z++)
                 if (x->formation[y][z] != NULL)
-                  temp += std::string("(") + std::to_string(y) + "," + std::to_string(z) + ")" + std::to_string(indexToTroop[x->formation[y][z]->type]) + ",";
+                  temp += std::string("(") + std::to_string(y) + ":" + std::to_string(z) + ")" + std::to_string(indexToTroop[x->formation[y][z]->type]) + ",";
                 else
-                  temp += std::string("(") + std::to_string(y) + "," + std::to_string(z) + "),";
+                  temp += std::string("(") + std::to_string(y) + ":" + std::to_string(z) + "),";
             file << temp.substr(0, temp.length() - 1) << "$";
           }
           std::cout << "ブロックの軍隊の保存完了" << std::endl;
