@@ -21,7 +21,9 @@ Wu Ziliang Louis 3035787061
 ## <a name="start"></a>Quick Start
 
 First, clone the repo by<br/>
-`git clone https://github.com/samyung0/ENGG1340GP107 hog`
+```
+git clone https://github.com/samyung0/ENGG1340GP107 hog
+```
   
 ## <a name="a1"></a>Goal
 
