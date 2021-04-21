@@ -23,7 +23,7 @@ Wu Ziliang Louis 3035787061
 
 Note, this is a linux-version only game and you are to run this game only on linux platforms.
 
-Recommended terminals (restart the terminal if you experience flickering): vscode, putty, ubuntu 18 (system terminal)
+Recommended terminals (restart the terminal if you experience flickering): vscode, __putty__, ubuntu 18 (system terminal)
 
 First, clone the repo by<br/>
 ```
