@@ -1,6 +1,6 @@
 # Hearts of Gold
 
-Welcome to a text-based replica of the Hearts of Iron (not really), one of the most intricate game of the century, where you build and devour other countries.
+Welcome to a ncurses-free boost-free text-based replica of the Hearts of Iron (not really), one of the most intricate game of the century, where you build and devour other countries.
 
 Yung Chin Pang Sam 3035778682<br/>
 Wu Ziliang Louis 3035787061
@@ -17,19 +17,35 @@ Wu Ziliang Louis 3035787061
   - [Random levels](#random)
   - [Commands](#commands)
   - [Implementation](#implementation)
+  - [Flow](#flow) ( read this before going to the codes )
+  - [Testing and development](#development) ( read this before going to the codes )
 
 ## <a name="start"></a>Quick Start
+
+Note, this is a linux-version only game and you are to run this game only run linux platforms.
+
+Recommended terminals (restart the terminal if you experience flickering): vscode, putty, ubuntu 18 (system terminal)
 
 First, clone the repo by<br/>
 ```
 git clone https://github.com/samyung0/ENGG1340GP107 hog
 ```
+
+Then cd in and make (may take around 30s depending on your pc)<br/>
+```
+cd hog && make
+```
+
+Then start the game and enjoy (or suffer depending on how well your play)<br/>
+```
+./main
+```
   
 ## <a name="a1"></a>Goal
 
-Your objective is to capture all countries in the map __within a time limit__. A country will capitulate once 70% of its land are captured.
+Your objective is to capture all countries in the map __within a time limit__. A country will capitulate once ___70%___ of its land are captured.
 
-___1 second in real life equals 1 day in the game. Each level will have a different time limit.___
+___Default game speed is 1 day per second. You may change it in the settings or when in game.___
 
 ## <a name="a2"></a>Progression of game
 
@@ -48,21 +64,21 @@ Researching does not take any resources except time which varies from different 
 
 To prepare attacking, you must first train some troops. You may group them into different armies to make it more organized.
 
-You may also, but not required, to plan a battle, e.g. immediately attack another region after the current one so no reinforcement will arrive so quickly.
+You can initiate an attack at anytime by either assigning individual troops or an entire army. Each troop has their own hp and will regenerate at an intial rate of __1__ hp (base) per day when not in full health. <span style="color: tomato">___Note that other countries will not attack you, only you will be the one attacking.___</span>
 
-The outcome of the battle depends on the types and amount of troops you and the enemy have, the attack bonuses, the air support and the terrain. (refer to [Battling](#battle) for more details)
+___You can attack many blocks at the same time but you can ONLY attack 1 country at each time.___
 
-You can initiate an attack at anytime by either assigning individual troops or an entire army. Each troop has their own hp and will regenerate at an intial rate of __4__ hp (base) per day when not in full health. <span style="color: tomato">___Note that other countries will not attack you, only you will be the one attacking.___</span>
+The outcome of the battle depends on the types and amount of troops you and the enemy have, the attack bonuses, the air support and the terrain, etc. (refer to [Battling](#battle) for more details)
 
-When you successfully captured 50% of the country's land, you will conquer the country and receives all its buildings only.
+By capturing a block, you will receive the acquirables of it (different buildings and land).
+
+When you have successfully captured 70% of the country's land, you will conquer the country and receives all its acquirables.
 
 ## <a name="map"></a>Map design and coordinate system
 
-For __other countries__, you will see the different regions of the other countries represented in coordinates, from A1, A2, to Z10, with A representing the border of the country and B, C,... being the land deeper into the country. __You must attack the country layer by layer (form A to B to C, etc).__ You can choose which land to attack by specifying the coordinate of the land. Same rule applies to battle planning, using the coordinates to specify the attacking order.
+For __other countries__, you will see the different regions of the other countries represented in coordinates, from A1, A2, to Z10, with A representing the outskirts of the country and B, C,... being the land deeper into the country. __You must attack the country layer by layer (form A to B to C, etc) when pushing inwards.__ You may attack any blocks horizontally. All regions must be at least connected adjacently so there must be a way to attack any blocks eventually.
 
-For __your own country__, you will not see a coordinate system, but everything combined instead since you will not get attacked.
-
-__The enemies' map must have all of the regions connected (having at least 1 neighbour, diagonals are not counted)__
+For __your own country__, you will not see a coordinate system since you will not get attacked.
 
 Exmaples of enemies' map:
 
@@ -84,7 +100,7 @@ H1 H2             H7</pre>
 - ### <a name="building"></a>Building
     There are a total of 5 buildings that you can build, each occupying different amount of land and requiring different number of manpower to work on with different time to finish, and having different upgrades:
 
-    _Note the manpower will return once the building is finished. It is not actually gone when you use it. Also, the land usage listed at each stage means what the total amount will be after upgrading, it's not accumulative._
+    _Note the manpower will return once the building is finished. It is not actually gone when you use it._
 
     __Also, land is limited and you may need to remove some buildings when insufficient.__
 
@@ -214,7 +230,7 @@ H1 H2             H7</pre>
   - __Bomber__: camp: 2, time: 45 days, soft attack: 6, hard attack: 20, disruption: 2, air attack: 2, equipment: 15, food: 3, conspicuousness: 6 , hp: 80
   - __Kamikaze__: camp: 4, time: 70 days, soft attack: 500, hard attack: 500, disruption: 5, air attack: 150, equipment: 50, food: 20, conspicuousness: 0 (_similar to suicide bombers, they will not return from battle and only deals damage once given they are not taking damage. Kamikaze does not take any damage when any other planes belonging to you are present._), hp: N/A
 - ### <a name="army"></a>Army Editing
-  You are always encouraged to groups troops trained into army because not only can you use logistics (troop), you can also customize the layout and increase your attacking efficiency by battle plans. You can specify what troops you go first, then what troops stay behind. For example, it may be useful to put infantry/ tanks in the front and Artillery at the back. The formation of an army is shown as below.
+  You are always encouraged to groups troops trained into army because not only can you benefit from logistics, you can also customize the layout and sustain the damage output. You can specify which troops are in front and in the back. For example, it may be useful to put tanks in the front and infantries at the back. The formation of an army is shown as below.
 
   D1 C1 B1 A1
 
@@ -226,27 +242,21 @@ H1 H2             H7</pre>
 
   An army can only have a maximum of 16 troops.
 
-  When all troops are up, column A recieves 60% of all attacks while column B gets 30% and C gets the remaining 10% and D receiving none. (_Not applicable to planes_)
+  When all troops are up, column A recieves 60% of all attacks while column B gets 30% and C gets the remaining 10% and D receiving none. Note the multipliers are accumulatable and in the end all 100% damage must be taken (given the presence of land troops) (_Only applicable to soft attacks._)
 
-  _An attack is received every day in the game (every second in real life)._
-
-  __It is important to note that within each column, how the attack is spread among the 1, 2, 3, 4 troops are completely random. So in extreme cases, A1 may receive most of the 60% attack from the enemy and die very fast.__
-
-  _If more than 1 army is attacking the same region, then the attack from the enemy will first evenly split among the armies, then spread to each troop within the army._
+  __It is important to note that within each column, how the attack is spread among the 1, 2, 3, 4 troops are completely random. There are, however, limits to how extreme the values can be (+-15%). Yet, it may still be possible for a troop to die very fast.__
 
   _You may not need to occupy all the slots within the army, but say if you only put 1 troop in column A, or all except 1 troop in column A died, the remaining 1 troop will take all the 60% attack. So think carefully when editing._ 
 
-  ___Note the army name must be unique and cannot coincide with the any troop's name. e.g. You cannot name the army to infrantry/ Infantry.___
+  ___Note the army name must be unique and cannot coincide with any other armies' names.___
 
 - ### <a name="battle"></a>Battling
 
-    You can initiate a battle at any point in time by assigning armies or individual troops (for those not in an army). A battle is won once all troops on one side in the region die.
+    You can initiate a battle at any point in time by assigning armies or individual troops (for those not in an army). A battle is won once all troops on one side in the region die or if the block does not have any troops initially.
 
     As mentioned before in [Map design and coordinate system](#map),  ___you must start by attacking region A, then B and so on and so forth___. As to what countries you want to invade first, it's entirely up to you.
 
-    You can add in more troops during a battle and withdraw the armies/ troops during the battle. If the army has a battle plan assigned to it, retreating means deactivating the plan. You can also manually deactivate the plan.
-
-    _You cannot, however, edit the army template during battle or retreat particular troops within the army (must retreat the entire army)._
+    You can add in more troops during a battle and withdraw the armies/ troops during the battle. _You cannot, however, edit the army template during battle or retreat particular troops within the army (must retreat the entire army)._
 
   - More details on Attacking/ Defending:
   
@@ -256,15 +266,13 @@ H1 H2             H7</pre>
 
     Air attacks __are only dealt on planes__.
 
-    defenses are how much attack a troop can sustain before losing hp, affected by strength of troop.
+    Defenses are how much attack a troop can take before losing hp, affected by strength of troop.
 
-    __An attack is dealt by all troops to enemy and to us once each day. And all troops will recover a base 4 hp per day if hp is not full. (Affected by food supply, disruption and researches.)__
-
-    A troop dies when its hp reaches 0.
+    __An attack is dealt by all troops to enemy and to us once each day. And all troops will recover a base 1 hp per day if hp is not full. (Affected by food supply, disruption and researches.)__
 
     __Formulas for all the items:__
 
-    Supplied food = base food required * (total food produced/ total base food required (capped at 1, meaning sufficient food for all troops)) __In special cases when you surround 1 enemy region by occupying the 4 adjacent regions, you _cut off_ their supply routes and they receive 0 food no matter of their food production__ (see [Other details and tips](#a5) for more info)
+    Supplied food = base food required * (total food produced/ total base food required (capped at 1, meaning sufficient food for all troops)) __In special cases when you surround 1 enemy region by occupying the 4 adjacent blocks, you _cut off_ their supply routes and they receive 0 food no matter of their food production__ (see [Other details and tips](#a5) for more info)
 
     Supplied equipment calculation is the same as the supplied food.
 
@@ -316,13 +324,31 @@ H1 H2             H7</pre>
 
 ## <a name="a4"></a>Advice for beginner
 
-- Use the _auto battle_ feature where you designate a target country and the computer will automatically group up all the troops and armies available and try to capture 50% of the country's land (conquering it). Of course it will attack the regions will highest percentage of success but __you risk losing all your troops when all regions have low success rate__. <span style="color: tomato">__You cannot edit armies or battleplans or attack other regions when auto battle is active.__</span> It is automatically deactivated once all of your troops die or the country is captured.
-  
-- Choose the easy difficulty as it shows the chance of you capturing a region.
-- Always try to make sure you have enough food supply because it affects both your troops' strength and their recovery rate.
-- You can focus on only training infantries for the early stages because you can get pretty powerful with having only a lot of infantries.
+- pause more often
+
+  The most challenging factor in this game is the time limit, becuase with sufficient time, you can beat any level as long as you can deal some damage because the enemy does not heal when not in battle. You have to carefully plan which block to attack first to reduce the casualties suffered because training new troops are time consuming, and all these thinkings are time-consuming so it is better to pause often.
+
+- aim for 70% captulation rate
+
+  Always go for blocks with less troops. Although many times, they have less acquirables, but the _time-cost_ is lower because less troops will be dead, so no extra training is needed. _Hence_, it is often the case where you will need to aim for capturing 70% of the lands.
+
+- focus on development in the beginning
+
+  You maybe to capture quite a few bits of land in the beginning. But it maybe better to be more organized and do all the buildings in the beginning and launch mass assaults later in the game. One reason is that if you have an army strong enough, you won't suffer any casualties so no extra training is needed. However, if your attack number is similar to the enemies, then you will probably lose a lot of troops even you can capture the block.
+
+- always put in 2 logistics in the back of an army
+
+  You can reduce food required by up to 32 which reduces the need for you to build more farms. Also, putting them in the back lowers the risk of them dying.
 
 ## <a name="a5"></a>Other details and tips
+
+- Using Suicide Bomber and Kamikaze
+
+  These 2 troops are considered special troops, and for them to give any damage output, you must have 2 times the number of non-special troops in the battlefield.
+
+- Air Troops Damage Output
+
+  There is a damage dropoff associated with the planes. When you do not have 3 times the number of land troops, the planes damage will start to decrease to 0.
 
 - Encirclement
   
@@ -361,107 +387,252 @@ H1 H2             H7</pre>
 
 ## <a name="random"></a>Random levels
 
-You can create a random levels with difficulty 1 to 5 with 1 being the easiest and 5 being the hardest. All maps and resources will be different. The time limit is capped to 30 mins.
+You can create a random levels with difficulty 1 to 5 with 1 being the easiest and 5 being the hardest. All maps and resources will be different. __Time limit is 9999 days. Note, the effect of very large numbers of anything is still not tested.__
 
 ## <a name="implementation"></a>Implementation
 
-Each number corresponds to the coding requirement listed in the file.
 
-1. -> random events through random levels
-2. -> STL containers for storing troops, buildings and regions</br>
-   -> Classes for individual troop type, building type, and each battle</br>
-   -> Common data types such as integers for storing invidual value within each container and object
-3. -> By using STL containers such as vectors for purposes stated above</br>
-   -> creating new objects form classes/ subclasses</br>
-   -> Possibly multithreading from running multiple loops at the same time (may use heap memory instead of stack, not sure)
-4. -> Allowing the user to save and load game files from different levels
-5. -> Splitting all the classes (troop/ building types) into different header files
+- Random elements
 
-### Flow explanation
+  - in damage calculation for armies
+  - random levels
 
-Flow: menu phase -> action phase starts -> action phase ends -> menu phase ...
+- STL containers
 
-A thread is allocated for action phase and the main loop for menu phase will be paused once the actions phase starts.
+  - everywhere
 
-Implementation for multithreading:<br/>
-main thread </br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> calls game thread</br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> start timer thread for recording daily (every second) changes </br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> ends game thread when appropriate (illustrated by typing in exit) </br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-> ends timer thread when game thread ends
+- Classes
 
-```cpp
-#include <iostream>
-#include <thread>
-#include <string>
-#include <chrono>
-#include <fuctional>
+  - TroopUnit, ArmyUnit, Block, Enemy, Progress, BattleTroopWrapper, BattleUnit, Game
 
-using namespace std;
+- Structs
 
-class Add {
-public:
-    int getTime() { return timer; }
-    void game()
-    {
-        // initiate timer thread
-        // async to game
-        thread thread1(&Add::interval, this);
+  - too many to be listed
 
-        while (true) {
-            string a;
-            getline(cin, a);
-            cout << "Inside the class you typed " << a << endl;
-            if (a == "exit")
-                break;
-        }
+- Dynamic memory usages
 
-        //terminate time thread
-        this->terminate = true;
-        cout << "terminating " << endl;
+  - when creating any classes ( raw pointers )
+  - when using stl contianers
 
-        // join thread for exiting properly
-        thread1.join();
-        cout << "game thread id ended: " << this_thread::get_id() << endl;
-    }
-    void interval()
-    {
-        while (!terminate) {
-            this_thread::sleep_for(chrono::milliseconds(1000));
-            timer += 1000;
-            cout << "time is " << timer << endl;
-        }
-        cout << "timer thread id ended: " << this_thread::get_id() << endl;
-    }
+- Saving and Loading
 
-private:
-    int timer = 0;
-    bool terminate = false;
-};
+  - saving mid-game and loading from it
+  - saving the completed levels
+  - saving the settings
 
-int main()
-{
-    string a;
-    Add obj;
-    bool started = false;
-    while (true) {
-        getline(cin, a);
-        cout << "You typed " << a << endl;
-        if (a == "start") {
-          // passing as ref to prevent copying to new object
-            thread thread1(&Add::game, ref(obj));
-          // main (while loop) pauses
-            thread1.join();
-        }
-        if (a == "exit") {
-            cout << "exiting main" << endl;
-            break;
-        }
-    }
-    cout << "main thread id ended: " << this_thread::get_id() << endl;
-}
-```
+- Multiple files
 
-### .DAT structure
+  - too many to be listed
 
-.dat files are used to store game status in form of texts. The data can be modified by users and follow the following syntaxes:
+## <a name="flow"></a>Flow
+Term:
+
+- print: printing in terminal
+- new: by using dynamic memory
+- phase: may contain multiple functions/actions or blocks of codes in different places
+<br/>
+<br/>
+
+Stage 1: 
+
+  Menu phase</br>
+    ↳ Levels ⇆ Setting data origin (level data/ random) ⇆ start Game ➜ stage 2  </br>
+    ↳ Settings ⇆ modify settings</br>
+    ↳ Stats
+<br/>
+<br/>
+<br/>
+Stage 2: Game Phase
+
+Flow: constructor ➜ fetch ➜ start
+
+Constructor Phase
+<div style="padding-left: 30px">
+↳ creates new <code>resource</code>, <code>building</code>, <code>troop</code>, <code>army</code>, <code>research</code>, <code>battle</code>, <code>enemies</code> ( all structs in namespace data )</br></br>
+Resource: store all game stats (food, equipment, multipliers, ...) (self)</br>
+Building: store all building stats (built, upgraded, building)</br>
+Troop: store all <code>TroopUnit</code> with the number counts (trained, in battle, in army, training)</br>
+Army: store all <code>ArmyUnit</code></br>
+Research: store all research stats (researched, researching)</br>
+Battle: ONLY the general status of whether in battle and is in battle with which country _for printing_</br>
+Enemies: store all <code>Enemy</code> and number of defeated enemies</br>
+</div>
+<br/>
+<br/>
+Fetch phase
+<div style="padding-left: 30px">
+↳ populate the structs mentioned before with the data in the level data file or randomly generate them.
+</div>
+<br/>
+<br/>
+The four main phases in <code>start phase</code> will be explained below. You may skip them if not interested.
+<br/>
+<br/>
+Printing Phase
+<div style="padding-left: 30px">
+<ul style="margin:0;list-style-type: bullet">
+  <li>main screen</li>
+  <li>building screen</li>
+  <li>research screen</li>
+  <li>training screen</li>
+</ul>
+Any of the above screen may be printed according to the user input. The screen will be refreshed every frame ( 10 fps ) by looping the print function in a separate thread by calling async and timing it out by using condition variable and wait_for.<br/>
+<br/>
+Whenever user's input changes the screen, the condition variable for that loop will be notified to quit the loop and start another new loop.
+<br/>
+<br/>
+Reason why condition variable is used instead of simply sleeping the thread is that I need to be able to wake the <span style="font-style:italic">thread from sleeping</span> which is impossible when actually sleeping the thread. I can, however, wait and cancel waiting for condition variable.
+<hr>
+These functions take in the arrow key position in x and y coordinate, return null.
+<hr>
+Non-blocking: blocks <code>input phase</code> of Game until the async thread is initiated for setting up the looping<br/>
+Data race: lguser locked when setting up the looping, lg3 locked when printing
+</div>
+<br/>
+<br/>
+Action Phase
+<div style="padding-left: 30px">
+<ul style="margin:0;list-style-type: bullet">
+  <li>army screen</li>
+  <li>battle screen</li>
+  <li>changing speed</li>
+  <li>pausing</li>
+  <li>restart</li>
+  <li>quit</li>
+</ul>
+These actions will only have their functions called once, not looped. Whether the screen will refresh depends on the implementation of that functions.<br>
+<code>army screen</code> and <code>battle screen</code> will have their own while loops for <code>input phase</code>, <code>print phase</code> and <code>action phase</code>
+<hr>
+These functions take in the gamePhase by reference (int, which screen to print or what action to do ) and previous gamePhase, return null. <br>
+The actions should finish by setting gamePhase to previous gamePhase because the user should be sent back to his last screen.
+<hr>
+Non-blocking: blocks <code>input phase</code> of Game<br/>
+Data race: handled inside the actions ( some may not, not sure, and thats why the game is prone to crashing )
+</div>
+<br/>
+<br/>
+Input Phase
+<div style="padding-left: 30px">
+Read users input by using getch inside the game while loop ( modifying terminal buffer by using termios )<br/>
+up arrow: esc, [, A  <code>^[[A</code><br/>
+down arrow: esc, [, B  <code>^[[B</code><br/>
+right arrow: esc, [, C  <code>^[[C</code><br/>
+left arrow: esc, [, D  <code>^[[D</code>
+<br/>
+<br/>
+Changes gamePhase when user press any shortcut keys or enter.<br>
+When input is detected, all current printing loops will be stopped.
+<br/>
+<br/>
+<hr>
+Not a function
+<hr>
+Non-blocking: blocks <code>start phase</code> until user inputs<br/>
+Data race: lguser locked when stopping the loop ( and locked when trying to start the loop later ) so data race due to user spamming is avoided 
+</div>
+<br/>
+<br/>
+Timer Phase
+<div style="padding-left: 30px">
+Start the game timer to progress <code>day</code> and <code>battles</code> ( not the battle struct ) until game ends in an async thread.<br/>
+Flow: ⟲ increment day<br/> 
+      <span style="padding-left: 36px">⟲ start <code>battle cycle phase</code></span></br>
+      <span style="padding-left: 36px">⟲ <code>regen (self)</code></span>
+<br/>
+<br/>
+<hr>
+Takes in fps and game speed in int, returns null when while loop exit.
+<hr>
+Non-blocking: non blocking<br/>
+Data race: lg locked when increasing day count, refer to <code>battle cycle phase</code> for its own data race handling
+</div>
+<br/>
+<br/>
+Start Phase
+<div style="padding-left: 30px">
+Flow: <code>Timer Phase</code><br/>
+<span style="padding-left: 36px">⟲ <code>input</code> ➜ <code>print/action</code></span>
+<br/>
+Nothing to be exlpained.
+<hr>
+No parameters, returns 0 ( normal exit ) or -999 ( restart game ) 
+<hr>
+Non-blocking: blocks <code>game</code> ( but is technically the only function that needs to be run in game )<br/>
+Data race: handled inside the phases
+</div>
+<br/>
+<br/>
+Battle Cycle Phase
+<div style="padding-left: 30px">
+Flow: <code>Fight</code> ➜ <code>Clean</code> ➜ <code>Regen</code> ➜ <code>Check End Battle</code><br/>
+<br/>
+Fight: calculate all stats and damage of the battling troops<br/>
+Clean: remove all troops whose health is below 0<br/>
+Regen: increment all troops health
+Check End Battle: as the function name suggests
+<hr>
+<code>endGame</code> (reference), gameOver (reference), enemySize, troop (ptr), resource (ptr), building (ptr), battle (ptr), buildBase (reference)
+<hr>
+Non-blocking: blocks<br/>
+Data race: that block's own lg locked
+</div>
+<br/>
+<br/>
+endGame
+<div style="padding-left: 30px">
+Remove all dynamically allocated memories
+<hr>
+no parameters and no return value
+<hr>
+Non-blocking: blocks<br/>
+Data race: locks everything
+</div>
+<br/>
+<br/>
+
+## <a name="development"></a>Testing and development
+
+- Compiled with:
+
+  - c++11, using g++/gcc
+
+- Tested on:
+
+  - academy server 11
+  - ubuntu 18
+  - vscode wsl ( ubuntu 18 )
+
+- Memory leaks:
+
+  None by using valgrind
+
+  `valgrind ./main`
+
+- include/lib list
+
+  - core:
+
+    - iostream
+    - fstream
+    - cmath
+    - iomanip
+    - cstdlib
+    - vector
+    - map
+    - unordered_map
+    - utility
+    - functional
+    - algorithm
+    - string
+    - future
+    - mutex
+    - thread (compiled with -pthread)
+    - condition_variable
+    - chrono
+    - iterator
+    - tuple
+    - cassert (development purpose)
+    - termios (linux only)
+    - dirent.h (linus only)
+  - external:
+    - [uuid by sole](https://github.com/r-lyeh-archived/sole) (used to generate unique uuid)
