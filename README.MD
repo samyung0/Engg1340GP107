@@ -1,11 +1,12 @@
 # Hearts of Gold
 
-Welcome to a text-based replica of the Hearts of Iron, one of the most intricate game of the century, where you build and devour other countries.
+Welcome to a text-based replica of the Hearts of Iron (not really), one of the most intricate game of the century, where you build and devour other countries.
 
 Yung Chin Pang Sam 3035778682<br/>
 Wu Ziliang Louis 3035787061
 
 ## Content
+  - [Quick Start](#start)
   - [Goal](#a1)
   - [Progression of game](#a2)
   - [Map design and coordinate system](#map)
@@ -16,6 +17,11 @@ Wu Ziliang Louis 3035787061
   - [Random levels](#random)
   - [Commands](#commands)
   - [Implementation](#implementation)
+
+## <a name="start"></a>Quick Start
+
+First, clone the repo by<br/>
+`git clone https://github.com/samyung0/ENGG1340GP107 hog`
   
 ## <a name="a1"></a>Goal
 
