@@ -5,7 +5,7 @@ all: main
 # action phase object files ends with f
 # class/struct object files ends with c
 
-main: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/menu.o objectFiles/play.o objectFiles/level.o objectFiles/setting.o objectFiles/statf.o objectFiles/settingf.o objectFiles/menuWrapperc.o objectFiles/color.o objectFiles/levelf.o objectFiles/gamePrintStatusc.o objectFiles/gamePrintBuildc.o objectFiles/gameBuildf.o objectFiles/gameBuildSubf.o objectFiles/gameRemoveBuildSubf.o objectFiles/gamePrintResearchf.o objectFiles/gameResearchf.o objectFiles/gameResearchSubf.o objectFiles/gameUpgradeSubf.o objectFiles/infantryc.o objectFiles/calvaryc.o objectFiles/suicideBomberc.o objectFiles/artilleryc.o objectFiles/logisticc.o objectFiles/armoredCarc.o objectFiles/tank1c.o objectFiles/tank2c.o objectFiles/tankOshimaic.o objectFiles/casc.o objectFiles/fighterc.o objectFiles/bomberc.o objectFiles/kamikazec.o objectFiles/troopc.o objectFiles/gamePrintTroopc.o objectFiles/gameTrainf.o objectFiles/gameTrainSubf.o objectFiles/gameRemoveSubf.o objectFiles/armyUnitc.o objectFiles/gameArmyf.o objectFiles/sensouf.o objectFiles/randomf.o objectFiles/savef.o objectFiles/loadf.o
+main: objectFiles/main.o objectFiles/gamec.o objectFiles/io.o objectFiles/menu.o objectFiles/play.o objectFiles/level.o objectFiles/setting.o objectFiles/statf.o objectFiles/settingf.o objectFiles/menuWrapperc.o objectFiles/color.o objectFiles/levelf.o objectFiles/gamePrintStatusc.o objectFiles/gamePrintBuildc.o objectFiles/gameBuildf.o objectFiles/gameBuildSubf.o objectFiles/gameRemoveBuildSubf.o objectFiles/gamePrintResearchf.o objectFiles/gameResearchf.o objectFiles/gameResearchSubf.o objectFiles/gameUpgradeSubf.o objectFiles/infantryc.o objectFiles/calvaryc.o objectFiles/suicideBomberc.o objectFiles/artilleryc.o objectFiles/logisticc.o objectFiles/armoredCarc.o objectFiles/tank1c.o objectFiles/tank2c.o objectFiles/tankOshimaic.o objectFiles/casc.o objectFiles/fighterc.o objectFiles/bomberc.o objectFiles/kamikazec.o objectFiles/troopc.o objectFiles/gamePrintTroopc.o objectFiles/gameTrainf.o objectFiles/gameTrainSubf.o objectFiles/gameRemoveSubf.o objectFiles/armyUnitc.o objectFiles/gameArmyf.o objectFiles/sensouf.o objectFiles/randomf.o objectFiles/savef.o objectFiles/loadf.o objectFiles/randomfetchf.o objectFiles/randomSelect.o objectFiles/randomSelectf.o
 	g++ -g -o $@ $^ -pthread
 
 objectFiles/main.o: main.cpp class/game/game.h menu/menu.h io/io.h action/stat/stat.h action/setting/setting.h action/load/load.h
@@ -141,6 +141,15 @@ objectFiles/savef.o: class/game/actionClass/gameSave.cpp class/game/game.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 objectFiles/loadf.o: action/load/load.cpp action/load/load.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/randomfetchf.o: class/game/actionClass/gameRandom.cpp class/game/game.h data/troop/troop.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/randomSelect.o: menu/randomSelect.cpp menu/menu.h
+	g++ ${CPPFLAGS} -c $< -o $@
+
+objectFiles/randomSelectf.o: action/randomSelect/randomSelect.cpp action/randomSelect/randomSelect.h class/game/gameStruct.h
 	g++ ${CPPFLAGS} -c $< -o $@
 
 clean:

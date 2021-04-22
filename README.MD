@@ -30,7 +30,7 @@ First, clone the repo by<br/>
 git clone https://github.com/samyung0/ENGG1340GP107 hog
 ```
 
-Then cd in and make (may take around 30s depending on your pc)<br/>
+Then cd in and make (may take around 100s depending on your pc)<br/>
 ```
 cd hog && make
 ```
@@ -386,7 +386,7 @@ H1 H2             H7</pre>
 
 ## <a name="random"></a>Random levels
 
-You can create a random levels with difficulty 1 to 5 with 1 being the easiest and 5 being the hardest. All maps and resources will be different. __Time limit is 9999 days. Note, the effect of very large numbers of anything is still not tested.__
+You can create a random levels with difficulty 1 to 5 with 1 being the easiest and 5 being the hardest. All maps and resources will be different. __Time limit is 99999 days. Note, the effect of very large numbers of anything is still not tested.__
 
 ## <a name="implementation"></a>Implementation
 
@@ -630,8 +630,9 @@ Data race: locks everything
     - chrono
     - iterator
     - tuple
+    - new
     - cassert (development purpose)
     - termios (linux only)
-    - dirent.h (linus only)
+    - dirent.h (linux only)
   - external:
     - [uuid by sole](https://github.com/r-lyeh-archived/sole) (used to generate unique uuid)

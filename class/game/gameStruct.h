@@ -850,7 +850,7 @@ public:
       for (int j = 0; j < 4; j++)
       {
         std::vector<double> distribution = {};
-        if (columnDistribution[j] != 0)
+        if(landPresent[j] > 0)
           distribution = this->randArmy[landPresent[j] - 1](this->rd);
         int count = 0;
 
@@ -1618,7 +1618,7 @@ namespace data
   struct Research
   {
 
-    std::vector<bool> farm = {true, true, true};
+    std::vector<bool> farm = {true, false, false};
     std::vector<bool> divisionOfLabor = {true, false, false};
     std::vector<bool> productionLine = {true, false, false};
     std::vector<bool> landDoctrine = {true, false, false};

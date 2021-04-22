@@ -13,5 +13,6 @@ struct MenuWrapper
   int height = 0;
   int fps;
   std::string levelpath;
+  int difficulty = -1;
 };
 #endif

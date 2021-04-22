@@ -63,7 +63,6 @@ void Game::endGame(bool restart)
               << std::endl;
     return;
   }
-  this->hasEnded = true;
   this->lguser.lock();
   this->lg3.lock();
   this->lg.lock();
@@ -74,6 +73,7 @@ void Game::endGame(bool restart)
               << std::endl;
     return;
   }
+  this->hasEnded = true;
   this->stopLoopPrintStatus();
   this->stopLoopPrintBuild();
   this->stopLoopPrintResearch();

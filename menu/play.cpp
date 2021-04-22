@@ -19,7 +19,7 @@ void print_playSelect(int y, int x, MenuWrapper& _)
 
   // clear screen
   std::cout << "\033[2J\033[1;1H";
-  std::cout << "Please select game type." << std::endl;
+  std::cout << "Please select game type" << std::endl;
   for (int i = 0; i < 4; i++)
     std::cout << play::menuOptions[i] << std::endl;
 }

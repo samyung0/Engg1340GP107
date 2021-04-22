@@ -14,6 +14,7 @@
 #include "action/setting/setting.h"
 #include "action/level/level.h"
 #include "action/load/load.h"
+#include "action/randomSelect/randomSelect.h"
 
 #include "class/game/game.h"
 #include "class/menuWrapper/menuWrapper.h"
@@ -42,7 +43,7 @@ int main()
 
   // functions for displaying menus
   // input y and x indices for currently selected element, pass settings by reference
-  std::vector<void (*)(int, int, MenuWrapper &)> select{&print_menuSelect, &print_playSelect, &print_settingSelect, &print_levelSelect};
+  std::vector<void (*)(int, int, MenuWrapper &)> select{&print_menuSelect, &print_playSelect, &print_settingSelect, &print_levelSelect, &print_randomSelect};
 
   // functions for actions
   // passing menuPhase and settings by reference
@@ -58,11 +59,11 @@ int main()
       &level7f,
       &level8f,
       &level9f,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      NULL,
+      &randomSelect1,
+      &randomSelect2,
+      &randomSelect3,
+      &randomSelect4,
+      &randomSelect5,
       &load,
       &setting1af,
       &setting1bf,
@@ -158,7 +159,11 @@ int main()
             allGames.push_back(new Game(gameStats.setting, gameStats.width, gameStats.height, gameStats.fps, gameStats.levelpath));
 
             // start game
-            std::future<int> game = std::async(std::launch::async, &Game::fetch, std::ref(allGames.back()));
+            std::future<int> game;
+            if (gameStats.difficulty == -1)
+              game = std::async(std::launch::async, &Game::fetch, std::ref(allGames.back()));
+            else
+              game = std::async(std::launch::async, &Game::fetchRandom, std::ref(allGames.back()), gameStats.difficulty);
             int r = game.get();
 
             delete allGames.back();
@@ -186,7 +191,11 @@ int main()
       allGames.push_back(new Game(gameStats.setting, gameStats.width, gameStats.height, gameStats.fps, gameStats.levelpath));
 
       // start game
-      std::future<int> game = std::async(std::launch::async, &Game::fetch, std::ref(allGames.back()));
+      std::future<int> game;
+      if (gameStats.difficulty == -1)
+        game = std::async(std::launch::async, &Game::fetch, std::ref(allGames.back()));
+      else
+        game = std::async(std::launch::async, &Game::fetchRandom, std::ref(allGames.back()), gameStats.difficulty);
       int r = game.get();
 
       delete allGames.back();

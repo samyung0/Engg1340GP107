@@ -550,9 +550,26 @@ void Game::sensou(int &gamePhase, int prevPhase)
       render3[i] += std::string(maxLength3 - render3[i].length(), ' ');
 
     std::vector<std::string> render4;
+    int soft = 0, hard = 0, air = 0;
+    for (auto &i : ptr->map[phase0[0]][phase0[1]]->totalFoeTroop)
+    {
+      soft += i->getSoftAttack();
+      hard += i->getHardAttack();
+      air += i->getAirAttack();
+    }
+    for (auto &i : ptr->map[phase0[0]][phase0[1]]->totalFoeArmy)
+      for (auto &j : i->formation)
+        for (auto &k : j)
+          if (k != NULL)
+          {
+            soft += k->getSoftAttack();
+            hard += k->getHardAttack();
+            air += k->getAirAttack();
+          }
     render4.push_back("Enemies troops");
     render4.push_back("Infantry: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["infantry"]));
     render4.push_back("Calvary: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["calvary"]));
+    render4.push_back("Artillery: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["artillery"]));
     render4.push_back("Logistic: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["logistic"]));
     render4.push_back("Armored Car: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["armoredCar"]));
     render4.push_back("Tank 1: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["tank1"]));
@@ -562,6 +579,13 @@ void Game::sensou(int &gamePhase, int prevPhase)
     render4.push_back("Fighter: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["fighter"]));
     render4.push_back("Bomber: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["bomber"]));
     render4.push_back("Armies: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["army"]));
+    render4.push_back("");
+    render4.push_back("");
+    render4.push_back("Total base attack:");
+    render4.push_back("Soft: " + std::to_string(soft));
+    render4.push_back("Hard: " + std::to_string(hard));
+    render4.push_back("Air: " + std::to_string(air));
+
     int maxLength4 = 0;
     for (auto i : render4)
       if (i.length() > maxLength4)
@@ -582,6 +606,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
 
     std::cout << "Country: " << this->enemies->totalEnemies[currentCountry]->name
               << " (" << (this->enemies->totalEnemies[currentCountry]->capitulated ? "    defeated" : "not defeated") << ")"
+              << " (" << currentCountry + 1 << this->enemies->totalEnemies.size() << ")"
               << "   Battling Regions: " << this->enemies->totalEnemies[currentCountry]->battlingRegions
               << "   Captured: " << this->enemies->totalEnemies[currentCountry]->capturedLand << "/" << this->enemies->totalEnemies[currentCountry]->totalLand
               << std::endl;
@@ -590,14 +615,14 @@ void Game::sensou(int &gamePhase, int prevPhase)
               << std::endl
               << std::endl;
 
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 19; i++)
     {
       std::cout << render[i + scroll0[0]].substr(scroll0[1], screen[1]) << "        "
                 << (render2.size() > i ? render2[i] : std::string(maxLength2, ' ')) << "        "
                 << (render3.size() > i ? render3[i] : std::string(maxLength3, ' ')) << "        "
                 << (render4.size() > i ? render4[i] : std::string(maxLength4, ' ')) << std::endl;
     }
-    for (int i = 12; i < screen[0]; i++)
+    for (int i = 19; i < screen[0]; i++)
       std::cout << render[i + scroll0[0]].substr(scroll0[1], screen[1]) << std::endl;
 
     this->lg3.unlock();
@@ -777,14 +802,14 @@ void Game::sensou(int &gamePhase, int prevPhase)
                 << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 8 ? 11 : 0)) << prefix[8][0] + underline("+1", "green") + " (9)" + prefix[8][1] + underline("-1", "green") + prefix[8][2] + underline("All", "green") + prefix[8][3] + underline("Details", "green")
                 << (this->army->total.size() > 8 ? (ptr[8]->first + " (" + std::to_string(ptr[8]->second->troopCount) + "/16)" + (ptr[8]->second->inBattle ? "" : prefix[8][4] + (selectedArmyMap.count(ptr[8]->first) == 0 ? underline("select", "green") : underline("deselect", "green")))) : "") << std::endl
                 << std::setw(30) << "Cas:            " + std::to_string(fullHealth["cas"]) + "/" + std::to_string(this->troop->helper["cas"](0)) + "/" + std::to_string(selectedTroopMap["cas"])
-                << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 9 ? 11 : 0)) << prefix[9][0] + underline("+1", "green") + " (q)" + prefix[9][1] + underline("-1", "green") + prefix[9][2] + underline("All", "green") + prefix[9][3] + underline("Details", "green")
+                << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 9 ? 11 : 0)) << prefix[9][0] + underline("+1", "green") + " (-)" + prefix[9][1] + underline("-1", "green") + prefix[9][2] + underline("All", "green") + prefix[9][3] + underline("Details", "green")
                 << (this->army->total.size() > 9 ? (ptr[9]->first + " (" + std::to_string(ptr[9]->second->troopCount) + "/16)" + (ptr[9]->second->inBattle ? "" : prefix[9][4] + (selectedArmyMap.count(ptr[9]->first) == 0 ? underline("select", "green") : underline("deselect", "green")))) : "") << std::endl
                 << std::setw(30) << "Fighter:        " + std::to_string(fullHealth["fighter"]) + "/" + std::to_string(this->troop->helper["fighter"](0)) + "/" + std::to_string(selectedTroopMap["fighter"])
-                << std::setw(75 + 11 * 4 - 30) << prefix[10][0] + underline("+1", "green") + " (w)" + prefix[10][1] + underline("-1", "green") + prefix[10][2] + underline("All", "green") + prefix[10][3] + underline("Details", "green") << std::endl
+                << std::setw(75 + 11 * 4 - 30) << prefix[10][0] + underline("+1", "green") + " (-)" + prefix[10][1] + underline("-1", "green") + prefix[10][2] + underline("All", "green") + prefix[10][3] + underline("Details", "green") << std::endl
                 << std::setw(30) << "Bomber:         " + std::to_string(fullHealth["bomber"]) + "/" + std::to_string(this->troop->helper["bomber"](0)) + "/" + std::to_string(selectedTroopMap["bomber"])
-                << std::setw(75 + 11 * 4 - 30) << prefix[11][0] + underline("+1", "green") + " (e)" + prefix[11][1] + underline("-1", "green") + prefix[11][2] + underline("All", "green") + prefix[11][3] + underline("Details", "green") << std::endl
+                << std::setw(75 + 11 * 4 - 30) << prefix[11][0] + underline("+1", "green") + " (-)" + prefix[11][1] + underline("-1", "green") + prefix[11][2] + underline("All", "green") + prefix[11][3] + underline("Details", "green") << std::endl
                 << std::setw(30) << "Kamikaze:       " + std::string("-/") + std::to_string(this->troop->helper["kamikaze"](0)) + "/" + std::to_string(selectedTroopMap["kamikaze"])
-                << std::setw(75 + 11 * 4 - 30) << prefix[12][0] + underline("+1", "green") + " (r)" + prefix[12][1] + underline("-1", "green") + prefix[12][2] + underline("All", "green") + prefix[12][3] + underline("Details", "green") << std::endl
+                << std::setw(75 + 11 * 4 - 30) << prefix[12][0] + underline("+1", "green") + " (-)" + prefix[12][1] + underline("-1", "green") + prefix[12][2] + underline("All", "green") + prefix[12][3] + underline("Details", "green") << std::endl
                 << std::endl;
       std::cout << std::setw(30 + 11) << color("Troops selected: ", "green") + std::to_string(selectedTroop.size()) << color(" Armies selected: ", "green") << selectedArmy.size() << std::endl
                 << std::endl;
@@ -1335,6 +1360,8 @@ void Game::sensou(int &gamePhase, int prevPhase)
       if (mode == 0)
       {
         currentCountry = (currentCountry + 1) % this->enemies->totalEnemies.size();
+        phase0[0] = 0;
+        phase0[0] = 0;
         subMode = 0;
       }
     }
@@ -1385,6 +1412,51 @@ void Game::sensou(int &gamePhase, int prevPhase)
         else
           subPhase2Mode = 0;
       }
+    }
+    else if (input == '1')
+    {
+      if (mode == 1)
+        troopIreru(indexToTroop[0]);
+    }
+    else if (input == '2')
+    {
+      if (mode == 1)
+        troopIreru(indexToTroop[1]);
+    }
+    else if (input == '3')
+    {
+      if (mode == 1)
+        troopIreru(indexToTroop[2]);
+    }
+    else if (input == '4')
+    {
+      if (mode == 1)
+        troopIreru(indexToTroop[3]);
+    }
+    else if (input == '5')
+    {
+      if (mode == 1)
+        troopIreru(indexToTroop[4]);
+    }
+    else if (input == '6')
+    {
+      if (mode == 1)
+        troopIreru(indexToTroop[5]);
+    }
+    else if (input == '7')
+    {
+      if (mode == 1)
+        troopIreru(indexToTroop[6]);
+    }
+    else if (input == '8')
+    {
+      if (mode == 1)
+        troopIreru(indexToTroop[7]);
+    }
+    else if (input == '9')
+    {
+      if (mode == 1)
+        troopIreru(indexToTroop[8]);
     }
     user.lock();
     std::cout << "\033[2J\033[1;1H";
