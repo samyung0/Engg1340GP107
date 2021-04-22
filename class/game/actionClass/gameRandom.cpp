@@ -154,7 +154,7 @@ int Game::fetchRandom(int difficulty)
   std::binomial_distribution<> b1;
   std::discrete_distribution<> dint1;
   std::discrete_distribution<> dint2;
-  std::discrete_distribution<> map = {1,1};
+  std::discrete_distribution<> map = {1, 1};
 
   int n = int1(gen);
   std::cout << n << "つの国が生成される" << std::endl;
@@ -188,7 +188,7 @@ int Game::fetchRandom(int difficulty)
     for (int i = 0; i < dimension[1]; i++)
       columnProgression.push_back(65);
 
-    std::vector<std::vector<Block*>> mapA;
+    std::vector<std::vector<Block *>> mapA;
     for (int i = 0; i < dimension[0]; i++)
     {
       connect.push_back({});
@@ -212,12 +212,12 @@ int Game::fetchRandom(int difficulty)
 
           std::array<int, 3> damageToReach = damageMidLineD[std::min(z, (int)damageMidLineD.size() - 1)];
           std::array<int, 3> damage = {0, 0, 0};
-          
-          std::vector<std::pair<double, double>> damageDeviation = damageDeviationD[std::min(z, (int)damageDeviationD.size()-1)];
-          double damageDDeviation = damageDDeviationD[std::min(z, (int)damageMidLineD.size()-1)];
+
+          std::vector<std::pair<double, double>> damageDeviation = damageDeviationD[std::min(z, (int)damageDeviationD.size() - 1)];
+          double damageDDeviation = damageDDeviationD[std::min(z, (int)damageMidLineD.size() - 1)];
           bool increase = rand() % 100 < damageDDeviation * 100;
           b1 = std::binomial_distribution<>(damageDeviation.size() - 1, 0.8);
-          
+
           for (int i = 0; i < 3; i++)
             if (increase)
               damageToReach[i] *= 1 + damageDeviation[b1(gen)].second;
@@ -408,6 +408,11 @@ int Game::fetchRandom(int difficulty)
           std::string name = (char)progressTo + std::to_string(j + 1);
           mapA.back().back()->name = name;
           std::cout << "ブロックの名はつけられた" << std::endl;
+
+          int1 = std::uniform_int_distribution<>(0, terrain.size() - 1);
+          std::string terrainName = terrain[int1(gen)];
+          mapA.back().back()->terrain = terrainName;
+          std::cout << "ブロックの地勢はランダムされた" << std::endl;
 
           if (j > 0 && mapA[i][j - 1] != NULL)
           {

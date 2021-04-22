@@ -606,7 +606,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
 
     std::cout << "Country: " << this->enemies->totalEnemies[currentCountry]->name
               << " (" << (this->enemies->totalEnemies[currentCountry]->capitulated ? "    defeated" : "not defeated") << ")"
-              << " (" << currentCountry + 1 << this->enemies->totalEnemies.size() << ")"
+              << " (" << currentCountry + 1 << "/" << this->enemies->totalEnemies.size() << ")"
               << "   Battling Regions: " << this->enemies->totalEnemies[currentCountry]->battlingRegions
               << "   Captured: " << this->enemies->totalEnemies[currentCountry]->capturedLand << "/" << this->enemies->totalEnemies[currentCountry]->totalLand
               << std::endl;
