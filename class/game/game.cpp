@@ -790,8 +790,9 @@ int Game::fetch()
       std::cout << "Set time done" << std::endl;
     }
   }
-
   in.close();
+
+  if(this->enemies->defeated == this->enemies->totalEnemies.size()) this->gameOver = true;
 
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
@@ -801,6 +802,13 @@ int Game::fetch()
 
 int Game::start()
 {
+  if(this->gameOver){
+    this->endGame();
+    char input = getch();
+    while(input != ' ') input = getch();
+    return 0;
+  }
+
   this->timeChosen = timeRange[0] == this->setting["time"] ? 0 : timeRange[1] == this->setting["time"] ? 1
                                                                                                        : 2;
   this->timer(this->setting["speed"]);
