@@ -19,7 +19,7 @@
 #include "../../../data/troop/troop.h"
 #include "../gameStruct.h"
 
-int Game::fetchRandom(int difficulty)
+int Game::fetchRandom(int difficulty, int completeness)
 {
   std::cout << "\033[2J\033[1;1H" << std::endl;
   std::cout << "ランダムデータを生成されている" << std::endl;
@@ -30,7 +30,7 @@ int Game::fetchRandom(int difficulty)
   this->timeLimit = 99999;
   std::cout << "時間設定された" << std::endl;
 
-  this->resource->baseLand = 1000;
+  this->resource->baseLand = 3000;
   this->resource->usedLand = 1;
   this->resource->manpower = 1;
   this->building->civilianFactory[0] = 1;
@@ -81,9 +81,9 @@ int Game::fetchRandom(int difficulty)
   };
   // soft attack and hard attack do not include that from planes
   std::vector<std::array<int, 3>> damageMidLineD = {
-      {180, 130, 35},
-      {250, 200, 50},
-      {500, 400, 100},
+      {120, 80, 25},
+      {200, 140, 40},
+      {400, 300, 70},
       {700, 900, 200},
       {1200, 1800, 250},
   };
@@ -137,7 +137,7 @@ int Game::fetchRandom(int difficulty)
       {14, 16},
   };
   std::vector<std::pair<int, int>> countryD = {
-      {1, 2}, {1, 3}, {2, 4}, {3, 5}, {6, 6}};
+      {1, 2}, {1, 3}, {3, 4}, {3, 5}, {6, 6}};
   // column, row, column, row
   std::vector<std::pair<std::pair<int, int>, std::pair<int, int>>> countrySizeD = {
       {{6, 6}, {7, 7}}, {{7, 7}, {9, 9}}, {{7, 7}, {10, 10}}, {{8, 8}, {11, 11}}, {{10, 10}, {15, 15}}};
@@ -154,7 +154,9 @@ int Game::fetchRandom(int difficulty)
   std::binomial_distribution<> b1;
   std::discrete_distribution<> dint1;
   std::discrete_distribution<> dint2;
-  std::discrete_distribution<> map = {1, 1};
+  std::discrete_distribution<> map;
+  if(completeness == -1) map = std::discrete_distribution<>({1, 0.5});
+  else map = std::discrete_distribution<>({1, (double) completeness});
 
   int n = int1(gen);
   std::cout << n << "つの国が生成される" << std::endl;

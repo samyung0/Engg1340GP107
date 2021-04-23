@@ -24,7 +24,7 @@ public:
   Game(std::unordered_map<std::string, int>, const int, const int, const int, const std::string);
   int start();
   int fetch();
-  int fetchRandom(int difficulty);
+  int fetchRandom(int difficulty, int completeness);
 
 private:
   std::string path;

@@ -37,7 +37,7 @@ int main()
   std::vector<std::vector<std::vector<int>>> map{
       {{1}, {2}, {-1}, {-999}},
       {{3}, {4}, {-16}, {0}},
-      {{-17, -18, -19}, {0}},
+      {{-17, -18, -19}, {-20, -21, -22, -23, -24, -25}, {0}},
       {{-2, -3, -4}, {-5, -6, -7}, {-8, -9, -10}, {1}},
       {{-11, -12, -13, -14, -15}}};
 
@@ -67,7 +67,13 @@ int main()
       &load,
       &setting1af,
       &setting1bf,
-      &setting1cf};
+      &setting1cf,
+      &setting2af,
+      &setting2bf,
+      &setting2cf,
+      &setting2df,
+      &setting2ef,
+      &setting2ff};
 
   // game settings
   MenuWrapper gameStats(TOTAL_LEVELS, TOTAL_DIFFICULTY, SCREENX, SCREENY, FPS);
@@ -163,7 +169,8 @@ int main()
             if (gameStats.difficulty == -1)
               game = std::async(std::launch::async, &Game::fetch, std::ref(allGames.back()));
             else
-              game = std::async(std::launch::async, &Game::fetchRandom, std::ref(allGames.back()), gameStats.difficulty);
+              game = std::async(std::launch::async, &Game::fetchRandom, std::ref(allGames.back()), gameStats.difficulty, gameStats.setting["completeness"]);
+            gameStats.difficulty = -1;
             int r = game.get();
 
             delete allGames.back();
@@ -195,7 +202,8 @@ int main()
       if (gameStats.difficulty == -1)
         game = std::async(std::launch::async, &Game::fetch, std::ref(allGames.back()));
       else
-        game = std::async(std::launch::async, &Game::fetchRandom, std::ref(allGames.back()), gameStats.difficulty);
+        game = std::async(std::launch::async, &Game::fetchRandom, std::ref(allGames.back()), gameStats.difficulty, gameStats.setting["completeness"]);
+      gameStats.difficulty = -1;
       int r = game.get();
 
       delete allGames.back();

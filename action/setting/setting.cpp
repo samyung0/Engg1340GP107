@@ -35,3 +35,28 @@ void setting1cf(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   settingBasef(menuPhase, prevMenuPhase, gameStats, "speed", 2000);
 }
+
+void setting2af(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
+{
+  settingBasef(menuPhase, prevMenuPhase, gameStats, "completeness", -1);
+}
+void setting2bf(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
+{
+  settingBasef(menuPhase, prevMenuPhase, gameStats, "completeness", 1);
+}
+void setting2cf(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
+{
+  settingBasef(menuPhase, prevMenuPhase, gameStats, "completeness", 2);
+}
+void setting2df(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
+{
+  settingBasef(menuPhase, prevMenuPhase, gameStats, "completeness", 3);
+}
+void setting2ef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
+{
+  settingBasef(menuPhase, prevMenuPhase, gameStats, "completeness", 4);
+}
+void setting2ff(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
+{
+  settingBasef(menuPhase, prevMenuPhase, gameStats, "completeness", 5);
+}
