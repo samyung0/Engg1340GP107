@@ -333,7 +333,7 @@ H1 H2             H7</pre>
 
 - focus on development in the beginning
 
-  You maybe to capture quite a few bits of land in the beginning. But it maybe better to be more organized and do all the buildings in the beginning and launch mass assaults later in the game. One reason is that if you have an army strong enough, you won't suffer any casualties so no extra training is needed. However, if your attack number is similar to the enemies, then you will probably lose a lot of troops even you can capture the block.
+  You maybe able to capture quite a few bits of land in the beginning. But it maybe better to be more organized and do all the buildings in the beginning and launch mass assaults later in the game. One reason is that if you have an army strong enough, you won't suffer any casualties so no extra training is needed. However, if your attack number is similar to the enemies, then you will probably lose a lot of troops even you can capture the block.
 
 - always put in 2 logistics in the back of an army
 
