@@ -22,14 +22,17 @@ void Game::removeInfantry(int &gamePhase, int prevGamePhase)
     this->troop->totalTroops--;
 
     int index = -1;
+
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
+
       if (this->troop->allTroop[i]->type == "infantry" && !this->troop->allTroop[i]->isReferenced)
       {
         index = i;
         break;
       }
     }
+
     assert(index != -1);
 
     this->troop->totalEquipmentRequired -= this->troop->allTroop[index]->getEquipment();
@@ -39,11 +42,19 @@ void Game::removeInfantry(int &gamePhase, int prevGamePhase)
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
   }
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
 void Game::removeCalvary(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -54,9 +65,13 @@ void Game::removeCalvary(int &gamePhase, int prevGamePhase)
   {
 
     this->troop->calvary[0]--;
+
     this->troop->totalTroops--;
 
     int index = -1;
+
+
+
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
       if (this->troop->allTroop[i]->type == "calvary" && !this->troop->allTroop[i]->isReferenced)
@@ -68,17 +83,38 @@ void Game::removeCalvary(int &gamePhase, int prevGamePhase)
     assert(index != -1);
 
     this->troop->totalEquipmentRequired -= this->troop->allTroop[index]->getEquipment();
+
     this->troop->totalFoodRequired -= this->troop->allTroop[index]->getFood();
 
     delete this->troop->allTroop[index];
+
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
   }
+
+
+
+
+
+
   this->lg3.unlock();
   this->lg2.lock();
   this->stopLoopPrintTroop();
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeSuicideBomber(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -108,12 +144,30 @@ void Game::removeSuicideBomber(int &gamePhase, int prevGamePhase)
     delete this->troop->allTroop[index];
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeLogistic(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -142,13 +196,34 @@ void Game::removeLogistic(int &gamePhase, int prevGamePhase)
 
     delete this->troop->allTroop[index];
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
+
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeArtillery(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -178,12 +253,32 @@ void Game::removeArtillery(int &gamePhase, int prevGamePhase)
     delete this->troop->allTroop[index];
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeArmoredCar(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -205,6 +300,7 @@ void Game::removeArmoredCar(int &gamePhase, int prevGamePhase)
         break;
       }
     }
+
     assert(index != -1);
 
     this->troop->totalEquipmentRequired -= this->troop->allTroop[index]->getEquipment();
@@ -213,12 +309,32 @@ void Game::removeArmoredCar(int &gamePhase, int prevGamePhase)
     delete this->troop->allTroop[index];
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeTank1(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -240,6 +356,7 @@ void Game::removeTank1(int &gamePhase, int prevGamePhase)
         break;
       }
     }
+
     assert(index != -1);
 
     this->troop->totalEquipmentRequired -= this->troop->allTroop[index]->getEquipment();
@@ -248,12 +365,34 @@ void Game::removeTank1(int &gamePhase, int prevGamePhase)
     delete this->troop->allTroop[index];
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeTank2(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -283,12 +422,31 @@ void Game::removeTank2(int &gamePhase, int prevGamePhase)
     delete this->troop->allTroop[index];
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeTankOshimai(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -310,6 +468,7 @@ void Game::removeTankOshimai(int &gamePhase, int prevGamePhase)
         break;
       }
     }
+
     assert(index != -1);
 
     this->troop->totalEquipmentRequired -= this->troop->allTroop[index]->getEquipment();
@@ -318,12 +477,32 @@ void Game::removeTankOshimai(int &gamePhase, int prevGamePhase)
     delete this->troop->allTroop[index];
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeCas(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -354,12 +533,28 @@ void Game::removeCas(int &gamePhase, int prevGamePhase)
     delete this->troop->allTroop[index];
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeFighter(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -374,6 +569,7 @@ void Game::removeFighter(int &gamePhase, int prevGamePhase)
     this->resource->airportUsed--;
 
     int index = -1;
+
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
       if (this->troop->allTroop[i]->type == "fighter" && !this->troop->allTroop[i]->isReferenced)
@@ -382,6 +578,7 @@ void Game::removeFighter(int &gamePhase, int prevGamePhase)
         break;
       }
     }
+
     assert(index != -1);
 
     this->troop->totalEquipmentRequired -= this->troop->allTroop[index]->getEquipment();
@@ -390,12 +587,30 @@ void Game::removeFighter(int &gamePhase, int prevGamePhase)
     delete this->troop->allTroop[index];
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeBomber(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -426,12 +641,32 @@ void Game::removeBomber(int &gamePhase, int prevGamePhase)
     delete this->troop->allTroop[index];
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeKamikaze(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -446,6 +681,7 @@ void Game::removeKamikaze(int &gamePhase, int prevGamePhase)
     this->resource->airportUsed--;
 
     int index = -1;
+
     for (int i = 0; i < this->troop->allTroop.size(); i++)
     {
       if (this->troop->allTroop[i]->type == "kamikaze" && !this->troop->allTroop[i]->isReferenced)
@@ -454,6 +690,7 @@ void Game::removeKamikaze(int &gamePhase, int prevGamePhase)
         break;
       }
     }
+
     assert(index != -1);
 
     this->troop->totalEquipmentRequired -= this->troop->allTroop[index]->getEquipment();
@@ -462,12 +699,31 @@ void Game::removeKamikaze(int &gamePhase, int prevGamePhase)
     delete this->troop->allTroop[index];
     this->troop->allTroop.erase(this->troop->allTroop.begin() + index);
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeInfantrymax(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -486,6 +742,7 @@ void Game::removeInfantrymax(int &gamePhase, int prevGamePhase)
         indexStore.push_back(i);
       }
     }
+
     assert(indexStore.size() == this->troop->infantry[0]);
 
     this->troop->totalTroops -= this->troop->infantry[0];
@@ -503,12 +760,30 @@ void Game::removeInfantrymax(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeCalvarymax(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -530,6 +805,7 @@ void Game::removeCalvarymax(int &gamePhase, int prevGamePhase)
     assert(indexStore.size() == this->troop->calvary[0]);
 
     this->troop->totalTroops -= this->troop->calvary[0];
+
     this->troop->calvary[0] = 0;
 
     for (int i = this->troop->allTroop.size() - 1; i >= 0; i--)
@@ -544,12 +820,31 @@ void Game::removeCalvarymax(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeSuicideBombermax(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -585,14 +880,34 @@ void Game::removeSuicideBombermax(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeLogisticmax(int &gamePhase, int prevGamePhase)
 {
+
   gamePhase = prevGamePhase;
 
   this->lg3.lock();
@@ -609,6 +924,7 @@ void Game::removeLogisticmax(int &gamePhase, int prevGamePhase)
         indexStore.push_back(i);
       }
     }
+
     assert(indexStore.size() == this->troop->logistic[0]);
 
     this->troop->totalTroops -= this->troop->logistic[0];
@@ -626,12 +942,33 @@ void Game::removeLogisticmax(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeArtillerymax(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -650,6 +987,7 @@ void Game::removeArtillerymax(int &gamePhase, int prevGamePhase)
         indexStore.push_back(i);
       }
     }
+
     assert(indexStore.size() == this->troop->artillery[0]);
 
     this->troop->totalTroops -= this->troop->artillery[0];
@@ -667,12 +1005,30 @@ void Game::removeArtillerymax(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeArmoredCarmax(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -691,6 +1047,7 @@ void Game::removeArmoredCarmax(int &gamePhase, int prevGamePhase)
         indexStore.push_back(i);
       }
     }
+
     assert(indexStore.size() == this->troop->armoredCar[0]);
 
     this->troop->totalTroops -= this->troop->armoredCar[0];
@@ -708,12 +1065,29 @@ void Game::removeArmoredCarmax(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeTank1max(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -750,12 +1124,30 @@ void Game::removeTank1max(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeTank2max(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -774,6 +1166,7 @@ void Game::removeTank2max(int &gamePhase, int prevGamePhase)
         indexStore.push_back(i);
       }
     }
+
     assert(indexStore.size() == this->troop->tank2[0]);
 
     this->troop->totalTroops -= this->troop->tank2[0];
@@ -791,12 +1184,32 @@ void Game::removeTank2max(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeTankOshimaimax(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -815,6 +1228,7 @@ void Game::removeTankOshimaimax(int &gamePhase, int prevGamePhase)
         indexStore.push_back(i);
       }
     }
+
     assert(indexStore.size() == this->troop->tankOshimai[0]);
 
     this->troop->totalTroops -= this->troop->tankOshimai[0];
@@ -832,12 +1246,32 @@ void Game::removeTankOshimaimax(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeCasmax(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -856,6 +1290,7 @@ void Game::removeCasmax(int &gamePhase, int prevGamePhase)
         indexStore.push_back(i);
       }
     }
+
     assert(indexStore.size() == this->troop->cas[0]);
 
     this->troop->totalTroops -= this->troop->cas[0];
@@ -873,12 +1308,30 @@ void Game::removeCasmax(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeFightermax(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -897,6 +1350,7 @@ void Game::removeFightermax(int &gamePhase, int prevGamePhase)
         indexStore.push_back(i);
       }
     }
+
     assert(indexStore.size() == this->troop->fighter[0]);
 
     this->troop->totalTroops -= this->troop->fighter[0];
@@ -914,12 +1368,31 @@ void Game::removeFightermax(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeBombermax(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -938,6 +1411,7 @@ void Game::removeBombermax(int &gamePhase, int prevGamePhase)
         indexStore.push_back(i);
       }
     }
+
     assert(indexStore.size() == this->troop->bomber[0]);
 
     this->troop->totalTroops -= this->troop->bomber[0];
@@ -955,12 +1429,29 @@ void Game::removeBombermax(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
 void Game::removeKamikazemax(int &gamePhase, int prevGamePhase)
 {
   gamePhase = prevGamePhase;
@@ -979,6 +1470,7 @@ void Game::removeKamikazemax(int &gamePhase, int prevGamePhase)
         indexStore.push_back(i);
       }
     }
+
     assert(indexStore.size() == this->troop->kamikaze[0]);
 
     this->troop->totalTroops -= this->troop->kamikaze[0];
@@ -996,9 +1488,30 @@ void Game::removeKamikazemax(int &gamePhase, int prevGamePhase)
       }
     }
   }
+
   this->lg3.unlock();
+
   this->lg2.lock();
+
   this->stopLoopPrintTroop();
+
   this->loopPrintTroop(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
+
   this->lg2.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
