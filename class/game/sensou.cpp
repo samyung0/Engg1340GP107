@@ -38,7 +38,9 @@
 // this cpp file is merely a representation and interface of the battle
 void Game::sensou(int &gamePhase, int prevPhase)
 {
+
   int currentCountry = 0;
+
   for (int i = 0; i < this->enemies->totalEnemies.size(); i++)
     if (!this->enemies->totalEnemies[i]->capitulated && this->enemies->totalEnemies[i]->capturedLand > 0)
     {
@@ -46,50 +48,83 @@ void Game::sensou(int &gamePhase, int prevPhase)
       break;
     }
   // 0: map mode, 0: block action (0b), 1: add troop, 1: add troop detail (2b), 3: retreat all troops, 2: view battle
+
   int mode = 0;
+
   int subMode = 0;
 
   int blockSize[2] = {4, 6};
 
   // io
+
   int prePhase0[2] = {0, 0};
+
   int scroll0[2] = {0, 0};
+
   int phase0[2] = {0, 0};
+
   int subPhase0[2] = {0, 0};
+
   int subPhase0Mode = 0;
+
   int scroll1[2] = {0, 0};
+
   int phase1[2] = {0, 0};
+
   int subPhase1[2] = {0, 0};
+
   int subPhase1Mode = 0;
+
   int scroll2[2] = {0, 0};
+
   int subPhase2Mode = 0;
+
   std::string subPhase1Type;
+
   TroopUnit *subPhase1TroopDetail;
+
   bool enter = false;
 
   std::vector<std::function<void()>> printMode;
+
   std::function<void()> sendAll;
+
   std::function<void()> retreatAll;
+
   std::function<void(std::string)> troopIreru;
+
   std::function<void(ArmyUnit *)> armyIreru;
+
   std::function<void(std::string)> troopNuku;
+
   std::function<void(ArmyUnit *)> armyNuku;
+
   std::vector<TroopUnit *> selectedTroop;
+
   std::vector<ArmyUnit *> selectedArmy;
+
   std::function<void()> deselectAll;
 
   std::function<void()> loopPrint;
   std::function<void()> stopPrint;
 
   std::future<void> printFuture;
+
   std::condition_variable printCond;
+
   std::mutex printa;
+
   std::mutex printb;
+
   std::mutex user;
+
   bool terminatePrint = false;
 
+
   int battleCycle = 0;
+
   const int iconInterval = 300;
+
   int iconLocation = 0;
 
   std::unordered_map<std::string, int> typeToHealth = {
@@ -106,7 +141,9 @@ void Game::sensou(int &gamePhase, int prevPhase)
       {"fighter", Fighter::baseHp},
       {"bomber", Bomber::baseHp},
       {"kamikaze", 0}};
+
   std::vector<std::string> indexToTroop = {"infantry", "calvary", "suicideBomber", "artillery", "logistic", "armoredCar", "tank1", "tank2", "tankOshimai", "cas", "fighter", "bomber", "kamikaze"};
+
   std::unordered_map<std::string, std::string> typeToDisplay = {
       {"infantry", "Infantry"},
       {"calvary", "Calvary"},
@@ -121,7 +158,9 @@ void Game::sensou(int &gamePhase, int prevPhase)
       {"fighter", "Fighter"},
       {"bomber", "Bomber"},
       {"kamikaze", "Kamikaze"}};
+
   std::map<std::string, bool> selectedArmyMap;
+
   std::unordered_map<std::string, int> selectedTroopMap = {
       {"infantry", 0},
       {"calvary", 0},
@@ -146,28 +185,35 @@ void Game::sensou(int &gamePhase, int prevPhase)
     for (auto i : selectedTroopMap)
       for (int j = 0; j < i.second; j++)
         troopNuku(i.first);
+
     for (int i = selectedArmy.size() - 1; i >= 0; i--)
       armyNuku(selectedArmy[i]);
   };
 
   sendAll = [&]() {
     user.lock();
+
     Enemy *ptr = this->enemies->totalEnemies[currentCountry];
     for (auto i : selectedTroop)
       if (!ptr->map[phase0[0]][phase0[1]]->captured)
         ptr->map[phase0[0]][phase0[1]]->reinforce(
             user, [&]() { this->endGame(); }, this->gameOver, this->enemies->totalEnemies.size(), i, this->resource, this->building, this->battle, [&](std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount) { this->buildBase(type, time, callBack, desc, land, amount); });
+
     for (auto i : selectedArmy)
       if (!ptr->map[phase0[0]][phase0[1]]->captured)
         ptr->map[phase0[0]][phase0[1]]->reinforce(
             user, [&]() { this->endGame(); }, this->gameOver, this->enemies->totalEnemies.size(), i, this->resource, this->building, this->battle, [&](std::string type, int time, std::function<void(data::Resource &)> &callBack, std::string desc, double land, int amount) { this->buildBase(type, time, callBack, desc, land, amount); });
+
     deselectAll();
+
     mode = 0;
+
     if (this->gameOver)
     {
       user.unlock();
       return;
     }
+
     std::cout << "\033[2J\033[1;1H" << std::endl;
     // avoid resource deadlock error
     std::thread temp([&]() {
@@ -188,9 +234,11 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
     assert(indices.size() != 0);
 
+
     std::sort(indices.begin(), indices.end(), [this](int a, int b) -> bool {
       return this->troop->allTroop[a]->getHealth() > this->troop->allTroop[b]->getHealth();
     });
+
 
     this->troop->allTroop[indices[0]]->selected = true;
     selectedTroop.push_back(this->troop->allTroop[indices[0]]);
@@ -201,11 +249,14 @@ void Game::sensou(int &gamePhase, int prevPhase)
     assert(guntai != NULL);
 
     selectedArmy.push_back(guntai);
+
     selectedArmyMap[guntai->name] = true;
   };
 
   troopNuku = [&](std::string type) {
+
     std::vector<int> indices;
+
     for (int i = 0; i < selectedTroop.size(); i++)
     {
       if (selectedTroop[i]->type == type)
@@ -213,8 +264,10 @@ void Game::sensou(int &gamePhase, int prevPhase)
         indices.push_back(i);
       }
     }
+
     if (indices.size() == 0)
       return;
+
     std::sort(indices.begin(), indices.end(), [&selectedTroop](int a, int b) -> bool {
       return selectedTroop[a]->getHealth() < selectedTroop[b]->getHealth();
     });
@@ -227,7 +280,9 @@ void Game::sensou(int &gamePhase, int prevPhase)
   armyNuku = [&](ArmyUnit *guntai) {
     assert(guntai != NULL);
 
+
     int index = -1;
+
     for (int i = 0; i < selectedArmy.size(); i++)
       if (selectedArmy[i] == guntai)
       {
@@ -249,13 +304,16 @@ void Game::sensou(int &gamePhase, int prevPhase)
       {
         if (subPhase0[0] == 0)
           mode = 1;
+
         else if (subPhase0[0] == 2)
           mode = 2;
+
         else
           retreatAll();
         subMode = 0;
 
         user.lock();
+
         std::cout << "\033[2J\033[1;1H" << std::endl;
         // avoid resource deadlock error
         std::thread temp([&]() {
@@ -273,12 +331,16 @@ void Game::sensou(int &gamePhase, int prevPhase)
           subMode = 1;
       }
     }
+
     this->lg3.lock();
+
     int screen[2] = {25, 48};
+
     std::vector<std::string> render;
     Enemy *ptr = this->enemies->totalEnemies[currentCountry];
 
     battleCycle += 1000 / this->fps;
+
     if (battleCycle >= iconInterval)
     {
       battleCycle = 0;
@@ -288,35 +350,45 @@ void Game::sensou(int &gamePhase, int prevPhase)
     phase0[0] = (phase0[0] + ptr->map.size()) % ptr->map.size();
 
     std::unordered_map<int, int> hasBlock;
+
     int start = -1;
+
     int end = -1;
+
     int scrollable[2] = {std::max(0, (int)(ptr->map.size() * 3 + 1 - screen[0])), std::max(0, (int)(ptr->map[0].size() * 6 - screen[1]))};
 
     scroll0[0] = std::min(std::max(scroll0[0], 0), scrollable[0]);
+
     scroll0[1] = std::min(std::max(scroll0[1], 0), scrollable[1]);
 
     if (subPhase0Mode == 1)
     {
       if (scroll0[0] > phase0[0] * 3)
         phase0[0] = scroll0[0] / 3 + 1;
+
       if (scroll0[0] + screen[0] <= phase0[0] * 3 + 1)
         phase0[0] = (scroll0[0] + screen[0]) / 3 - 1;
+
       if (scroll0[1] > phase0[1] * 6)
         phase0[1] = scroll0[1] / 6 + 1;
+
       if (scroll0[1] + screen[1] <= phase0[1] * 6 + 1)
         phase0[1] = (scroll0[1] + screen[1]) / 6 - 1;
       phase0[0] = (phase0[0] + ptr->map.size()) % ptr->map.size();
     }
+
     else if (subPhase0Mode == 0)
     {
 
       if (scroll0[0] > phase0[0] * 3)
         scroll0[0] = phase0[0] * 3;
+
       if (scroll0[0] + screen[0] <= phase0[0] * 3 + 1)
         scroll0[0] = phase0[0] * 3 - screen[0] + 3;
       scroll0[0] = std::min(std::max(scroll0[0], 0), scrollable[0]);
       scroll0[1] = std::min(std::max(scroll0[1], 0), scrollable[1]);
     }
+
     for (int i = 0; i < ptr->map[phase0[0]].size(); i++)
     {
       if (ptr->map[phase0[0]][i] != NULL)
@@ -324,30 +396,39 @@ void Game::sensou(int &gamePhase, int prevPhase)
         hasBlock[i] = 1;
         if (start == -1)
           start = i;
+
         end = i;
       }
     }
+
     if (phase0[0] == prePhase0[0])
     {
       int diff = 0;
+
       if (phase0[1] > prePhase0[1])
       {
         while (hasBlock.count(phase0[1] + diff) == 0 && phase0[1] + diff < ptr->map[phase0[0]].size())
           diff++;
+
         if (phase0[1] + diff == ptr->map[phase0[0]].size())
           phase0[1] = start;
+
         else
           phase0[1] += diff;
       }
+
       else if (phase0[1] < prePhase0[1])
       {
         while (hasBlock.count(phase0[1] - diff) == 0 && phase0[1] - diff >= 0)
           diff++;
+
         if (phase0[1] - diff == -1)
           phase0[1] = end;
+
         else
           phase0[1] -= diff;
       }
+
       else
       {
         if (hasBlock.count(phase0[1]) == 0)
@@ -361,16 +442,20 @@ void Game::sensou(int &gamePhase, int prevPhase)
               phase0[1] = phase0[1] + diff;
               found = true;
             }
+
             else if (hasBlock.count(phase0[1] - diff) != 0)
             {
               phase0[1] = phase0[1] - diff;
               found = true;
             }
+
             diff++;
           }
         }
       }
     }
+
+
     else
     {
       // find closest block
@@ -378,6 +463,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
       {
         int diff = 1;
         bool found = false;
+
         while (!found)
         {
           if (hasBlock.count(phase0[1] + diff) != 0)
@@ -385,6 +471,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
             phase0[1] = phase0[1] + diff;
             found = true;
           }
+
           else if (hasBlock.count(phase0[1] - diff) != 0)
           {
             phase0[1] = phase0[1] - diff;
@@ -395,6 +482,9 @@ void Game::sensou(int &gamePhase, int prevPhase)
       }
     }
 
+
+
+
     if (subPhase0Mode == 0)
     {
       if (scroll0[1] > phase0[1] * 6)
@@ -404,86 +494,109 @@ void Game::sensou(int &gamePhase, int prevPhase)
       scroll0[0] = std::min(std::max(scroll0[0], 0), scrollable[0]);
       scroll0[1] = std::min(std::max(scroll0[1], 0), scrollable[1]);
     }
+
     subPhase0Mode = -1;
 
     prePhase0[0] = phase0[0];
+
     prePhase0[1] = phase0[1];
+
     for (int i = 0; i < ptr->map.size(); i++)
     {
       std::string row1 = "";
       std::string row2 = "";
       std::string row3 = "";
+
       for (int j = 0; j < ptr->map[i].size(); j++)
       {
         if (ptr->map[i][j] == NULL)
         {
           if (i != 0 && ptr->map[i - 1][j] != NULL)
             row1 += std::string(blockSize[1], '-');
+
           else
             row1 += std::string(blockSize[1], ' ');
           row2 += std::string(blockSize[1], ' ');
           row3 += std::string(blockSize[1], ' ');
         }
+
         else
         {
           if (i == 0 || ptr->map[i - 1][j] == NULL)
             row1 += std::string(blockSize[1], '-');
+
           else
             row1 += std::string(blockSize[1], ' ');
+
           if (j == 0 || ptr->map[i][j - 1] == NULL)
           {
             row2 += '|';
             row3 += '|';
           }
+
           else
           {
             row2 += ' ';
             row3 += ' ';
           }
+
           if (i == phase0[0] && j == phase0[1] && subMode == 0)
             row2 += ">";
+
           else
             row2 += " ";
+
           if (ptr->map[i][j]->name.length() < 3)
             row2 += ' ';
           row2 += ptr->map[i][j]->name;
+
           if (j == ptr->map[i].size() - 1 || ptr->map[i][j + 1] == NULL)
             row2 += '|';
+
           else
             row2 += ' ';
 
           if (i == phase0[0] && j == phase0[1] && subMode == 0)
             row3 += "> ";
+
           else
             row3 += "  ";
 
           std::string iconType = " ";
+
           if (ptr->map[i][j]->battling)
           {
             iconType = ".";
             bool heavilyInjured = false;
+
             for (auto i : ptr->map[i][j]->battle.back()->mikata->totalArmy)
               if (i->casualtyPercentage >= 0.7)
               {
                 heavilyInjured = true;
                 break;
               }
+
             if (heavilyInjured)
               iconType = "!";
           }
+
           if (ptr->map[i][j]->captured)
           {
             row3 += "xx";
           }
+
           else
           {
             if (!iconLocation)
               row3 += iconType + " ";
+
             else
               row3 += ' ' + iconType;
           }
+
           if (j == ptr->map[i].size() - 1 || ptr->map[i][j + 1] == NULL)
             row3 += '|';
+
           else
             row3 += ' ';
         }
@@ -500,28 +613,38 @@ void Game::sensou(int &gamePhase, int prevPhase)
     std::string row1 = "";
     for (int j = 0; j < ptr->map.back().size(); j++)
     {
+
       if (ptr->map.back()[j] != NULL)
         row1 += std::string(blockSize[1], '-');
+
       else
         row1 += std::string(blockSize[1], ' ');
     }
+
     assert(row1.length() == blockSize[1] * ptr->map.back().size());
+
     render.push_back(row1);
+
     for (int i = 0; i < render.size(); i++)
       if (render[i].size() < screen[1])
         render[i] += std::string(screen[1] - render[i].length(), ' ');
+
     for (int i = render.size(); i < screen[0]; i++)
       render.push_back(std::string(screen[1], ' '));
 
     int maxLength2 = 20;
+
     std::vector<std::string> render2;
+
     if ((!this->battle->inBattle || this->battle->countryBattling == ptr->name) && !ptr->map[phase0[0]][phase0[1]]->captured && ptr->map[phase0[0]][phase0[1]]->isAttackable && !ptr->capitulated)
       render2.push_back("   Send Troop (z)   ");
+
     if (ptr->map[phase0[0]][phase0[1]]->battling)
     {
       render2.push_back("   Retreat Troop (r)");
       render2.push_back("   View Battle (v)  ");
     }
+
     if (render2.size() > 0)
     {
       subPhase0[0] = (subPhase0[0] + render2.size()) % render2.size();
@@ -531,32 +654,48 @@ void Game::sensou(int &gamePhase, int prevPhase)
     }
 
     std::vector<std::string> render3;
+
     render3.push_back("Rewards");
+
     render3.push_back("Farm: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->acquirable["farm"]));
+
     render3.push_back("Civilian Factory: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->acquirable["civilianFactory"]));
+
     render3.push_back("Military Factory: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->acquirable["militaryFactory"]));
+
     render3.push_back("Training Camp: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->acquirable["trainingCamp"]));
+
     render3.push_back("Airport: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->acquirable["airport"]));
+
     render3.push_back("Land: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->acquirable["land"]));
+
     render3.push_back("");
+
     render3.push_back("");
+
     render3.push_back("Terrain");
+
     render3.push_back(ptr->map[phase0[0]][phase0[1]]->terrain);
+
     int maxLength3 = 0;
+
     for (auto i : render3)
       if (i.length() > maxLength3)
         maxLength3 = i.length();
+
     for (int i = 0; i < render3.size(); i++)
       render3[i] += std::string(maxLength3 - render3[i].length(), ' ');
 
     std::vector<std::string> render4;
     int soft = 0, hard = 0, air = 0;
+
     for (auto &i : ptr->map[phase0[0]][phase0[1]]->totalFoeTroop)
     {
       soft += i->getSoftAttack();
       hard += i->getHardAttack();
       air += i->getAirAttack();
     }
+
     for (auto &i : ptr->map[phase0[0]][phase0[1]]->totalFoeArmy)
       for (auto &j : i->formation)
         for (auto &k : j)
@@ -567,41 +706,67 @@ void Game::sensou(int &gamePhase, int prevPhase)
             air += k->getAirAttack();
           }
     render4.push_back("Enemies troops");
+
     render4.push_back("Infantry: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["infantry"]));
+
     render4.push_back("Calvary: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["calvary"]));
+
     render4.push_back("Artillery: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["artillery"]));
+
     render4.push_back("Logistic: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["logistic"]));
+
     render4.push_back("Armored Car: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["armoredCar"]));
+
     render4.push_back("Tank 1: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["tank1"]));
+
     render4.push_back("Tank 2: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["tank2"]));
+
     render4.push_back("Tank Oshimai: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["tankOshimai"]));
+
     render4.push_back("Cas: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["cas"]));
+
     render4.push_back("Fighter: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["fighter"]));
+
     render4.push_back("Bomber: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["bomber"]));
+
     render4.push_back("Armies: " + std::to_string(ptr->map[phase0[0]][phase0[1]]->foeCount["army"]));
+
     render4.push_back("");
+
     render4.push_back("");
+
     render4.push_back("Total base attack:");
+
     render4.push_back("Soft: " + std::to_string(soft));
+
     render4.push_back("Hard: " + std::to_string(hard));
+
     render4.push_back("Air: " + std::to_string(air));
+
+
 
     int maxLength4 = 0;
     for (auto i : render4)
       if (i.length() > maxLength4)
         maxLength4 = i.length();
+
     for (int i = 0; i < render4.size(); i++)
       render4[i] += std::string(maxLength4 - render4[i].length(), ' ');
 
     std::cout << "\033[1;1H";
+
     std::cout << color("Battle", "magenta") << std::endl
               << std::endl;
 
     this->lg.lock();
+
     std::stringstream speed;
+
     speed << std::fixed << std::setprecision(1) << this->setting["speed"] / 1000.0;
+
     std::cout << color("Day: ", "green") << this->day << "/" << this->timeLimit << " (" << speed.str() << "s)     " << (this->paused ? color("PAUSED", "red") : "") << std::endl
               << std::endl;
+
     this->lg.unlock();
 
     std::cout << "Country: " << this->enemies->totalEnemies[currentCountry]->name
@@ -622,6 +787,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
                 << (render3.size() > i ? render3[i] : std::string(maxLength3, ' ')) << "        "
                 << (render4.size() > i ? render4[i] : std::string(maxLength4, ' ')) << std::endl;
     }
+
     for (int i = 19; i < screen[0]; i++)
       std::cout << render[i + scroll0[0]].substr(scroll0[1], screen[1]) << std::endl;
 
@@ -645,6 +811,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     if (enter)
     {
       enter = false;
+
       if (subMode == 1)
       {
         if (subPhase1TroopDetail != NULL)
@@ -671,28 +838,34 @@ void Game::sensou(int &gamePhase, int prevPhase)
           }
         }
       }
+
       else
       {
         if (phase1[0] >= 0 && phase1[0] <= 12)
         {
           if (phase1[1] == 0 && this->troop->helper[indexToTroop[phase1[0]]](0) > 0 && selectedTroopMap[indexToTroop[phase1[0]]] < this->troop->helper[indexToTroop[phase1[0]]](0))
             troopIreru(indexToTroop[phase1[0]]);
+
           else if (phase1[1] == 1)
             troopNuku(indexToTroop[phase1[0]]);
+
           else if (phase1[1] == 2)
           {
             for (int i = selectedTroopMap[indexToTroop[phase1[0]]]; i < this->troop->helper[indexToTroop[phase1[0]]](0); i++)
               troopIreru(indexToTroop[phase1[0]]);
           }
+
           else if (phase1[1] == 3)
           {
             subMode = 1;
             subPhase1Type = indexToTroop[phase1[0]];
           }
+
           else if (phase1[1] == 4)
           {
             auto current = std::next(this->army->total.begin(), phase1[0]);
             bool found = false;
+
             for (auto i : selectedArmy)
             {
               if (i == current->second)
@@ -702,10 +875,12 @@ void Game::sensou(int &gamePhase, int prevPhase)
                 break;
               }
             }
+
             if (!found)
               armyIreru(current->second);
           }
         }
+
         else if (phase1[0] == 13)
         {
           if (phase1[1] == 0)
@@ -713,9 +888,11 @@ void Game::sensou(int &gamePhase, int prevPhase)
             sendAll();
             return;
           }
+
           else
             deselectAll();
         }
+
         else
         {
           user.lock();
@@ -755,7 +932,9 @@ void Game::sensou(int &gamePhase, int prevPhase)
           {"   ", "   ", "   ", "   "},
           {"   ", "   "},
           {"   "}};
+
       std::vector<std::map<std::string, ArmyUnit *>::iterator> ptr = {this->army->total.begin()};
+
       for (int i = 0; i < this->army->total.size(); i++)
       {
         if (!ptr.back()->second->inBattle)
@@ -766,14 +945,18 @@ void Game::sensou(int &gamePhase, int prevPhase)
       phase1[0] = (phase1[0] + prefix.size()) % prefix.size();
       phase1[1] = (phase1[1] + prefix[phase1[0]].size()) % prefix[phase1[0]].size();
       prefix[phase1[0]][phase1[1]].replace(1, 1, color(">", "cyan"));
+
       for (int i = 0; i < this->troop->allTroop.size(); i++)
       {
         if (this->troop->allTroop[i]->type != "suicideBomber" && this->troop->allTroop[i]->type != "kamikaze" && this->troop->allTroop[i]->getHealth() == typeToHealth[this->troop->allTroop[i]->type])
           fullHealth[this->troop->allTroop[i]->type]++;
       }
+
       std::cout << color("Send Troops", "magenta") << std::endl
                 << std::endl;
+
       std::cout << std::setw(75 + 11) << color("Troop", "green") + " (full health, free, selected)" << color("Army", "green") << std::endl;
+
       std::cout << std::setw(30) << "Infantry:       " + std::to_string(fullHealth["infantry"]) + "/" + std::to_string(this->troop->helper["infantry"](0)) + "/" + std::to_string(selectedTroopMap["infantry"])
                 << std::setw(75 + 11 * 4 - 30 + (phase1[1] < 4 && phase1[0] == 0 ? 11 : 0)) << prefix[0][0] + underline("+1", "green") + " (1)" + prefix[0][1] + underline("-1", "green") + prefix[0][2] + underline("All", "green") + prefix[0][3] + underline("Details", "green")
                 << (this->army->total.size() > 0 ? (ptr[0]->first + " (" + std::to_string(ptr[0]->second->troopCount) + "/16)" + (ptr[0]->second->inBattle ? "" : prefix[0][4] + (selectedArmyMap.count(ptr[0]->first) == 0 ? underline("select", "green") : underline("deselect", "green")))) : "") << std::endl
@@ -811,17 +994,22 @@ void Game::sensou(int &gamePhase, int prevPhase)
                 << std::setw(30) << "Kamikaze:       " + std::string("-/") + std::to_string(this->troop->helper["kamikaze"](0)) + "/" + std::to_string(selectedTroopMap["kamikaze"])
                 << std::setw(75 + 11 * 4 - 30) << prefix[12][0] + underline("+1", "green") + " (-)" + prefix[12][1] + underline("-1", "green") + prefix[12][2] + underline("All", "green") + prefix[12][3] + underline("Details", "green") << std::endl
                 << std::endl;
+
       std::cout << std::setw(30 + 11) << color("Troops selected: ", "green") + std::to_string(selectedTroop.size()) << color(" Armies selected: ", "green") << selectedArmy.size() << std::endl
                 << std::endl;
+
       std::cout << prefix[13][0] << underline("Confirm", "green") << " (z)" << prefix[13][1] << underline("Deselect all", "green") << " (x)" << std::endl
                 << prefix[14][0] << underline("Back", "green") << " (spacebar)" << std::endl;
     }
+
     else if (subMode == 1)
     {
       std::vector<TroopUnit *> sort;
+
       for (auto i : this->troop->allTroop)
         if (i->type == subPhase1Type)
           sort.push_back(i);
+
       std::sort(sort.begin(), sort.end(), [](TroopUnit *a, TroopUnit *b) -> bool {
         return a->getHealth() < b->getHealth();
       });
@@ -831,6 +1019,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
         subPhase1[0] = (subPhase1[0] + (int)std::ceil(sort.size() / 4.0)) % (int)std::ceil(sort.size() / 4.0);
         subPhase1[1] = (subPhase1[1] + std::min((int)(sort.size() - subPhase1[0] * 4), 4)) % std::min((int)(sort.size() - subPhase1[0] * 4), 4);
       }
+
       else
       {
         subPhase1[0] = 0;
@@ -838,7 +1027,9 @@ void Game::sensou(int &gamePhase, int prevPhase)
       }
 
       int screenY = 20;
+
       std::vector<std::string> render;
+
       for (int i = 0; i < sort.size(); i++)
       {
         if (i % 4 == 0)
@@ -847,9 +1038,11 @@ void Game::sensou(int &gamePhase, int prevPhase)
       }
 
       int maxX = 0;
+
       for (int i = 0; i < render.size(); i++)
         if (render[i].length() > maxX)
           maxX = render[i].length();
+
       for (int i = 0; i < render.size(); i++)
         if (render[i].length() < maxX)
           render[i] += std::string(maxX - render[i].length(), ' ');
@@ -857,21 +1050,25 @@ void Game::sensou(int &gamePhase, int prevPhase)
       int scrollableY = std::max(0, (int)(render.size() - screenY));
 
       scroll1[1] = 0;
+
       scroll1[0] = std::min(std::max(0, scroll1[0]), scrollableY);
 
       if (subPhase1Mode == 0)
       {
         if (subPhase1[0] < scroll1[0])
           scroll1[0] = subPhase1[0];
+
         else if (subPhase1[0] >= scroll1[0] + screenY)
           scroll1[0] = subPhase1[0] - screenY + 1;
 
         scroll1[0] = std::min(std::max(0, scroll1[0]), scrollableY);
       }
+
       else if (subPhase1Mode == 1)
       {
         if (subPhase1[0] < scroll1[0])
           subPhase1[0] = scroll1[0];
+
         else if (subPhase1[0] >= scroll1[0] + screenY)
           subPhase1[0] = scroll1[0] + screenY - 1;
       }
@@ -885,12 +1082,16 @@ void Game::sensou(int &gamePhase, int prevPhase)
 
       if (scroll1[0] != 0)
         std::cout << std::string(maxX / 2 - 8, ' ') + "||Scroll up (w)||" + std::string(maxX / 2 - 8, ' ') << std::endl;
+
       else
         std::cout << std::endl;
+
       for (int i = scroll1[0]; i < std::min(scroll1[0] + screenY, (int)render.size()); i++)
         std::cout << render[i] << std::endl;
+
       if (scroll1[0] != scrollableY)
         std::cout << std::string(maxX / 2 - 8, ' ') + "||Scroll down (s)||" + std::string(maxX / 2 - 8, ' ') << std::endl;
+
       else
         std::cout << std::endl;
     }
@@ -900,17 +1101,24 @@ void Game::sensou(int &gamePhase, int prevPhase)
 
   printMode.push_back([&]() {
     Block *ptr = this->enemies->totalEnemies[currentCountry]->map[phase0[0]][phase0[1]];
+
     if (!ptr->battling)
     {
       user.lock();
+
       std::cout << "\033[2J\033[1;1H" << std::endl;
+
       mode = 0;
+
       subPhase2Mode = 0;
       // avoid resource deadlock error
+
       std::thread temp([&]() {
         stopPrint();
         loopPrint();
+
       });
+
       temp.detach();
       return;
     }
@@ -920,111 +1128,186 @@ void Game::sensou(int &gamePhase, int prevPhase)
 
       int fillX = 150;
       int screenY = 27;
+
       std::vector<std::string> render;
 
       BattleUnit *ptr2 = ptr->battle.back();
+
       ptr2->lg.lock();
 
+
       render.push_back(std::string(fillX / 2 - 2, ' ') + "Stats");
+
       render.back() += std::string((int)(fillX - render.back().length()), ' ');
+
       int deathFd = (int)std::round(1.0 * ptr2->totalFriendlyDeathCount / ptr2->totalFriendly * 20);
+
       int deathFoe = (int)std::round(1.0 * ptr2->totalFoeDeathCount / ptr->totalFoe * 20);
+
       render.push_back("Casualty Rate: " + std::string(20 - deathFd, '+') + std::string(deathFd, '-'));
+
       std::string temp = std::string(deathFoe, '-') + std::string(20 - deathFoe, '+') + " :Casualty Rate";
-      render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
-      render.push_back("Soft Attack: " + std::to_string((int)ptr2->totalSoftAttack));
-      temp = std::to_string((int)ptr2->totalFoeSoftAttack) + " :Soft Attack";
-      render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
-      render.push_back("Hard Attack: " + std::to_string((int)ptr2->totalHardAttack));
-      temp = std::to_string((int)ptr2->totalFoeHardAttack) + " :Hard Attack";
-      render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
-      render.push_back("Air Attack: " + std::to_string((int)ptr2->totalAirAttack));
-      temp = std::to_string((int)ptr2->totalFoeAirAttack) + " :Air Attack";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
 
+      render.push_back("Soft Attack: " + std::to_string((int)ptr2->totalSoftAttack));
+
+      temp = std::to_string((int)ptr2->totalFoeSoftAttack) + " :Soft Attack";
+
+      render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
+      render.push_back("Hard Attack: " + std::to_string((int)ptr2->totalHardAttack));
+
+      temp = std::to_string((int)ptr2->totalFoeHardAttack) + " :Hard Attack";
+
+      render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
+      render.push_back("Air Attack: " + std::to_string((int)ptr2->totalAirAttack));
+
+      temp = std::to_string((int)ptr2->totalFoeAirAttack) + " :Air Attack";
+
+      render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
+
+
       render.push_back(std::string(fillX / 2 - 2, ' ') + "Troops");
+
       render.back() += std::string((int)(fillX - render.back().length()), ' ');
+
       render.push_back("Infantry: " + std::to_string(ptr2->friendCount["infantry"]));
+
       temp = std::to_string(ptr->foeCount["infantry"]) + " :Infantry";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
       render.push_back("Calvary: " + std::to_string(ptr2->friendCount["Calvary"]));
+
       temp = std::to_string(ptr->foeCount["Calvary"]) + " :Calvary";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
       render.push_back("Suicide Bomber: " + std::to_string(ptr2->friendCount["suicideBomber"]));
+
       temp = "0 :Suicide Bomber";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
       render.push_back("Artillery: " + std::to_string(ptr2->friendCount["artillery"]));
+
       temp = std::to_string(ptr->foeCount["artillery"]) + " :Artillery";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
       render.push_back("Logistic: " + std::to_string(ptr2->friendCount["logistic"]));
+
       temp = std::to_string(ptr->foeCount["logistic"]) + " :Logistic";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
       render.push_back("Armored Car: " + std::to_string(ptr2->friendCount["armoredCar"]));
+
       temp = std::to_string(ptr->foeCount["armoredCar"]) + " :Armored Car";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
       render.push_back("Tank 1: " + std::to_string(ptr2->friendCount["tank1"]));
+
       temp = std::to_string(ptr->foeCount["tank1"]) + " :Tank 1";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
       render.push_back("Tank 2: " + std::to_string(ptr2->friendCount["tank2"]));
+
       temp = std::to_string(ptr->foeCount["tank2"]) + " :Tank 2";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
       render.push_back("Tank Oshimai: " + std::to_string(ptr2->friendCount["tankOshimai"]));
+
       temp = std::to_string(ptr->foeCount["tankOshimai"]) + " :Tank Oshimai";
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
       render.push_back("Cas: " + std::to_string(ptr2->friendCount["cas"]));
+
       temp = std::to_string(ptr->foeCount["cas"]) + " :Cas";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
       render.push_back("Fighter: " + std::to_string(ptr2->friendCount["fighter"]));
+
       temp = std::to_string(ptr->foeCount["fighter"]) + " :Fighter";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
       render.push_back("Bomber: " + std::to_string(ptr2->friendCount["bomber"]));
+
       temp = std::to_string(ptr->foeCount["bomber"]) + " :Bomber";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
+
       render.push_back("Kamikaze: " + std::to_string(ptr2->friendCount["kamikaze"]));
+
       temp = "0 :Kamikaze";
+
       render.back() += std::string((int)(fillX - render.back().length() - temp.length()), ' ') + temp;
 
       for (int i = 0; i < render.size(); i++)
         assert(render[i].length() == fillX);
 
       render.push_back(std::string(fillX / 2 - 2, ' ') + "Armies");
+
       render.back() += std::string((int)(fillX - render.back().length()), ' ');
+
       int troopLength = 16;
       int start = render.size();
+
       for (auto i : ptr2->mikata->totalArmy)
       {
         render.push_back("D" + std::string(troopLength - 1, ' ') + "C" + std::string(troopLength - 1, ' ') + "B" + std::string(troopLength - 1, ' ') + "A" + std::string(troopLength - 1, ' '));
         render.back() += std::string((int)(fillX / 2 - render.back().length()), ' ');
+
         for (int j = 0; j < 4; j++)
         {
           render.push_back("");
+
           for (int k = 3; k >= 0; k--)
           {
             if (i->formation[k][j] != NULL)
               temp = typeToDisplay[i->formation[k][j]->type];
+
             else
               temp = "None";
+
             render.back() += temp + std::string(troopLength - temp.length(), ' ');
           }
+
           render.back() += std::string((int)(fillX / 2 - render.back().length()), ' ');
+
           render.push_back("");
+
           for (int k = 3; k >= 0; k--)
           {
             if (i->formation[k][j] != NULL)
               temp = "(" + std::to_string((int)i->formation[k][j]->getHealth()) + "/" + std::to_string(i->formation[k][j]->getBaseHealth()) + ")";
+
             else
               temp = "";
+
             render.back() += temp + std::string(troopLength - temp.length(), ' ');
           }
           render.back() += std::string((int)(fillX / 2 - render.back().length()), ' ');
         }
+
         render.push_back(std::string(fillX / 2, ' '));
       }
+
       int tempCount = 0;
       std::string temp2 = "";
+
       for (auto i : ptr2->foe->totalArmy)
       {
         temp = std::string(troopLength - 1, ' ') + "A" + std::string(troopLength - 1, ' ') + "B" + std::string(troopLength - 1, ' ') + "C" + std::string(troopLength - 1, ' ') + "D";
+
         if (render.size() <= start + tempCount * 10)
         {
           for (int i = 0; i < 10; i++)

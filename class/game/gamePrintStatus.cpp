@@ -6,15 +6,20 @@
 
 #include "../../io/io.h"
 #include "game.h"
+
 void Game::printStatus(int x, int y)
 {
   
+
   this->lg3.lock();
+
   std::vector<std::vector<std::string>> actionPrefix = {
     {"   ", "   ", "   ", "   ", "   "},
     {"   ", "   ", "   ", "   ", "   "}
   };
+
   actionPrefix[x][y].erase(1, 1);
+
   actionPrefix[x][y].insert(1, color(">", "cyan"));
 
   
@@ -23,9 +28,11 @@ void Game::printStatus(int x, int y)
   this->lg.lock();
 
   std::stringstream speed;
+
   speed << std::fixed << std::setprecision(1) << this->setting["speed"] / 1000.0;
 
   std::cout << "\033[2J\033[1;1H";
+
   std::cout << color("Day: ", "magenta") << this->day << "/" << this->timeLimit << " (" << speed.str() << "s)     " << (this->paused ? color("PAUSED", "red") : "")
             << std::endl
             << std::endl;
@@ -46,9 +53,11 @@ void Game::printStatus(int x, int y)
             << std::endl
             << std::endl
             << std::endl;
+
   std::cout << std::left << std::setw(40) << "(Level 1 , 2, 3)"
             << "(free, in army, in battle plan, in battle)"
             << std::endl;
+
   std::cout << std::setw(51) << color("Buildings:", "green")
             << std::setw(51) << color("Troops: ", "green")
             << std::setw(51) << color("Armies", "green")
@@ -108,5 +117,6 @@ void Game::printStatus(int x, int y)
             << std::endl
             << std::setw(40) << "" << actionPrefix[1][0] + underline("Speed    (q) ", "green") + actionPrefix[1][1] + underline("Pause    (p) ", "green") + actionPrefix[1][2] + underline("Save     (s) ", "green") + actionPrefix[1][3] + underline("Restart      ", "green") + actionPrefix[1][4] + underline("Quit       ", "green")
             << std::endl;
+
   this->lg3.unlock();
 }
