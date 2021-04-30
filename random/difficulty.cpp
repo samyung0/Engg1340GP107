@@ -2,11 +2,12 @@
 #include <cstdlib>
 #include <ctime>
 
+#include "difficulty.h"
 #include "../class/game/gameStruct.h"
 
 data::Resource resource;
 
-void difficulty(data::Resource& resource, int diff){
+void foodDifficulty(data::Resource& resource, int diff){
     double foodx = 0;
     double foody = 20;
     if (diff == 1){
@@ -33,9 +34,16 @@ void difficulty(data::Resource& resource, int diff){
     srand(time(NULL));
     food = rand() % range + foodx;
     resource.food = food;
-    std::cout << food;
+
 }
 
+//have to adjust the difficulty
+
 int main(){
-    difficulty(resource,3);
+    foodDifficulty(resource,3);
+    manpowerdifficulty(resource,3);
+    campdifficulty(resource,3);
+    equipdifficulty(resource,3);
+    manpowerdifficulty(resource,3);
+    baselandDifficulty(resource,3);
 }
