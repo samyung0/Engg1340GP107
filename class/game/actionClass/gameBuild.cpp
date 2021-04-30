@@ -67,6 +67,11 @@ void Game::buildBase(std::string type, int time, std::function<void(data::Resour
   });
 }
 
+
+
+
+
+
 void Game::buildBase(std::string type, int time, std::function<void()> callBack, std::string desc, double land, int amount)
 {
   this->lg3.lock();
@@ -111,3 +116,21 @@ void Game::buildBase(std::string type, int time, std::function<void()> callBack,
     this->lg3.unlock();
   });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

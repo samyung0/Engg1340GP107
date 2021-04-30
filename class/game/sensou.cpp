@@ -1313,23 +1313,32 @@ void Game::sensou(int &gamePhase, int prevPhase)
           for (int i = 0; i < 10; i++)
             render.push_back(std::string(fillX / 2, ' '));
         }
+
         render[start + tempCount * 10] += std::string((int)(fillX / 2 - temp.length()), ' ') + temp;
+
         for (int j = 0; j < 4; j++)
         {
           for (int k = 0; k < 4; k++)
           {
             if (i->formation[k][j] != NULL)
               temp = typeToDisplay[i->formation[k][j]->type];
+
             else
               temp = "None";
+
             temp2 += std::string(troopLength - temp.length(), ' ') + temp;
           }
           render[start + tempCount * 10 + j * 2 + 1] += std::string((int)(fillX / 2 - temp2.length()), ' ') + temp2;
+
           temp2 = std::string(troopLength * 4, ' ');
+
           render[start + tempCount * 10 + j * 2 + 2] += std::string((int)(fillX / 2 - temp2.length()), ' ') + temp2;
+
           temp2 = "";
         }
+
         render[start + tempCount * 10 + 9] += std::string(fillX / 2, ' ');
+
         tempCount++;
       }
 
@@ -1338,34 +1347,47 @@ void Game::sensou(int &gamePhase, int prevPhase)
           render[i] += std::string(fillX - render[i].length(), ' ');
 
       int scrollableY = std::max(0, (int)(render.size() - screenY));
+
       scroll2[1] = 0;
+
       scroll2[0] = std::min(std::max(0, scroll2[0]), scrollableY);
 
       std::cout << "\033[1;1H";
+
       std::cout << color("View Battle", "magenta") << std::endl
                 << "Change Speed: q     Pause: p    Retreat all: r     Battle log: l     Back: spacebar"
                 << std::endl
                 << std::endl;
 
       this->lg.lock();
+
       std::stringstream speed;
+
       speed << std::fixed << std::setprecision(1) << this->setting["speed"] / 1000.0;
+
       std::cout << color("Day: ", "green") << this->day << "/" << this->timeLimit << " (" << speed.str() << "s)     " << (this->paused ? color("PAUSED", "red") : "") << std::endl
                 << std::endl;
+
       this->lg.unlock();
 
       if (scroll2[0] != 0)
         std::cout << std::string(fillX / 2 - 7, ' ') + "||Scroll up (w)||" + std::string(fillX / 2 - 8, ' ') << std::endl;
+
       else
         std::cout << std::string(fillX, ' ') << std::endl;
+
       for (int i = scroll2[0]; i < std::min((int)render.size(), scroll2[0] + screenY); i++)
         std::cout << render[i] << std::endl;
+
       if (scroll2[0] != scrollableY)
         std::cout << std::string(fillX / 2 - 8, ' ') + "||Scroll down (s)||" + std::string(fillX / 2 - 9, ' ') << std::endl;
+
       else
         std::cout << std::string(fillX, ' ') << std::endl;
       ptr2->lg.unlock();
     }
+
+
     else
     {
       std::cout << "\033[2J\033[1;1H";
@@ -1375,12 +1397,19 @@ void Game::sensou(int &gamePhase, int prevPhase)
                 << std::endl;
 
       this->lg.lock();
+
       std::stringstream speed;
+
       speed << std::fixed << std::setprecision(1) << this->setting["speed"] / 1000.0;
+
       std::cout << color("Day: ", "green") << this->day << "/" << this->timeLimit << " (" << speed.str() << "s)     " << (this->paused ? color("PAUSED", "red") : "") << std::endl
                 << std::endl;
+
       this->lg.unlock();
+
+
       BattleUnit *ptr = this->enemies->totalEnemies[currentCountry]->map[phase0[0]][phase0[1]]->battle.back();
+
       for (int i = std::max(0, (int)ptr->log.size() - 26); i < ptr->log.size(); i++)
         std::cout << ptr->log[i] << std::endl;
     }
@@ -1390,6 +1419,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
     printFuture = std::async(std::launch::async, [&]() {
       terminatePrint = false;
       user.unlock();
+
       while (!terminatePrint && !this->gameOver)
       {
         printMode[mode]();
@@ -1400,6 +1430,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
   };
 
   stopPrint = [&]() {
+
     if (printFuture.valid())
     {
       terminatePrint = true;
@@ -1418,15 +1449,19 @@ void Game::sensou(int &gamePhase, int prevPhase)
     {
       this->stopTimer();
       this->endGame();
+
       while (input != ' ')
         input = getch();
       break;
     }
+
     input = getch();
+
     if (this->gameOver)
     {
       this->stopTimer();
       this->endGame();
+
       while (input != ' ')
         input = getch();
       break;
@@ -1445,85 +1480,113 @@ void Game::sensou(int &gamePhase, int prevPhase)
         if (mode == 0)
         {
           subPhase0Mode = 0;
+
           if (subMode == 0)
             phase0[0]--;
+
           else
             subPhase0[0]--;
         }
+
         else if (mode == 1)
         {
           subPhase1Mode = 0;
+
           if (subMode == 0)
             phase1[0]--;
+
           else
             subPhase1[0]--;
         }
+
         break;
+
       case 'B':
         if (mode == 0)
         {
           subPhase0Mode = 0;
           if (subMode == 0)
             phase0[0]++;
+
           else
             subPhase0[0]++;
         }
+
         else if (mode == 1)
         {
           subPhase1Mode = 0;
+
           if (subMode == 0)
             phase1[0]++;
+
           else
             subPhase1[0]++;
         }
         break;
+
       case 'C':
         if (mode == 0)
         {
           subPhase0Mode = 0;
+
           if (subMode == 0)
             phase0[1]++;
+
           else
             subPhase0[1]++;
         }
+
         else if (mode == 1)
         {
           subPhase1Mode = 0;
+
           if (subMode == 0)
             phase1[1]++;
+
           else
             subPhase1[1]++;
         }
         break;
+
       case 'D':
         if (mode == 0)
         {
           subPhase0Mode = 0;
+
           if (subMode == 0)
             phase0[1]--;
+
           else
             subPhase0[1]--;
         }
+
         else if (mode == 1)
         {
           subPhase1Mode = 0;
+
           if (subMode == 0)
             phase1[1]--;
+
           else
             subPhase1[1]--;
         }
         break;
+
       case '1':
         getch();
         getch();
         getch();
       }
     }
+
+
     else if (input == '\n')
     {
 
       enter = true;
     }
+
+
     else if (input == 'w')
     {
 
@@ -1532,30 +1595,37 @@ void Game::sensou(int &gamePhase, int prevPhase)
         subPhase0Mode = 1;
         scroll0[0]--;
       }
+
       else if (mode == 1)
       {
         subPhase1Mode = 1;
         scroll1[0]--;
       }
+
       else if (mode == 2)
         scroll2[0]--;
     }
+
     else if (input == 'a')
     {
+
 
       if (mode == 0)
       {
         subPhase0Mode = 1;
         scroll0[1]--;
       }
+
       else if (mode == 1)
       {
         subPhase1Mode = 1;
         scroll1[1]--;
       }
+
       else if (mode == 2)
         scroll2[1]--;
     }
+
     else if (input == 's')
     {
 
@@ -1564,14 +1634,17 @@ void Game::sensou(int &gamePhase, int prevPhase)
         scroll0[0]++;
         subPhase0Mode = 1;
       }
+
       else if (mode == 1)
       {
         subPhase1Mode = 1;
         scroll1[0]++;
       }
+
       else if (mode == 2)
         scroll2[0]++;
     }
+
     else if (input == 'd')
     {
 
@@ -1580,14 +1653,17 @@ void Game::sensou(int &gamePhase, int prevPhase)
         subPhase0Mode = 1;
         scroll0[1]++;
       }
+
       else if (mode == 1)
       {
         subPhase1Mode = 1;
         scroll1[1]++;
       }
+
       else if (mode == 2)
         scroll2[1]++;
     }
+
     else if (input == 'q')
     {
       this->stopTimer();
@@ -1595,36 +1671,44 @@ void Game::sensou(int &gamePhase, int prevPhase)
       this->setting["speed"] = this->timeRange[this->timeChosen];
       this->timer(this->setting["speed"]);
     }
+
     else if (input == 'z')
     {
 
       if (mode == 0)
       {
+
         Enemy *ptr = this->enemies->totalEnemies[currentCountry];
+
         if ((!this->battle->inBattle || this->battle->countryBattling == ptr->name) && !ptr->map[phase0[0]][phase0[1]]->captured && ptr->map[phase0[0]][phase0[1]]->isAttackable && !ptr->capitulated)
         {
           mode = 1;
           subMode = 0;
         }
       }
+
       else if (mode == 1 && subMode == 0)
       {
         sendAll();
         continue;
       }
     }
+
     else if (input == 'r')
     {
 
       if (mode == 0)
         retreatAll();
+
       else if (mode == 1 && subMode == 0)
       {
         deselectAll();
       }
+
       else if (mode == 2)
         retreatAll();
     }
+
     else if (input == 'v')
     {
 
@@ -1637,6 +1721,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
         }
       }
     }
+
     else if (input == 'e')
     {
 
@@ -1648,11 +1733,13 @@ void Game::sensou(int &gamePhase, int prevPhase)
         subMode = 0;
       }
     }
+
     else if (input == 'p')
     {
 
       this->paused = !this->paused;
     }
+
     else if (input == 'l')
     {
 
@@ -1662,6 +1749,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
           subPhase2Mode = 1;
       }
     }
+
     else if (input == ' ')
     {
 
@@ -1678,6 +1766,7 @@ void Game::sensou(int &gamePhase, int prevPhase)
         else
           subMode = 0;
       }
+
       else if (mode == 1)
       {
         if (subMode == 0)
@@ -1685,64 +1774,80 @@ void Game::sensou(int &gamePhase, int prevPhase)
           deselectAll();
           mode = 0;
         }
+
         else
           subMode = 0;
       }
+
       else if (mode == 2)
       {
         if (subPhase2Mode == 0)
           mode = 0;
+
         else
           subPhase2Mode = 0;
       }
     }
+
     else if (input == '1')
     {
       if (mode == 1)
         troopIreru(indexToTroop[0]);
     }
+
+
     else if (input == '2')
     {
       if (mode == 1)
         troopIreru(indexToTroop[1]);
     }
+
     else if (input == '3')
     {
       if (mode == 1)
         troopIreru(indexToTroop[2]);
     }
+
     else if (input == '4')
     {
       if (mode == 1)
         troopIreru(indexToTroop[3]);
     }
+
     else if (input == '5')
     {
       if (mode == 1)
         troopIreru(indexToTroop[4]);
     }
+
     else if (input == '6')
     {
       if (mode == 1)
         troopIreru(indexToTroop[5]);
     }
+
     else if (input == '7')
     {
       if (mode == 1)
         troopIreru(indexToTroop[6]);
     }
+
     else if (input == '8')
     {
       if (mode == 1)
         troopIreru(indexToTroop[7]);
     }
+
     else if (input == '9')
     {
       if (mode == 1)
         troopIreru(indexToTroop[8]);
     }
+
     user.lock();
+
     std::cout << "\033[2J\033[1;1H";
+
     loopPrint();
   }
 }
