@@ -25,6 +25,8 @@ Progress::Progress(double time, int &interval_, int fps_, bool &paused_)
 {
   this->remain = std::max((int)std::ceil(this->milliRemain / 1000), 0);
 }
+
+
 void Progress::start(std::mutex &lg3)
 {
   while (this->milliRemain > 0)
@@ -33,8 +35,10 @@ void Progress::start(std::mutex &lg3)
 
     if (this->paused)
       continue;
+
     this->milliRemain -= 1000 * 1000 / this->fps / this->interval;
     lg3.lock();
+
     this->remain = std::max((int)std::ceil(1.0 * this->milliRemain / 1000), 0);
     lg3.unlock();
   }
@@ -46,11 +50,17 @@ Game::~Game()
 Game::Game(std::unordered_map<std::string, int> setting_, const int screenX_, const int screenY_, const int fps_, const std::string path_) : setting(setting_), screenWidth(screenX_), screenHeight(screenY_), fps(fps_), path(path_)
 {
   this->resource = new data::Resource();
+
   this->building = new data::Building();
+  
   this->troop = new data::Troop();
+  
   this->army = new data::Army();
+  
   this->research = new data::Research();
+  
   this->battle = new data::Battle();
+  
   this->enemies = new data::Enemies();
 }
 
@@ -61,11 +71,16 @@ void Game::endGame(bool restart)
     std::cout << "\033c" << std::endl;
     std::cout << "Game ended. Press spacebar to continue..." << std::endl
               << std::endl;
+    
     return;
   }
+
   this->lguser.lock();
+  
   this->lg3.lock();
+  
   this->lg.lock();
+  
   if (this->hasEnded)
   {
     std::cout << "\033c" << std::endl;
@@ -73,11 +88,17 @@ void Game::endGame(bool restart)
               << std::endl;
     return;
   }
+  
   this->hasEnded = true;
+  
   this->stopLoopPrintStatus();
+  
   this->stopLoopPrintBuild();
+  
   this->stopLoopPrintResearch();
+  
   this->stopLoopPrintTroop();
+  
   for (auto i : this->enemies->totalEnemies)
   {
     for (auto j : i->map)
@@ -122,6 +143,8 @@ void Game::endGame(bool restart)
     delete i;
     i = NULL;
   }
+
+
   for (auto i : this->troop->allTroop)
   {
     if (i != NULL)
@@ -130,6 +153,8 @@ void Game::endGame(bool restart)
       i = NULL;
     }
   }
+
+
   for (auto i : this->army->total)
   {
     if (i.second != NULL)
@@ -138,18 +163,24 @@ void Game::endGame(bool restart)
       i.second = NULL;
     }
   }
+
+
   for (auto i : this->building->progress)
     if (i.second != NULL)
     {
       delete i.second;
       i.second = NULL;
     }
+
+
   for (auto i : this->troop->progress)
     if (i.second != NULL)
     {
       delete i.second;
       i.second = NULL;
     }
+
+
   for (auto i : this->research->progress)
     if (i.second != NULL)
     {
@@ -160,12 +191,19 @@ void Game::endGame(bool restart)
   bool levelPassed = this->enemies->totalEnemies.size() == this->enemies->defeated;
 
   delete this->resource;
+  
   delete this->building;
+  
   delete this->troop;
+  
   delete this->army;
+  
   delete this->research;
+  
   delete this->battle;
+  
   delete this->enemies;
+  
   this->lg.unlock();
   this->lg3.unlock();
   this->lguser.unlock();
@@ -186,15 +224,19 @@ void Game::endGame(bool restart)
     {
       std::cout << "Cannot save progress to save/progress.txt! Try cloning the repo again." << std::endl;
     }
+  
     else
     {
-      std::string temp;
+        std::string temp;
+  
       while (std::getline(file, temp))
         content.push_back(temp);
+  
       content[this->success[0]][this->success[1]] = std::to_string(this->success[2])[0];
       file.close();
 
       std::ofstream out("save/progress.txt", std::ios::out | std::ios::trunc);
+  
       for (int i = 0; i < content.size() - 1; i++)
         out << content[i] << std::endl;
       out << content.back();
@@ -205,34 +247,49 @@ void Game::endGame(bool restart)
 
 void Game::speed(int &gamePhase, int prevPhase)
 {
+
   this->stopTimer();
+
   this->timeChosen = (this->timeChosen + 1) % this->timeRange.size();
+
   this->setting["speed"] = this->timeRange[this->timeChosen];
+
   this->timer(this->setting["speed"]);
+
   gamePhase = prevPhase;
+
   (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
 }
 
 void Game::pause(int &gamePhase, int prevPhase)
 {
   this->paused = !this->paused;
+
   gamePhase = prevPhase;
+
   (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
 }
 
 void Game::restart(int &gamePhase, int prevPhase)
 {
   this->stopTimer();
+
   this->gameOver = true;
+
   this->endGame(true);
+
   gamePhase = -999;
 }
 
 void Game::quit(int &gamePhase, int prevPhase)
 {
+
   this->stopTimer();
+
   this->gameOver = true;
+
   this->endGame(true);
+
   gamePhase = -998;
 }
 
@@ -272,53 +329,77 @@ int Game::fetch()
       {"fighter", 1},
       {"bomber", 1},
       {"kamikaze", 1}};
+
   bool pausedForTroop = false;
+
   std::string input;
+
   while (std::getline(in, input))
   {
     int index = input.find(":");
+
     int index2 = input.find("-");
+
     int index3 = input.find("=");
+
     assert(index != std::string::npos);
     assert(index2 != std::string::npos);
     assert(index3 != std::string::npos);
 
     std::string operand = input.substr(0, index);
+
     if (operand == "set")
     {
       std::string operand2 = input.substr(index + 1, index2 - index - 1);
+
       if (operand2 == "food")
         this->resource->food = std::stod(input.substr(index3 + 1).c_str());
+
       else if (operand2 == "equipment")
         this->resource->equipment = std::stod(input.substr(index3 + 1).c_str());
+
       else if (operand2 == "manpower")
         this->resource->manpower = std::atoi(input.substr(index3 + 1).c_str());
+
       else if (operand2 == "baseLand")
         this->resource->baseLand = std::stod(input.substr(index3 + 1).c_str());
+
       else if (operand2 == "usedLand")
         this->resource->usedLand = std::stod(input.substr(index3 + 1).c_str());
+
       else if (operand2 == "capturedLand")
         this->resource->capturedLand = std::stod(input.substr(index3 + 1).c_str());
+
       else if (operand2 == "camp")
         this->resource->camp = std::atoi(input.substr(index3 + 1).c_str());
+
       else if (operand2 == "airport1")
         this->resource->airport = std::atoi(input.substr(index3 + 1).c_str());
+
       else if (operand2 == "baseLandMul")
         this->resource->baseLandMul = std::stod(input.substr(index3 + 1));
+
       else if (operand2 == "baseLandTroopMul")
         this->resource->baseLandTroopMul = std::stod(input.substr(index3 + 1));
+
       else if (operand2 == "baseAirTroopMul")
         this->resource->baseAirTroopMul = std::stod(input.substr(index3 + 1));
+
       else if (operand2 == "baseTankMul")
         this->resource->baseTankMul = std::stod(input.substr(index3 + 1));
+
       else if (operand2 == "baseAirToopMul2")
         this->resource->baseAirToopMul2 = std::stod(input.substr(index3 + 1));
+
       else if (operand2 == "baseTrainingTimeMul")
         this->resource->baseTrainingTimeMul = std::stod(input.substr(index3 + 1));
+
       else if (operand2 == "baseRecovery")
         this->resource->baseRecovery = std::stod(input.substr(index3 + 1));
+
       else if (operand2 == "baseRecoveryDiff")
         this->resource->baseRecoveryDiff = std::stod(input.substr(index3 + 1));
+
       else if (operand2 == "farm")
       {
         int sep1 = input.find(',', index3);
@@ -329,6 +410,7 @@ int Game::fetch()
         this->building->farm[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->building->farm[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "militaryFactory")
       {
         int sep1 = input.find(',', index3);
@@ -339,6 +421,7 @@ int Game::fetch()
         this->building->militaryFactory[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->building->militaryFactory[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "civilianFactory")
       {
         int sep1 = input.find(',', index3);
@@ -349,10 +432,13 @@ int Game::fetch()
         this->building->civilianFactory[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->building->civilianFactory[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "trainingCamp")
         this->building->trainingCamp[0] = std::atoi(input.substr(index3 + 1).c_str());
+
       else if (operand2 == "airport2")
         this->building->airport[0] = std::atoi(input.substr(index3 + 1).c_str());
+
       else if (operand2 == "farmU")
       {
         int sep1 = input.find(',', index3);
@@ -363,6 +449,7 @@ int Game::fetch()
         this->building->farmU[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->building->farmU[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "civilianFactoryU")
       {
         int sep1 = input.find(',', index3);
@@ -373,6 +460,7 @@ int Game::fetch()
         this->building->civilianFactoryU[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->building->civilianFactoryU[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "militaryFactoryU")
       {
         int sep1 = input.find(',', index3);
@@ -383,6 +471,7 @@ int Game::fetch()
         this->building->militaryFactoryU[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->building->militaryFactoryU[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "farmR")
       {
         int sep1 = input.find(',', index3);
@@ -393,6 +482,7 @@ int Game::fetch()
         this->research->farm[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->research->farm[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "divisionOfLaborR")
       {
         int sep1 = input.find(',', index3);
@@ -403,6 +493,7 @@ int Game::fetch()
         this->research->divisionOfLabor[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->research->divisionOfLabor[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "productionLineR")
       {
         int sep1 = input.find(',', index3);
@@ -413,6 +504,7 @@ int Game::fetch()
         this->research->productionLine[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->research->productionLine[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "landDoctrineR")
       {
         int sep1 = input.find(',', index3);
@@ -423,6 +515,7 @@ int Game::fetch()
         this->research->landDoctrine[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->research->landDoctrine[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "airDoctrineR")
       {
         int sep1 = input.find(',', index3);
@@ -433,6 +526,7 @@ int Game::fetch()
         this->research->airDoctrine[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->research->airDoctrine[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "urbanizationR")
       {
         int sep1 = input.find(',', index3);
@@ -443,6 +537,7 @@ int Game::fetch()
         this->research->urbanization[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->research->urbanization[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "weaponR")
       {
         int sep1 = input.find(',', index3);
@@ -453,6 +548,7 @@ int Game::fetch()
         this->research->weapon[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->research->weapon[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "trainingR")
       {
         int sep1 = input.find(',', index3);
@@ -463,6 +559,7 @@ int Game::fetch()
         this->research->training[1] = std::atoi(input.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
         this->research->training[2] = std::atoi(input.substr(sep2 + 1).c_str());
       }
+
       else if (operand2 == "recoveryR")
       {
         int sep1 = input.find(',', index3);
@@ -475,6 +572,7 @@ int Game::fetch()
       }
       std::cout << "Setting " << operand2 << " done" << std::endl;
     }
+
     else if (operand == "success")
     {
       this->successAction = true;
@@ -482,6 +580,7 @@ int Game::fetch()
       this->success.push_back(std::atoi(input.substr(index2 + 1, index3 - index2 - 1).c_str()));
       this->success.push_back(std::atoi(input.substr(index3 + 1).c_str()));
     }
+
     else if (operand == "army")
     {
       if (!pausedForTroop)
@@ -498,17 +597,22 @@ int Game::fetch()
       int armySep = input.find("$");
       int armyEnd = input.find("$", armySep + 1);
 
+
       std::vector<int> sepArmy = {(int)input.find(",", armySep)};
+
       for (int i = 0; i < 14; i++)
         sepArmy.push_back((int)input.find(",", sepArmy.back() + 1));
+
       for (int i = 0; i < 15; i++)
         assert(sepArmy[i] != std::string::npos);
 
       int brackettemp = input.find(")", armySep);
+
       if (brackettemp + 1 != sepArmy[0])
       {
         temp->addTroop(0, 0, indexToTroop2[std::atoi(input.substr(brackettemp + 1, sepArmy[0] - brackettemp - 1).c_str())], this->troop, this->resource);
       }
+
       for (int i = 0; i < 14; i++)
       {
         brackettemp = input.find(")", sepArmy[i]);
@@ -517,7 +621,9 @@ int Game::fetch()
           temp->addTroop((i + 1) / 4, (i + 1) % 4, indexToTroop2[std::atoi(input.substr(brackettemp + 1, sepArmy[i + 1] - brackettemp - 1).c_str())], this->troop, this->resource);
         }
       }
+
       brackettemp = input.find(")", sepArmy[14]);
+
       if (brackettemp + 1 != armyEnd)
       {
         temp->addTroop(3, 3, indexToTroop2[std::atoi(input.substr(brackettemp + 1, armyEnd - brackettemp - 1).c_str())], this->troop, this->resource);
@@ -525,10 +631,12 @@ int Game::fetch()
       this->army->total[name] = temp;
       std::cout << "Making army done" << std::endl;
     }
+
     else if (operand == "troop")
     {
       std::string type = input.substr(index + 1, index2 - index - 1);
       int num = std::atoi(input.substr(index3 + 1).c_str());
+
       for (int i = 0; i < num; i++)
       {
         this->trainBase(
@@ -543,12 +651,15 @@ int Game::fetch()
       }
       std::cout << "Creating " << type << " done" << std::endl;
     }
+
     else if (operand == "enemy")
     {
       std::string modifier = input.substr(index + 1, index2 - index - 1);
+
       if (modifier == "create")
         this->enemies->totalEnemies.push_back(new Enemy(input.substr(index3 + 1), this->enemies->defeated));
       bool defeated = std::atoi(input.substr(index2 + 1, index3 - index2 - 1).c_str());
+
       if (defeated)
       {
         this->enemies->defeated++;
@@ -556,18 +667,22 @@ int Game::fetch()
       }
       std::cout << "Creating countries done" << std::endl;
     }
+
+
     else if (operand == "map")
     {
       std::string country = input.substr(index + 1, index2 - index - 1);
       std::cout << "Opening map done" << std::endl;
 
       int index = -1;
+
       for (int i = 0; i < this->enemies->totalEnemies.size(); i++)
         if (this->enemies->totalEnemies[i]->name == country)
         {
           index = i;
           break;
         }
+
       assert(index != -1);
 
       if (input.substr(index2 + 1, index3 - index2 - 1) == "start")
@@ -577,6 +692,7 @@ int Game::fetch()
 
         std::string map;
         std::getline(in, map);
+
         while (map != "end")
         {
           int i1 = map.find(",");
@@ -593,8 +709,10 @@ int Game::fetch()
 
           if (mapA.size() < x + 1)
             mapA.push_back({});
+
           if (i2 + 1 == i3)
             mapA.back().push_back(NULL);
+
           else
           {
             totalLand++;
@@ -603,8 +721,10 @@ int Game::fetch()
             mapA.back().back()->country = country;
 
             std::vector<int> sep = {(int)map.find(",", i2)};
+
             for (int i = 0; i < 10; i++)
               sep.push_back((int)map.find(",", sep.back() + 1));
+
             for (int i = 0; i < 11; i++)
               assert(sep[i] != std::string::npos);
 
@@ -618,6 +738,7 @@ int Game::fetch()
               int num = std::atoi(map.substr(sep[i] + 1, sep[i + 1] - sep[i] - 1).c_str());
               mapA.back().back()->foeCount[indexToTroop[i]] += num;
               mapA.back().back()->totalFoe += num;
+
               for (int j = 0; j < num; j++)
                 mapA.back().back()->totalFoeTroop.push_back(troopToInstance[indexToTroop[i]]());
             }
@@ -625,6 +746,7 @@ int Game::fetch()
             std::cout << "Block troop done" << std::endl;
 
             int armySep = map.find("$");
+
             while (armySep != std::string::npos)
             {
               mapA.back().back()->foeCount["army"]++;
@@ -634,11 +756,14 @@ int Game::fetch()
               int armyEnd = map.find("$", armySep + 1);
 
               std::vector<int> sepArmy = {(int)map.find(",", armySep)};
+
               for (int i = 0; i < 14; i++)
                 sepArmy.push_back((int)map.find(",", sepArmy.back() + 1));
+
               for (int i = 0; i < 15; i++)
                 assert(sepArmy[i] != std::string::npos);
               int brackettemp = map.find(")", armySep);
+
               if (brackettemp + 1 != sepArmy[0])
               {
                 mapA.back().back()->totalFoe++;
@@ -646,6 +771,7 @@ int Game::fetch()
                 mapA.back().back()->totalFoeArmy.back()->addTroopM(0, 0, troopToInstance[type]());
                 mapA.back().back()->foeCount[type]++;
               }
+
               for (int i = 0; i < 14; i++)
               {
                 brackettemp = map.find(")", sepArmy[i]);
@@ -657,7 +783,9 @@ int Game::fetch()
                   mapA.back().back()->foeCount[type]++;
                 }
               }
+
               brackettemp = map.find(")", sepArmy[14]);
+
               if (brackettemp + 1 != armyEnd)
               {
                 mapA.back().back()->totalFoe++;
@@ -677,8 +805,10 @@ int Game::fetch()
             assert(rewardEnd != std::string::npos);
 
             std::vector<int> rewardSep = {(int)map.find(",", rewardStart)};
+
             for (int i = 0; i < 4; i++)
               rewardSep.push_back(map.find(",", rewardSep.back() + 1));
+
             for (int i = 0; i < 5; i++)
               assert(rewardSep[i] != std::string::npos);
 
@@ -701,14 +831,17 @@ int Game::fetch()
               int init = sub.find(",");
               coord.push_back(std::atoi(sub.substr(0, init).c_str()));
               int temp = sub.find(",", init + 1);
+
               while (temp != std::string::npos)
               {
                 coord.push_back(std::atoi(sub.substr(init + 1, temp - init - 1).c_str()));
                 init = temp;
                 temp = sub.find(",", init + 1);
               }
+
               coord.push_back(std::atoi(sub.substr(init + 1).c_str()));
               assert(coord.size() % 2 == 0);
+
 
               for (int i = 0; i < coord.size() / 2; i++)
                 mapA.back().back()->attackable.push_back(std::make_pair(coord[i * 2], coord[i * 2 + 1]));
@@ -718,6 +851,7 @@ int Game::fetch()
 
             int encircleStart = map.find("*", captureEnd);
             int encircleEnd = map.find("*", encircleStart + 1);
+
             if (encircleStart + 1 != encircleEnd)
             {
               std::string sub = map.substr(encircleStart + 1, encircleEnd - encircleStart - 1);
@@ -725,12 +859,14 @@ int Game::fetch()
               int init = sub.find(",");
               coord.push_back(std::atoi(sub.substr(0, init).c_str()));
               int temp = sub.find(",", init + 1);
+
               while (temp != std::string::npos)
               {
                 coord.push_back(std::atoi(sub.substr(init + 1, temp - init - 1).c_str()));
                 init = temp;
                 temp = sub.find(",", init + 1);
               }
+
               coord.push_back(std::atoi(sub.substr(init + 1).c_str()));
               assert(coord.size() % 2 == 0);
 
@@ -752,6 +888,7 @@ int Game::fetch()
             bool captured = std::atoi(map.substr(capturedStart + 1, sep1 - capturedStart - 1).c_str());
             bool attackable = std::atoi(map.substr(sep1 + 1, sep2 - sep1 - 1).c_str());
             bool encircled = std::atoi(map.substr(sep2 + 1, capturedEnd - sep2 - 1).c_str());
+
             if (captured)
             {
               this->enemies->totalEnemies[index]->capturedLand++;
@@ -776,12 +913,16 @@ int Game::fetch()
         this->enemies->totalEnemies[index]->map = mapA;
         this->enemies->totalEnemies[index]->totalLand = totalLand;
         std::cout << "Map done" << std::endl;
+
         for (auto i : this->enemies->totalEnemies)
           std::cout << i->name << " "
                     << "Size: " << i->map.size() << " " << i->map[0].size() << std::endl;
       }
     }
+
+
     else if (operand == "time")
+
     {
       this->timeAcc = std::atoi(input.substr(index + 1, index2 - index - 1).c_str());
       this->day = std::atoi(input.substr(index2 + 1, index3 - index2 - 1).c_str());
@@ -790,6 +931,7 @@ int Game::fetch()
       std::cout << "Set time done" << std::endl;
     }
   }
+
   in.close();
 
   if(this->enemies->defeated == this->enemies->totalEnemies.size()) this->gameOver = true;
@@ -805,6 +947,7 @@ int Game::start()
   if(this->gameOver){
     this->endGame();
     char input = getch();
+
     while(input != ' ') input = getch();
     return 0;
   }
@@ -828,52 +971,73 @@ int Game::start()
     if (this->gameOver)
     {
       break;
+
     }
+
     input = getch();
+
     if (this->gameOver)
     {
       while (input != ' ')
         input = getch();
+
       break;
     }
+
     this->lguser.lock();
+
     this->stopLoopPrintStatus();
+
     this->stopLoopPrintBuild();
+
     this->stopLoopPrintResearch();
+
     this->stopLoopPrintTroop();
+
     this->lguser.unlock();
+
 
     if (input == '\033')
     {
       getch();
+
       switch (getch())
       {
       case 'A':
         this->gamePhaseSelect[0] = (this->gamePhaseSelect[0] + -1 + this->map[this->gamePhase].size()) % this->map[this->gamePhase].size();
         this->gamePhaseSelect[1] = (this->gamePhaseSelect[1]) % this->map[this->gamePhase][this->gamePhaseSelect[0]].size();
         break;
+
       case 'B':
         this->gamePhaseSelect[0] = (this->gamePhaseSelect[0] + 1) % this->map[this->gamePhase].size();
         this->gamePhaseSelect[1] = (this->gamePhaseSelect[1]) % this->map[this->gamePhase][this->gamePhaseSelect[0]].size();
         break;
+
       case 'C':
         this->gamePhaseSelect[0] = (this->gamePhaseSelect[0]) % this->map[this->gamePhase].size();
         this->gamePhaseSelect[1] = (this->gamePhaseSelect[1] + 1) % this->map[this->gamePhase][this->gamePhaseSelect[0]].size();
         break;
+
       case 'D':
         this->gamePhaseSelect[0] = (this->gamePhaseSelect[0]) % this->map[this->gamePhase].size();
         this->gamePhaseSelect[1] = (this->gamePhaseSelect[1] + -1 + this->map[this->gamePhase][this->gamePhaseSelect[0]].size()) % this->map[this->gamePhase][this->gamePhaseSelect[0]].size();
         break;
+
       case '1':
         getch();
         getch();
         getch();
       }
     }
+
+
     else if (input == 'p')
     {
       this->paused = !this->paused;
     }
+
+
+
     else if (input == 'q')
     {
       this->stopTimer();
@@ -881,6 +1045,8 @@ int Game::start()
       this->setting["speed"] = this->timeRange[this->timeChosen];
       this->timer(this->setting["speed"]);
     }
+
+
     else if (input == '1')
     {
       this->gamePhase = 1;
@@ -888,6 +1054,8 @@ int Game::start()
       this->gamePhaseSelect[0] = 0;
       this->gamePhaseSelect[1] = 0;
     }
+
+
     else if (input == '2')
     {
       this->gamePhase = 2;
@@ -895,6 +1063,8 @@ int Game::start()
       this->gamePhaseSelect[0] = 0;
       this->gamePhaseSelect[1] = 0;
     }
+
+
     else if (input == '3')
     {
       this->gamePhase = 3;
@@ -902,19 +1072,29 @@ int Game::start()
       this->gamePhaseSelect[0] = 0;
       this->gamePhaseSelect[1] = 0;
     }
+
+
     else if (input == '4')
     {
       this->gamePhase = -162;
     }
+
+
     else if (input == '5')
     {
       this->gamePhase = -163;
     }
+
+
     else if (input == 's')
     {
       this->gamePhase = -2;
     }
+
+
     // progress game phase
+
+
     else if (input == '\n')
     {
       this->gamePhase = this->map[this->gamePhase][this->gamePhaseSelect[0]][this->gamePhaseSelect[1]];
@@ -924,12 +1104,16 @@ int Game::start()
         this->gamePhaseSelect[0] = 0;
         this->gamePhaseSelect[1] = 0;
       }
+
+
       else if (gamePhase == 0)
       {
         this->gamePhaseSelect[0] = 0;
         this->gamePhaseSelect[1] = 0;
       }
     }
+
+
     // default shortcut key for back
     else if (input == ' ')
     {
@@ -941,11 +1125,15 @@ int Game::start()
         this->gamePhaseSelect[1] = 0;
       }
     }
+
     this->lguser.lock();
+
     if (this->gamePhase >= 0)
     {
       (this->*this->print[this->gamePhase])(this->gamePhaseSelect[0], this->gamePhaseSelect[1]);
     }
+
+
     else
     {
       this->lguser.unlock();

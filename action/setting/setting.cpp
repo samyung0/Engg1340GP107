@@ -17,46 +17,63 @@ void settingBasef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats, std
     settingStream << (i->first + "=" + std::to_string(i->second)) << std::endl;
 
   settingStream.close();
+
   menuPhase = prevMenuPhase;
+
   return;
 }
+
 
 void setting1af(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   settingBasef(menuPhase, prevMenuPhase, gameStats, "speed", 500);
 }
 
+
 void setting1bf(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   settingBasef(menuPhase, prevMenuPhase, gameStats, "speed", 1000);
 }
+
 
 void setting1cf(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   settingBasef(menuPhase, prevMenuPhase, gameStats, "speed", 2000);
 }
 
+
 void setting2af(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   settingBasef(menuPhase, prevMenuPhase, gameStats, "completeness", -1);
 }
+
+
 void setting2bf(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   settingBasef(menuPhase, prevMenuPhase, gameStats, "completeness", 1);
 }
+
+
 void setting2cf(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   settingBasef(menuPhase, prevMenuPhase, gameStats, "completeness", 2);
 }
+
+
 void setting2df(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   settingBasef(menuPhase, prevMenuPhase, gameStats, "completeness", 3);
 }
+
+
 void setting2ef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   settingBasef(menuPhase, prevMenuPhase, gameStats, "completeness", 4);
 }
+
+
 void setting2ff(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   settingBasef(menuPhase, prevMenuPhase, gameStats, "completeness", 5);
 }
+

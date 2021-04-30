@@ -47,7 +47,9 @@ void airdifficulty(data::Resource &resource, int diff)
 
 
     int airp;
+
     int range = airpy - airpx + 1;
+    
     srand(time(NULL));
     airp = rand() % range + airpx;
     resource.airport = airp;

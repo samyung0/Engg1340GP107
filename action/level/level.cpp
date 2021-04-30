@@ -21,40 +21,49 @@ void levelBasef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats, std::
   {
     // clear screen
     std::cout << "\033[2J\033[1;1H";
+
     std::cout << "Difficulty" << std::endl
               << std::endl;
+    
     std::cout << std::setw(10) << levelf::print[0][0] << std::setw(10) << levelf::print[0][1] << std::endl
               << std::endl;
+    
     std::cout << levelf::print[1][0] << std::endl;
 
     // detecing arrow keys
     char input;
 
     input = getch();
+
     if (input == '\033')
     {
       getch();
 
       levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]] = levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]].erase(0, 2);
+
       switch (getch())
       {
       case 'A':
         levelf::activeIndex[0] = (levelf::activeIndex[0] + -1 + levelf::print.size()) % levelf::print.size();
         levelf::activeIndex[1] = (levelf::activeIndex[1]) % levelf::print[levelf::activeIndex[0]].size();
         break;
+
       case 'B':
         levelf::activeIndex[0] = (levelf::activeIndex[0] + 1) % levelf::print.size();
         levelf::activeIndex[1] = (levelf::activeIndex[1]) % levelf::print[levelf::activeIndex[0]].size();
         break;
+
       case 'C':
         levelf::activeIndex[0] = (levelf::activeIndex[0]) % levelf::print.size();
         levelf::activeIndex[1] = (levelf::activeIndex[1] + 1) % levelf::print[levelf::activeIndex[0]].size();
         break;
+
       case 'D':
         levelf::activeIndex[0] = (levelf::activeIndex[0]) % levelf::print.size();
         levelf::activeIndex[1] = (levelf::activeIndex[1] + -1 + levelf::print[levelf::activeIndex[0]].size()) % levelf::print[levelf::activeIndex[0]].size();
         break;
       }
+
       levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]] = levelf::print[levelf::activeIndex[0]][levelf::activeIndex[1]].insert(0, "> ");
     }
     // progress menu phase
@@ -65,6 +74,8 @@ void levelBasef(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats, std::
         menuPhase = prevMenuPhase;
         return;
       }
+
+
       else
       {
         gameStats.levelpath = "data/levels/" + index + (levelf::activeIndex[1] ? "b" : "a") + ".dat";
@@ -81,35 +92,51 @@ void level1f(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
   levelBasef(menuPhase, prevMenuPhase, gameStats, "1");
 }
 
+
 void level2f(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   levelBasef(menuPhase, prevMenuPhase, gameStats, "2");
 }
+
+
 void level3f(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   levelBasef(menuPhase, prevMenuPhase, gameStats, "3");
 }
+
+
 void level4f(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   levelBasef(menuPhase, prevMenuPhase, gameStats, "4");
 }
+
+
 void level5f(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   levelBasef(menuPhase, prevMenuPhase, gameStats, "5");
 }
+
+
 void level6f(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   levelBasef(menuPhase, prevMenuPhase, gameStats, "6");
 }
+
+
 void level7f(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   levelBasef(menuPhase, prevMenuPhase, gameStats, "7");
 }
+
+
 void level8f(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   levelBasef(menuPhase, prevMenuPhase, gameStats, "8");
 }
+
+
 void level9f(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
 {
   levelBasef(menuPhase, prevMenuPhase, gameStats, "9");
 }
+

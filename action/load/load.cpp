@@ -18,6 +18,8 @@ void load(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
   // code from https://stackoverflow.com/questions/306533/how-do-i-get-a-list-of-files-in-a-directory-in-c
   DIR *dpdf;
   struct dirent *epdf;
+
+
   try
   {
     dpdf = opendir("./SAVEGAME");
@@ -25,14 +27,18 @@ void load(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
     {
       readdir(dpdf);
       readdir(dpdf);
+
       while (epdf = readdir(dpdf))
       {
         path.push_back(std::string(epdf->d_name));
         print.push_back("   " + std::string(epdf->d_name));
       }
     }
+
     closedir(dpdf);
   }
+
+  
   catch (...)
   {
     std::cout << "Cannot open SAVEGAME folder! Try recloning the repo!" << std::endl;
@@ -45,6 +51,8 @@ void load(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
     std::cout << "\033[2J\033[1;1H";
     std::cout << "Saved files" << std::endl
               << std::endl;
+
+
     for (auto i : print)
       std::cout << i << std::endl;
 
@@ -56,11 +64,13 @@ void load(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
     {
       print[activeIndex[0]] = print[activeIndex[0]].replace(1, 1, " ");
       getch();
+
       switch (getch())
       {
       case 'A':
         activeIndex[0] = (activeIndex[0] + -1 + print.size()) % print.size();
         break;
+
       case 'B':
         activeIndex[0] = (activeIndex[0] + 1) % print.size();
         break;
@@ -75,6 +85,7 @@ void load(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
         menuPhase = prevMenuPhase;
         return;
       }
+
       else
       {
         gameStats.levelpath = "SAVEGAME/" + path[activeIndex[0]];
@@ -83,6 +94,8 @@ void load(int &menuPhase, int prevMenuPhase, MenuWrapper &gameStats)
         return;
       }
     }
+
+    
     else if (input == ' ')
     {
       menuPhase = prevMenuPhase;
